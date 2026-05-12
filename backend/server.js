@@ -21,6 +21,7 @@ const bookingRoutes = require("./routes/bookings");
 const rideRoutes = require("./routes/rides");
 const profileRoutes = require("./routes/profile");
 const supportRoutes = require("./routes/support");
+const studentRoutes = require("./routes/student");
 
 const app = express();
 const PORT = Number(process.env.PORT) || 5000;
@@ -52,6 +53,7 @@ app.use("/api/bookings", bookingRoutes);
 app.use("/api/rides", rideRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/support", supportRoutes);
+app.use("/api/student", studentRoutes);
 app.use("/bookings", bookingRoutes);
 app.use("/rides", rideRoutes);
 app.use("/payments", paymentRoutes);

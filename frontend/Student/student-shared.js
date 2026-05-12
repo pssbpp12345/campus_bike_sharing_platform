@@ -54,12 +54,6 @@ function StudentTopbar({ active, user, onLogout, pushToast }) {
         <a className={"d-nav-item" + (active === "bookings" ? " active" : "")} href="Student_MyBooking.html" data-testid="topbar-bookings">
           <StudentIcons.calendar/><span className="d-nav-text">My Bookings</span>
         </a>
-        <a className={"d-nav-item" + (active === "rides" ? " active" : "")} href="Student_ride_history.html" data-testid="topbar-rides">
-          <StudentIcons.bike/><span className="d-nav-text">Ride History</span>
-        </a>
-        <a className={"d-nav-item" + (active === "help" ? " active" : "")} href="Student_need_help.html" data-testid="topbar-help">
-          <StudentIcons.help/><span className="d-nav-text">Help</span>
-        </a>
         <button className="d-icon-btn" title="Notifications" onClick={() => pushToast && pushToast("No new notifications", "You're all caught up!")} data-testid="topbar-notif">
           <StudentIcons.bell/>
         </button>
