@@ -431,3 +431,9 @@ button { font-family: inherit; }
   .d-sidebar { width: 64px; padding: 14px 8px; }
   .s-content { padding: 18px 16px 36px; }
 }
+@media (max-width: 480px) {
+  .d-brand-name { font-size: 16px; white-space: nowrap; }
+  .d-brand-name .accent { display: none; }
+  .d-brand-logo { width: 32px; height: 32px; }
+  .d-topbar { padding: 10px 12px; }
+}
