@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ride History | Campus Bike Sharing</title>
+  <link rel="stylesheet" href="../../Login.css">
+  <link rel="stylesheet" href="student-shared.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel" data-presets="env,react" src="student-shared.js"></script>
+  <script type="text/babel" data-presets="env,react">
+    const { useEffect, useMemo, useState } = React;
+
+    const PRICE_FMT = new Intl.NumberFormat("en-AU", { style: "currency", currency: "AUD" });
+    const KM_PER_RIDE = 3.5;        // estimated avg per ride
+    const CO2_PER_KM  = 0.21;       // kg CO2 saved vs. car per km
+
+    function StatusPill({ status }) {
+      const map = {
+        completed: { c: "ok",   label: "Completed" },
+        active:    { c: "info", label: "Ongoing"   },
+        pending:   { c: "info", label: "Pending"   },
+        cancelled: { c: "bad",  label: "Cancelled" },
+        expired:   { c: "warn", label: "Expired"   },
+      };
+      const x = map[status] || { c: "info", label: status };
+      return <span className={`s-status s-status-${x.c}`}>{x.label}</span>;
+    }
+
+    function SummaryCard({ icon, label, value, sub, tone }) {
+      return (
+        <div className={`s-stat-card s-stat-${tone}`}>
+          <div className="s-stat-icon">{icon}</div>
+          <div className="s-stat-body">
+            <div className="s-stat-value">{value}</div>
+            <div className="s-stat-label">{label}</div>
+            {sub && <div className="s-stat-sub">{sub}</div>}
+          </div>
+        </div>
+      );
+    }
+
+    function RideDetailModal({ ride, onClose }) {
+      if (!ride) return null;
+      const start = new Date(ride.start_time);
+      const end   = ride.end_time ? new Date(ride.end_time) : null;
+      return (
+        <div className="d-overlay" onClick={onClose}>
+          <div className="d-modal" onClick={e => e.stopPropagation()}>
+            <div className="d-modal-head">
+              <h3>Ride #{ride.booking_id}</h3>
+              <p>Booked {start.toLocaleDateString("en-AU", { weekday:"long", day:"numeric", month:"short", year:"numeric" })}</p>
+            </div>
+            <div className="d-modal-body">
+              <div className="d-summary">
+                <div className="d-summary-row"><span className="k">Status</span><span className="v"><StatusPill status={ride.status}/></span></div>
+                <div className="d-summary-row"><span className="k">Bike</span><span className="v">{ride.bike_code} <span style={{color:"var(--d-muted)",fontWeight:500}}>({ride.bike_type})</span></span></div>
+                <div className="d-summary-row"><span className="k">From</span><span className="v">{ride.pickup_station}</span></div>
+                <div className="d-summary-row"><span className="k">To</span><span className="v">{ride.return_station || "—"}</span></div>
+                <div className="d-summary-row"><span className="k">Start</span><span className="v">{start.toLocaleString("en-AU",{hour:"2-digit",minute:"2-digit",day:"numeric",month:"short"})}</span></div>
+                <div className="d-summary-row"><span className="k">End</span><span className="v">{end ? end.toLocaleString("en-AU",{hour:"2-digit",minute:"2-digit",day:"numeric",month:"short"}) : "—"}</span></div>
+                <div className="d-summary-row"><span className="k">Duration</span><span className="v">{ride.duration_minutes ? `${ride.duration_minutes} min` : "—"}</span></div>
+                <div className="d-summary-row"><span className="k">Cost</span><span className="v">{PRICE_FMT.format(Number(ride.fee_amount) || 0)}</span></div>
+                {ride.payment_status && <div className="d-summary-row"><span className="k">Payment</span><span className="v" style={{textTransform:"capitalize"}}>{ride.payment_status}</span></div>}
+                {ride.notes && <div className="d-summary-row" style={{flexDirection:"column", alignItems:"flex-start", gap:6}}><span className="k">Notes</span><span className="v" style={{fontWeight:500, color:"var(--d-ink)", whiteSpace:"pre-wrap"}}>{ride.notes}</span></div>}
+              </div>
+            </div>
+            <div className="d-modal-foot">
+              <button className="d-btn d-btn-secondary" onClick={onClose} data-testid="close-ride-detail-btn">Close</button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function App() {
+      const { user, requireAuth, logout, pushToast, toasts } = window.useStudentAuth();
+      const [rides, setRides] = useState(null);
+      const [error, setError] = useState("");
+      const [search, setSearch] = useState("");
+      const [statusFilter, setStatusFilter] = useState("all");
+      const [sortOrder, setSortOrder] = useState("newest");
+      const [dateFrom, setDateFrom] = useState("");
+      const [dateTo, setDateTo] = useState("");
+      const [detail, setDetail] = useState(null);
+
+      useEffect(() => { if (!requireAuth()) return; }, []);
+
+      const reload = async () => {
+        const token = localStorage.getItem("cbs_token");
+        if (!token) return;
+        try {
+          const r = await fetch("/api/bookings/history?status=all&sort=" + sortOrder, {
+            headers: { Authorization: "Bearer " + token }
+          });
+          const d = await r.json();
+          if (!r.ok) throw new Error(d.error || "Failed to load rides");
+          setRides(d.bookings || []);
+        } catch (e) { setError(e.message); setRides([]); }
+      };
+      useEffect(() => { reload(); }, [sortOrder]);
+
+      const filtered = useMemo(() => {
+        if (!rides) return null;
+        const q = search.trim().toLowerCase();
+        return rides.filter(r => {
+          if (statusFilter !== "all" && r.status !== statusFilter) return false;
+          if (q && !(
+            String(r.booking_id).includes(q) ||
+            (r.bike_code || "").toLowerCase().includes(q) ||
+            (r.pickup_station || "").toLowerCase().includes(q) ||
+            (r.return_station || "").toLowerCase().includes(q)
+          )) return false;
+          if (dateFrom) { if (new Date(r.start_time) < new Date(dateFrom)) return false; }
+          if (dateTo)   { if (new Date(r.start_time) > new Date(dateTo + "T23:59:59")) return false; }
+          return true;
+        });
+      }, [rides, search, statusFilter, dateFrom, dateTo]);
+
+      const summary = useMemo(() => {
+        const list = rides || [];
+        const completed = list.filter(r => r.status === "completed");
+        const totalRides = completed.length;
+        const totalDist  = +(totalRides * KM_PER_RIDE).toFixed(1);
+        const totalCo2   = +(totalDist * CO2_PER_KM).toFixed(1);
+        const totalSpend = list.reduce((s, r) => s + (Number(r.fee_amount) || 0), 0);
+        return { totalRides, totalDist, totalCo2, totalSpend };
+      }, [rides]);
+
+      const Icon = window.StudentIcons;
+
+      return (
+        <div className="d-shell">
+          <window.StudentTopbar active="rides" user={user} onLogout={logout} pushToast={pushToast}/>
+          <div className="d-main">
+            <window.StudentSidebar active="rides"/>
+            <main className="s-content">
+              <header className="s-page-head">
+                <div>
+                  <h1>Ride History</h1>
+                  <p>Track every trip you've taken on a campus bike.</p>
+                </div>
+              </header>
+
+              {/* Summary */}
+              <section className="s-stats-grid" data-testid="ride-history-summary">
+                <SummaryCard tone="green" icon={<Icon.bike s={22}/>}   label="Total Rides"
+                  value={rides == null ? "—" : summary.totalRides}/>
+                <SummaryCard tone="blue"  icon={<Icon.route s={22}/>}  label="Total Distance"
+                  value={rides == null ? "—" : summary.totalDist + " km"} sub={`Est. ${KM_PER_RIDE} km/ride`}/>
+                <SummaryCard tone="leaf"  icon={<Icon.leaf s={22}/>}   label="CO₂ Saved"
+                  value={rides == null ? "—" : summary.totalCo2 + " kg"} sub="vs. driving a car"/>
+                <SummaryCard tone="amber" icon={<Icon.wallet s={22}/>} label="Total Spend"
+                  value={rides == null ? "—" : PRICE_FMT.format(summary.totalSpend)}/>
+              </section>
+
+              {/* Filters */}
+              <section className="d-card s-toolbar-card">
+                <div className="s-toolbar">
+                  <div className="d-search s-toolbar-search">
+                    <Icon.search/>
+                    <input placeholder="Search by ride #, bike, station…"
+                      value={search} onChange={e => setSearch(e.target.value)}
+                      data-testid="ride-search-input"/>
+                  </div>
+                  <select className="s-select" value={statusFilter} onChange={e => setStatusFilter(e.target.value)} data-testid="ride-status-filter">
+                    <option value="all">All statuses</option>
+                    <option value="completed">Completed</option>
+                    <option value="active">Ongoing</option>
+                    <option value="cancelled">Cancelled</option>
+                    <option value="pending">Pending</option>
+                    <option value="expired">Expired</option>
+                  </select>
+                  <input type="date" className="s-select" value={dateFrom} onChange={e => setDateFrom(e.target.value)} data-testid="ride-date-from"/>
+                  <input type="date" className="s-select" value={dateTo}   onChange={e => setDateTo(e.target.value)}   data-testid="ride-date-to"/>
+                  <select className="s-select" value={sortOrder} onChange={e => setSortOrder(e.target.value)} data-testid="ride-sort">
+                    <option value="newest">Newest first</option>
+                    <option value="oldest">Oldest first</option>
+                  </select>
+                </div>
+              </section>
+
+              {/* Table */}
+              <section className="d-card s-table-card" data-testid="ride-history-table">
+                {rides == null && (
+                  <div className="s-skeleton-list">
+                    {Array.from({length: 5}).map((_, i) => <div key={i} className="s-skeleton-row"/>)}
+                  </div>
+                )}
+                {rides != null && filtered.length === 0 && (
+                  <div className="s-empty">
+                    <div className="s-empty-icon"><Icon.bike s={40}/></div>
+                    <h3>No rides yet</h3>
+                    <p>{rides.length === 0
+                      ? "Once you book and complete your first ride, it'll show up here."
+                      : "No rides match your filters. Try clearing them."}</p>
+                    <a className="d-btn d-btn-primary" href="Student_dashboard.html" data-testid="empty-book-bike-btn">Book your first ride</a>
+                  </div>
+                )}
+                {rides != null && filtered.length > 0 && (
+                  <div className="s-table-wrap">
+                    <table className="s-table">
+                      <thead>
+                        <tr>
+                          <th>Ride</th>
+                          <th>Bike</th>
+                          <th>Route</th>
+                          <th>Date</th>
+                          <th>Duration</th>
+                          <th>Cost</th>
+                          <th>Status</th>
+                          <th></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filtered.map(r => {
+                          const start = new Date(r.start_time);
+                          const end   = r.end_time ? new Date(r.end_time) : null;
+                          return (
+                            <tr key={r.booking_id} data-testid={`ride-row-${r.booking_id}`}>
+                              <td><strong>#{r.booking_id}</strong></td>
+                              <td>{r.bike_code}</td>
+                              <td>
+                                <div className="s-route">
+                                  <span className="s-pin"><Icon.pin/></span>
+                                  <span>{r.pickup_station}</span>
+                                  <span className="s-arrow">→</span>
+                                  <span>{r.return_station || "—"}</span>
+                                </div>
+                              </td>
+                              <td>
+                                <div>{start.toLocaleDateString("en-AU", { day:"numeric", month:"short", year:"numeric" })}</div>
+                                <div className="s-muted">
+                                  {start.toLocaleTimeString("en-AU", {hour:"2-digit", minute:"2-digit"})}
+                                  {end && " – " + end.toLocaleTimeString("en-AU", {hour:"2-digit", minute:"2-digit"})}
+                                </div>
+                              </td>
+                              <td>{r.duration_minutes ? `${r.duration_minutes} min` : "—"}</td>
+                              <td><strong>{PRICE_FMT.format(Number(r.fee_amount) || 0)}</strong></td>
+                              <td><StatusPill status={r.status}/></td>
+                              <td><button className="s-link-btn" onClick={() => setDetail(r)} data-testid={`view-ride-${r.booking_id}`}>View</button></td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+                {error && <div className="s-error">{error}</div>}
+              </section>
+            </main>
+          </div>
+          {detail && <RideDetailModal ride={detail} onClose={() => setDetail(null)}/>}
+          <window.StudentToastStack toasts={toasts}/>
+        </div>
+      );
+    }
+
+    setTimeout(() => ReactDOM.createRoot(document.getElementById("root")).render(<App/>), 50);
+  </script>
+</body>
+</html>

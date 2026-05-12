@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Campus Bike Sharing — Contact Us</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" />
+
+  <!-- React (UMD) + Babel for standalone preview -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <link rel="stylesheet" href="Login.css" />
+</head>
+<body>
+  <div class="cbs-scroll-progress" id="cbs-scroll-progress"></div>
+    <div id="root"></div>
+
+  <script type="text/babel" data-presets="env,react">
+    const { useState, useEffect } = React;
+    const API_BASE = "/api";
+
+    const CATEGORIES = [
+      { value: "general",     label: "General enquiry" },
+      { value: "support",     label: "Help with my account or a ride" },
+      { value: "feedback",    label: "Feedback / suggestion" },
+      { value: "bug_report",  label: "Report a bug" },
+      { value: "partnership", label: "Partnership / collaboration" },
+      { value: "press",       label: "Press / media" },
+    ];
+
+    const MAX_MESSAGE = 1000;
+
+    function ContactPage() {
+      const [fullName, setFullName] = useState("");
+      const [email, setEmail] = useState("");
+      const [phone, setPhone] = useState("");
+      const [category, setCategory] = useState("general");
+      const [subject, setSubject] = useState("");
+      const [message, setMessage] = useState("");
+
+      const [error, setError] = useState("");
+      const [loading, setLoading] = useState(false);
+      const [submitted, setSubmitted] = useState(null);   // { id, when } after success
+
+      // If the user is logged in, pre-fill name/email and forward their token
+      useEffect(() => {
+        try {
+          const stored = localStorage.getItem("cbs_user");
+          if (stored) {
+            const u = JSON.parse(stored);
+            if (u && u.full_name) setFullName(u.full_name);
+            if (u && u.email)     setEmail(u.email);
+          }
+        } catch (_) {}
+      }, []);
+
+      const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError("");
+
+        if (!fullName.trim()) { setError("Please tell us your name."); return; }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setError("Please enter a valid email address."); return; }
+        if (!subject.trim() || subject.trim().length < 2) { setError("Please add a short subject."); return; }
+        if (!message.trim() || message.trim().length < 5) { setError("Please write a slightly longer message."); return; }
+
+        setLoading(true);
+        try {
+          const headers = { "Content-Type": "application/json" };
+          const token = localStorage.getItem("cbs_token");
+          if (token) headers.Authorization = `Bearer ${token}`;
+
+          const res = await fetch(`${API_BASE}/contact`, {
+            method: "POST",
+            headers,
+            body: JSON.stringify({ fullName, email, phone, category, subject, message }),
+          });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) {
+            setError(data.error || "Something went wrong. Please try again.");
+            return;
+          }
+          setSubmitted({ id: data.id, when: data.received_at });
+          setSubject("");
+          setMessage("");
+          setPhone("");
+          setCategory("general");
+        } catch (err) {
+          setError("Cannot reach the server. Make sure the backend is running on port 5000.");
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      const remaining = MAX_MESSAGE - message.length;
+
+      return (
+        <div className="cbs-app">
+          {/* TOP NAV */}
+          <nav className="cbs-nav">
+            <a href="index.html" className="cbs-logo" aria-label="Campus Bike Sharing — Home">
+              <svg className="cbs-logo-icon" viewBox="0 0 48 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <circle cx="12" cy="22" r="8" fill="none" stroke="#2D7FF9" strokeWidth="2.5" />
+                <circle cx="36" cy="22" r="8" fill="none" stroke="#22C55E" strokeWidth="2.5" />
+                <path d="M12 22 L22 8 L30 22 L36 22" fill="none" stroke="#2D7FF9" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M22 8 L28 8" stroke="#22C55E" strokeWidth="2.5" strokeLinecap="round" />
+              </svg>
+              <span className="cbs-logo-text">Campus <span className="cbs-logo-accent">Bike Sharing</span></span>
+            </a>
+            <ul className="cbs-nav-links">
+              <li><a href="index.html">Home</a></li>
+              <li><a href="how-it-works.html">How It Works</a></li>
+              <li><a href="about.html">About Us</a></li>
+              <li className="active"><a href="contact.html">Contact</a></li>
+            </ul>
+            <a href="login.html" className="cbs-nav-cta">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.2"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+              Login
+            </a>
+            <button className="cbs-mobile-toggle" aria-label="Open menu"><span/><span/><span/></button>
+          </nav>
+
+          <main className="cbs-page">
+            {/* HERO */}
+            <section className="cbs-page-hero">
+              <p className="cbs-eyebrow">CONTACT</p>
+              <h1>Talk to a real human.</h1>
+                <h1> We read every message.</h1>
+              <p>Whether it's a stuck reservation, a feedback note, or a partnership idea — drop us a line below and we'll be back in your inbox within one to two business days.</p>
+            </section>
+
+            {/* FORM + ASIDE */}
+            <section className="cbs-contact">
+              {/* LEFT — channels and trust */}
+              <aside className="cbs-contact-aside">
+                <h2>Pick whichever channel suits you.</h2>
+                <p>For account-specific questions, please email us so we can verify your identity. For everything else, the form on the right is the fastest path to a real human.</p>
+
+                <div className="cbs-contact-channels">
+                  <a className="cbs-contact-channel" href="mailto:hello@campusbikeshare.edu">
+                    <span className="cbs-contact-channel-icon">
+                      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                        <polyline points="22,6 12,13 2,6"/>
+                      </svg>
+                    </span>
+                    <span className="cbs-contact-channel-text">
+                      <strong>hello@campusbikeshare.edu</strong>
+                      <span>General enquiries · expect a reply within 24h on weekdays.</span>
+                    </span>
+                  </a>
+                  <a className="cbs-contact-channel" href="mailto:support@campusbikeshare.edu">
+                    <span className="cbs-contact-channel-icon">
+                      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/>
+                        <line x1="12" y1="17" x2="12.01" y2="17"/>
+                      </svg>
+                    </span>
+                    <span className="cbs-contact-channel-text">
+                      <strong>support@campusbikeshare.edu</strong>
+                      <span>Stuck booking, lost a bike, billing question — we'll help.</span>
+                    </span>
+                  </a>
+                  <a className="cbs-contact-channel" href="tel:+61 0420785620">
+                    <span className="cbs-contact-channel-icon">
+                      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/>
+                      </svg>
+                    </span>
+                    <span className="cbs-contact-channel-text">
+                      <strong>+61 0420785620</strong>
+                      <span>Mon – Fri, 9 am – 5 pm campus time. After-hours: emergencies only.</span>
+                    </span>
+                  </a>
+                </div>
+
+                <div className="cbs-contact-trust">
+                  Average response time: <strong>under 8 hours</strong> on weekdays. Every form submission is logged in the support inbox so nothing falls through the cracks.
+                </div>
+              </aside>
+
+              {/* RIGHT — form card */}
+              <div className="cbs-contact-card">
+                {submitted ? (
+                  <div className="cbs-contact-success">
+                    <div className="cbs-contact-success-icon">
+                      <svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                    </div>
+                    <h3>Message received</h3>
+                    <span className="cbs-success-id">Reference #{submitted.id}</span>
+                    <p>Thanks for getting in touch. We've logged your message and the team will reply directly to <strong>{email}</strong> within one to two business days.</p>
+                    <button type="button" className="cbs-btn cbs-btn-secondary" onClick={() => setSubmitted(null)}>
+                      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 12h18"/><path d="M12 3v18"/></svg>
+                      <span>Send another message</span>
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <h3>Drop us a line</h3>
+                    <p className="cbs-contact-card-sub">Filling this in saves a copy in our support inbox and pings the on-duty admin.</p>
+
+                    {error && (
+                      <div className="cbs-error" role="alert">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        <span>{error}</span>
+                      </div>
+                    )}
+
+                    <form onSubmit={handleSubmit} noValidate>
+                      <div className="cbs-form-grid">
+                        <div>
+                          <label className="cbs-form-label" htmlFor="c-name">Full Name</label>
+                          <input id="c-name" className="cbs-input-plain" type="text" placeholder="Jane Doe" value={fullName} onChange={(e) => setFullName(e.target.value)} autoComplete="name" required/>
+                        </div>
+                        <div>
+                          <label className="cbs-form-label" htmlFor="c-email">Email</label>
+                          <input id="c-email" className="cbs-input-plain" type="email" placeholder="you@university.edu" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" required/>
+                        </div>
+                        <div>
+                          <label className="cbs-form-label" htmlFor="c-phone">Phone <span className="cbs-form-optional">(optional)</span></label>
+                          <input id="c-phone" className="cbs-input-plain" type="tel" placeholder="+61 000 000 000" value={phone} onChange={(e) => setPhone(e.target.value)} autoComplete="tel"/>
+                        </div>
+                        <div>
+                          <label className="cbs-form-label" htmlFor="c-category">Category</label>
+                          <select id="c-category" className="cbs-select" value={category} onChange={(e) => setCategory(e.target.value)}>
+                            {CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
+                          </select>
+                        </div>
+                        <div className="cbs-form-grid-full">
+                          <label className="cbs-form-label" htmlFor="c-subject">Subject</label>
+                          <input id="c-subject" className="cbs-input-plain" type="text" placeholder="What's this about?" value={subject} onChange={(e) => setSubject(e.target.value)} maxLength={200} required/>
+                        </div>
+                        <div className="cbs-form-grid-full">
+                          <label className="cbs-form-label" htmlFor="c-message">Message</label>
+                          <textarea id="c-message" className="cbs-textarea" placeholder="Tell us what's going on…" value={message} onChange={(e) => setMessage(e.target.value.slice(0, MAX_MESSAGE))} rows={6} required/>
+                          <div className="cbs-form-helper">
+                            <span>The more detail, the faster we can help.</span>
+                            <span style={{ color: remaining < 100 ? "var(--err)" : undefined }}>{remaining} / {MAX_MESSAGE}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <button type="submit" className="cbs-btn cbs-btn-primary" disabled={loading}>
+                        {loading ? <span className="cbs-spinner"/> : (
+                          <>
+                            <span>Send message</span>
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                          </>
+                        )}
+                      </button>
+
+                      <p className="cbs-terms">By submitting this form you agree to our <a href="Privacy_policy.html">Privacy Policy</a>. We'll only use your details to respond to this enquiry.</p>
+                    </form>
+                  </>
+                )}
+              </div>
+            </section>
+
+            {/* HOURS / OFFICE / EMERGENCY strip */}
+            <section className="cbs-contact-locator">
+              <div className="cbs-contact-locator-grid">
+                <div className="cbs-contact-locator-card">
+                  <h4>Office hours</h4>
+                  <ul>
+                    <li>Monday – Friday: 9 am – 5 pm</li>
+                    <li>Saturday: 10 am – 2 pm</li>
+                    <li>Sunday &amp; public holidays: closed</li>
+                  </ul>
+                </div>
+                <div className="cbs-contact-locator-card">
+                  <h4>Visit us</h4>
+                  <p>Student Union Building, Level 2,<br/>Room 2.12 — University Main Campus.</p>
+                  <p style={{marginTop: "8px"}}>Walk-ins welcome during office hours.</p>
+                </div>
+                <div className="cbs-contact-locator-card">
+                  <h4>Emergencies</h4>
+                  <p>Bike accident or theft after hours? Call campus security on <strong>+61 (0)2 2054 1910</strong> first, then file a report on the platform's help page.</p>
+                </div>
+              </div>
+            </section>
+
+            {/* CTA */}
+            <section style={{padding: "0 24px"}}>
+              <div className="cbs-cta">
+                <h2>Quick question? Try the FAQ first.</h2>
+                <p>Most things — pricing, return rules, account help — are answered on the How It Works page. It's faster than waiting for an email.</p>
+                <div className="cbs-cta-btns">
+                  <a href="how-it-works.html#faq" className="cbs-cta-primary">
+                    <span>Read the FAQ</span>
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                  </a>
+                  <a href="register.html" className="cbs-cta-secondary"><span>Create an account</span></a>
+                </div>
+              </div>
+            </section>
+          </main>
+
+          <footer className="cbs-footer">
+            <span>© 2026 Campus Bike Sharing Platform. All rights reserved.</span>
+            <div className="cbs-footer-links">
+              <a href="Privacy_policy.html">Privacy Policy</a>
+              <span className="cbs-footer-sep">|</span>
+              <a href="Terms_of_use.html">Terms of Use</a>
+            </div>
+          </footer>
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById("root"));
+    root.render(<ContactPage />);
+  </script>
+
+  <!-- Nav scroll shadow + smart #hash scroll once React has rendered. -->
+  <script>
+    (function () {
+      function update() {
+        var nav = document.querySelector(".cbs-nav");
+        if (nav) nav.classList.toggle("scrolled", window.scrollY > 8);
+      }
+      window.addEventListener("scroll", update, { passive: true });
+      var tries = 0;
+      var iv = setInterval(function () {
+        if (document.querySelector(".cbs-nav") || ++tries > 30) { update(); clearInterval(iv); }
+      }, 100);
+
+      function scrollToHash() {
+        var hash = window.location.hash;
+        if (!hash || hash.length < 2) return;
+        var attempts = 0;
+        var poll = setInterval(function () {
+          var el;
+          try { el = document.querySelector(hash); } catch (_) { el = null; }
+          if (el) {
+            clearInterval(poll);
+            requestAnimationFrame(function () {
+              el.scrollIntoView({ behavior: "smooth", block: "start" });
+            });
+          } else if (++attempts > 40) { clearInterval(poll); }
+        }, 60);
+      }
+      if (document.readyState === "complete") scrollToHash();
+      else window.addEventListener("load", scrollToHash);
+      window.addEventListener("hashchange", scrollToHash);
+    })();
+  </script>
+
+
+  <!-- Floating back-to-top -->
+  <button class="cbs-home-totop" id="cbs-home-totop" aria-label="Back to top">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+  </button>
+  <script>
+    (function () {
+      var bar = document.getElementById("cbs-scroll-progress");
+      var totop = document.getElementById("cbs-home-totop");
+      var nav = document.querySelector(".cbs-nav");
+      function onScroll() {
+        var h = document.documentElement.scrollHeight - window.innerHeight;
+        var sc = window.scrollY || window.pageYOffset;
+        var pct = h > 0 ? (sc / h) * 100 : 0;
+        if (bar) bar.style.width = pct + "%";
+        if (nav) nav.classList.toggle("scrolled", sc > 8);
+        if (totop) totop.classList.toggle("is-visible", sc > 600);
+      }
+      window.addEventListener("scroll", onScroll, { passive: true });
+      onScroll();
+      if (totop) totop.addEventListener("click", function () {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+      // Mobile hamburger menu toggle (event delegation — works even when
+      // the nav is rendered by React after this script runs)
+      document.addEventListener("click", function (e) {
+        var toggle = e.target.closest && e.target.closest(".cbs-mobile-toggle");
+        var navEl  = document.querySelector(".cbs-nav");
+        var btn    = document.querySelector(".cbs-mobile-toggle");
+
+        if (toggle) {
+          e.stopPropagation();
+          if (navEl) {
+            var isOpen = navEl.classList.toggle("is-open");
+            toggle.classList.toggle("is-open", isOpen);
+            toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+            toggle.setAttribute("aria-label", isOpen ? "Close menu" : "Open menu");
+          }
+          return;
+        }
+        // Click on a nav link → close
+        if (e.target.closest && e.target.closest(".cbs-nav-links a")) {
+          if (navEl) navEl.classList.remove("is-open");
+          if (btn)   btn.classList.remove("is-open");
+          return;
+        }
+        // Click outside the nav → close
+        if (navEl && navEl.classList.contains("is-open") && !navEl.contains(e.target)) {
+          navEl.classList.remove("is-open");
+          if (btn) btn.classList.remove("is-open");
+        }
+      });
+     
+
+      })();
+  </script>
+</body>
+</html>

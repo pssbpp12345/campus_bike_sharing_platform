@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Campus Bike Sharing — Smart, Sustainable Campus Mobility</title>
+  <meta name="description" content="A student-built bike-sharing network making every corner of the university reachable in minutes. Verified students and staff only." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" />
+  <link rel="stylesheet" href="Login.css" />
+</head>
+<body>
+  <!-- Scroll progress bar -->
+  <div class="cbs-scroll-progress" id="cbs-scroll-progress"></div>
+
+  <div class="cbs-app">
+
+    <!-- TOP NAV -->
+    <nav class="cbs-nav">
+      <a href="index.html" class="cbs-logo" aria-label="Campus Bike Sharing — Home">
+        <svg class="cbs-logo-icon" viewBox="0 0 48 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <circle cx="12" cy="22" r="8" fill="none" stroke="#2D7FF9" stroke-width="2.5" />
+          <circle cx="36" cy="22" r="8" fill="none" stroke="#22C55E" stroke-width="2.5" />
+          <path d="M12 22 L22 8 L30 22 L36 22" fill="none" stroke="#2D7FF9" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+          <path d="M22 8 L28 8" stroke="#22C55E" stroke-width="2.5" stroke-linecap="round" />
+        </svg>
+        <span class="cbs-logo-text">Campus <span class="cbs-logo-accent">Bike Sharing</span></span>
+      </a>
+      <ul class="cbs-nav-links">
+        <li class="active"><a href="index.html">Home</a></li>
+        <li><a href="how-it-works.html">How It Works</a></li>
+        <li><a href="about.html">About Us</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+      <a href="login.html" class="cbs-nav-cta">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+        Login
+      </a>
+      <button class="cbs-mobile-toggle" aria-label="Open menu"><span></span><span></span><span></span></button>
+    </nav>
+
+    <main>
+      <!-- ───── HERO ───── -->
+      <section class="cbs-home-hero" data-reveal>
+        <div class="cbs-home-hero-blobs" aria-hidden="true">
+          <span></span><span></span><span></span>
+        </div>
+        <div class="cbs-home-hero-text">
+          <span class="cbs-eyebrow">CAMPUS BIKE SHARING PLATFORM</span>
+          <h1>Your campus,<br/><span class="cbs-home-hero-accent">on two wheels.</span></h1>
+          <p class="cbs-home-hero-sub">A student-built bike network for everyone on campus. Tap to unlock, ride between lectures, drop the bike at any station — done. Pay-as-you-ride: <strong>$1 to unlock + 20¢ per minute</strong> — a typical 10-minute ride costs just $3.</p>
+          <div class="cbs-home-hero-buttons">
+            <a href="register.html" class="cbs-btn cbs-btn-primary">
+              <span>Get started — it&#39;s free to sign up</span>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </a>
+            <a href="how-it-works.html" class="cbs-btn cbs-btn-secondary">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              <span>See how it works</span>
+            </a>
+          </div>
+        </div>
+        <div class="cbs-home-hero-image">
+          <img src="images/about_hero.png" alt="Students riding green campus bicycles on a sunny university quad"/>
+          <div class="cbs-home-hero-chip">
+            <span class="cbs-home-hero-chip-dot"></span>
+            <div>
+              <strong>Live now</strong>
+              <span>32 stations · 1,200+ riders</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ───── TRUSTED BY MARQUEE ───── -->
+      <section class="cbs-home-trust">
+        <div class="cbs-home-trust-label">Trusted by partners across campus</div>
+        <div class="cbs-home-trust-track">
+          <span><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 20A7 7 0 019.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6"/></svg> Sustainability Office</span>
+          <span><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V8l7-5 7 5v13M9 21v-6h6v6"/></svg> Faculty of Engineering</span>
+          <span><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2zM22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg> Library Services</span>
+          <span><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg> Student Union</span>
+          <span><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Campus Security</span>
+          <span><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M5 8c-1.5 1-2 3-2 4 0 4 4 7 9 7s9-3 9-7c0-1-.5-3-2-4"/></svg> Sports Complex</span>
+          <!-- Duplicate for seamless loop -->
+          <span><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 20A7 7 0 019.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6"/></svg> Sustainability Office</span>
+          <span><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V8l7-5 7 5v13M9 21v-6h6v6"/></svg> Faculty of Engineering</span>
+          <span><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2zM22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg> Library Services</span>
+          <span><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg> Student Union</span>
+          <span><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Campus Security</span>
+          <span><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M5 8c-1.5 1-2 3-2 4 0 4 4 7 9 7s9-3 9-7c0-1-.5-3-2-4"/></svg> Sports Complex</span>
+        </div>
+      </section>
+
+      <!-- ───── STATS STRIP ───── -->
+      <section class="cbs-home-stats" data-reveal>
+        <div class="cbs-home-stats-grid">
+          <div class="cbs-home-stat"><strong data-counter data-target="1200" data-suffix="+">0</strong><span>Active student riders</span></div>
+          <div class="cbs-home-stat"><strong data-counter data-target="32">0</strong><span>Stations across campus</span></div>
+          <div class="cbs-home-stat"><strong data-counter data-target="85" data-suffix="k">0</strong><span>Rides this academic year</span></div>
+          <div class="cbs-home-stat"><strong data-counter data-target="1.4" data-decimals="1" data-suffix="t">0</strong><span>CO&#8322; saved vs. driving</span></div>
+        </div>
+      </section>
+
+      <!-- ───── FEATURES ───── -->
+      <section class="cbs-home-section" data-reveal>
+        <div class="cbs-home-section-head">
+          <span class="cbs-home-tag">Why ride</span>
+          <h2>Built for everyday student life.</h2>
+          <p>Not flashy weekends. Not generic city commuters. Just fast, simple, sustainable transport between your dorm and your next class.</p>
+        </div>
+        <div class="cbs-home-features" data-reveal data-reveal-stagger>
+          <div class="cbs-home-feature">
+            <div class="cbs-home-feature-icon">
+              <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 20A7 7 0 019.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6"/></svg>
+            </div>
+            <h3>Eco-friendly</h3>
+            <p>Solar-charged fleet, zero emissions, and impact data shared with the sustainability office every term. Every kilometre is a kilometre that wasn't driven.</p>
+          </div>
+          <div class="cbs-home-feature">
+            <div class="cbs-home-feature-icon">
+              <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+            </div>
+            <h3>Safe &amp; reliable</h3>
+            <p>Pre-ride inspections, lights on every frame, and a help button on the map page that pings campus security in one tap. Maintenance staff sweep the network daily.</p>
+          </div>
+          <div class="cbs-home-feature">
+            <div class="cbs-home-feature-icon">
+              <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            </div>
+            <h3>Reachable everywhere</h3>
+            <p>Thirty-two stations cover every quad, library and lab. Average crossing of campus drops from 18 minutes on foot to under 6 on a bike.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ───── VIDEO SECTION ───── -->
+      <section class="cbs-home-video" data-reveal>
+        <div class="cbs-home-video-grid" aria-hidden="true"></div>
+        <div class="cbs-home-video-inner">
+          <div class="cbs-home-section-head" style="margin-bottom:36px">
+            <span class="cbs-home-tag">See it in action</span>
+            <h2>Watch a real campus ride.</h2>
+            <p>Sixty seconds of how the network actually feels on the ground — from sign-in to drop-off.</p>
+          </div>
+          <div class="cbs-home-video-frame" id="cbs-video-frame">
+            <video id="cbs-home-video" preload="metadata" playsinline poster="images/How_It-Works_Image_Riding%20Bike.png">
+              <source src="images/Ou%20ad%20video.MP4" type="video/mp4">
+              Your browser doesn't support embedded video.
+              <a href="images/Ou%20ad%20video.MP4" style="color:#BBF7D0">Watch the file directly.</a>
+            </video>
+            <div class="cbs-home-video-overlay" id="cbs-video-overlay">
+              <button class="cbs-home-video-play" aria-label="Play video">
+                <svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ───── HOW IT WORKS PREVIEW ───── -->
+      <section class="cbs-home-section" data-reveal>
+        <div class="cbs-home-section-head">
+          <span class="cbs-home-tag">Four-step ride</span>
+          <h2>From your dorm to your last lecture.</h2>
+          <p>Sign in once and the rest is just tap, ride, drop. No paperwork, no app store, no fuss.</p>
+        </div>
+        <div class="cbs-home-howit" data-reveal data-reveal-stagger>
+          <div class="cbs-home-step">
+            <div class="cbs-home-step-num">1</div>
+            <div class="cbs-home-step-img"><img src="images/How_It-Works_Image_PhoneLoginUI.png" alt="Sign in on your phone"/></div>
+            <h4>Sign in</h4>
+            <p>Verify with your university email. No deposit, no monthly fee.</p>
+          </div>
+          <div class="cbs-home-step">
+            <div class="cbs-home-step-num">2</div>
+            <div class="cbs-home-step-img"><img src="images/How_It-Works_Image_Tapand%20GO.png" alt="Tap to unlock"/></div>
+            <h4>Tap to unlock</h4>
+            <p>Scan the QR on the handlebars. The bike unlocks in seconds.</p>
+          </div>
+          <div class="cbs-home-step">
+            <div class="cbs-home-step-num">3</div>
+            <div class="cbs-home-step-img"><img src="images/How_It-Works_Image_Riding%20Bike.png" alt="Ride to class"/></div>
+            <h4>Ride</h4>
+            <p>Hop between lectures, the library, the sports complex — all rideable.</p>
+          </div>
+          <div class="cbs-home-step">
+            <div class="cbs-home-step-num">4</div>
+            <div class="cbs-home-step-img"><img src="images/How_It-Works_Image_BikeParked.jpg" alt="Park at any station"/></div>
+            <h4>Drop off</h4>
+            <p>Park at any active station — your trip closes automatically.</p>
+          </div>
+        </div>
+        <div style="text-align:center; margin-top: 40px;">
+          <a href="how-it-works.html" class="cbs-btn cbs-btn-secondary" style="display:inline-flex; width:auto; padding: 14px 28px;">
+            <span>Read the full guide</span>
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </a>
+        </div>
+      </section>
+
+      <!-- ───── GALLERY ───── -->
+      <section class="cbs-home-section" data-reveal>
+        <div class="cbs-home-section-head">
+          <span class="cbs-home-tag">Real campus</span>
+          <h2>Built where you study.</h2>
+          <p>Every station, every bike, every line of code came from students walking the same paths you walk.</p>
+        </div>
+        <div class="cbs-home-gallery">
+          <div><img src="images/about_mission.png" alt="A campus bike parked on a sunlit path"/></div>
+          <div><img src="images/about_team.png" alt="A group of campus riders"/></div>
+          <div><img src="images/about_story.png" alt="Two student co-founders"/></div>
+          <div><img src="images/How_It-Works_Image_BikeParked.jpg" alt="Bike at a station"/></div>
+          <div><img src="images/How_It-Works_Image_Riding%20Bike.png" alt="Student riding"/></div>
+        </div>
+      </section>
+
+      <!-- ───── TESTIMONIALS ───── -->
+      <section class="cbs-home-section cbs-home-testimonials" data-reveal>
+        <div class="cbs-home-section-head">
+          <span class="cbs-home-tag">Student voices</span>
+          <h2>Riders, not just users.</h2>
+          <p>What real students say after a few weeks on the network.</p>
+        </div>
+        <div class="cbs-home-testi-grid" data-reveal data-reveal-stagger>
+          <div class="cbs-home-testi">
+            <div class="cbs-home-testi-rating" aria-label="5 out of 5 stars">
+              <svg viewBox="0 0 24 24" width="18" height="18"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg viewBox="0 0 24 24" width="18" height="18"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg viewBox="0 0 24 24" width="18" height="18"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg viewBox="0 0 24 24" width="18" height="18"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg viewBox="0 0 24 24" width="18" height="18"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            </div>
+            <p class="cbs-home-testi-quote">My morning lectures used to mean a 20-minute walk and a sweaty arrival. Now I'm at my desk in five and actually awake.</p>
+            <div class="cbs-home-testi-author">
+              <div class="cbs-home-testi-avatar">A</div>
+              <div class="cbs-home-testi-name">
+                <strong>Sujan B.</strong>
+                <span>Third-year, Engineering</span>
+              </div>
+            </div>
+          </div>
+          <div class="cbs-home-testi">
+            <div class="cbs-home-testi-rating" aria-label="5 out of 5 stars">
+              <svg viewBox="0 0 24 24" width="18" height="18"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg viewBox="0 0 24 24" width="18" height="18"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg viewBox="0 0 24 24" width="18" height="18"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg viewBox="0 0 24 24" width="18" height="18"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg viewBox="0 0 24 24" width="18" height="18"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            </div>
+            <p class="cbs-home-testi-quote">As a TA who hops between three buildings a day, this saved my schedule. The QR unlock is genuinely faster than getting a coffee.</p>
+            <div class="cbs-home-testi-author">
+              <div class="cbs-home-testi-avatar">M</div>
+              <div class="cbs-home-testi-name">
+                <strong>Prajwal S.</strong>
+                <span>Postgraduate, Physics</span>
+              </div>
+            </div>
+          </div>
+          <div class="cbs-home-testi">
+            <div class="cbs-home-testi-rating" aria-label="5 out of 5 stars">
+              <svg viewBox="0 0 24 24" width="18" height="18"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg viewBox="0 0 24 24" width="18" height="18"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg viewBox="0 0 24 24" width="18" height="18"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg viewBox="0 0 24 24" width="18" height="18"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg viewBox="0 0 24 24" width="18" height="18"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            </div>
+            <p class="cbs-home-testi-quote">Honestly the cleanest, lightest bikes I've ridden on a uni campus. You can tell whoever built this actually rides them too.</p>
+            <div class="cbs-home-testi-author">
+              <div class="cbs-home-testi-avatar">S</div>
+              <div class="cbs-home-testi-name">
+                <strong>Prasun B.</strong>
+                <span>First-year, Architecture</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ───── FINAL CTA ───── -->
+      <section class="cbs-home-finalcta" data-reveal>
+        <div class="cbs-home-finalcta-inner">
+          <h2>Ready to ride?</h2>
+          <p>Create your account in less than a minute. You'll have a bike under you before your next class starts.</p>
+          <div class="cbs-home-finalcta-buttons">
+            <a href="register.html" class="cbs-home-finalcta-primary">
+              <span>Create your account</span>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </a>
+            <a href="login.html" class="cbs-home-finalcta-secondary">
+              <span>I already have an account</span>
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="cbs-footer">
+      <span>© 2026 Campus Bike Sharing Platform. All rights reserved.</span>
+      <div class="cbs-footer-links">
+        <a href="Privacy_policy.html">Privacy Policy</a>
+        <span class="cbs-footer-sep">|</span>
+        <a href="Terms_of_use.html">Terms of Use</a>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- Floating back-to-top -->
+  <button class="cbs-home-totop" id="cbs-home-totop" aria-label="Back to top">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+  </button>
+
+  <script>
+    (function () {
+      // ── Scroll progress + back-to-top ─────────────────
+      var bar = document.getElementById("cbs-scroll-progress");
+      var totop = document.getElementById("cbs-home-totop");
+      var nav = document.querySelector(".cbs-nav");
+
+      function onScroll() {
+        var h = document.documentElement.scrollHeight - window.innerHeight;
+        var sc = window.scrollY || window.pageYOffset;
+        var pct = h > 0 ? (sc / h) * 100 : 0;
+        if (bar) bar.style.width = pct + "%";
+        if (nav) nav.classList.toggle("scrolled", sc > 8);
+        if (totop) totop.classList.toggle("is-visible", sc > 600);
+      }
+      window.addEventListener("scroll", onScroll, { passive: true });
+      onScroll();
+      if (totop) totop.addEventListener("click", function () {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+
+      // ── Reveal-on-scroll ──────────────────────────────
+      if ("IntersectionObserver" in window) {
+        var io = new IntersectionObserver(function (entries) {
+          entries.forEach(function (e) {
+            if (e.isIntersecting) {
+              e.target.classList.add("is-visible");
+              io.unobserve(e.target);
+            }
+          });
+        }, { rootMargin: "0px 0px -10% 0px", threshold: 0.1 });
+        document.querySelectorAll("[data-reveal]").forEach(function (el) { io.observe(el); });
+      } else {
+        document.querySelectorAll("[data-reveal]").forEach(function (el) { el.classList.add("is-visible"); });
+      }
+
+      // ── Animated counters ─────────────────────────────
+      function animateCounter(el) {
+        if (el.dataset.counted === "1") return;
+        el.dataset.counted = "1";
+        var target = parseFloat(el.getAttribute("data-target"));
+        var decimals = parseInt(el.getAttribute("data-decimals") || "0", 10);
+        var suffix = el.getAttribute("data-suffix") || "";
+        var dur = 1400;
+        var start = performance.now();
+        var startVal = 0;
+
+        function format(val) {
+          var v = decimals ? val.toFixed(decimals) : Math.round(val).toLocaleString();
+          return v + suffix;
+        }
+        function tick(now) {
+          var t = Math.min(1, (now - start) / dur);
+          // easeOutCubic
+          var eased = 1 - Math.pow(1 - t, 3);
+          var current = startVal + (target - startVal) * eased;
+          el.textContent = format(current);
+          if (t < 1) requestAnimationFrame(tick);
+          else el.textContent = format(target);
+        }
+        requestAnimationFrame(tick);
+      }
+      var statsSection = document.querySelector(".cbs-home-stats");
+      if (statsSection && "IntersectionObserver" in window) {
+        var sio = new IntersectionObserver(function (entries) {
+          entries.forEach(function (e) {
+            if (e.isIntersecting) {
+              statsSection.querySelectorAll("[data-counter]").forEach(animateCounter);
+              sio.unobserve(e.target);
+            }
+          });
+        }, { threshold: 0.4 });
+        sio.observe(statsSection);
+      }
+
+      // ── Custom video play overlay ─────────────────────
+      var frame = document.getElementById("cbs-video-frame");
+      var vid = document.getElementById("cbs-home-video");
+      var ovr = document.getElementById("cbs-video-overlay");
+      if (frame && vid && ovr) {
+        function playIt() {
+          frame.classList.add("is-playing");
+          vid.controls = true;
+          vid.play().catch(function () { /* user gesture required, OK */ });
+        }
+        ovr.addEventListener("click", playIt);
+        vid.addEventListener("play", function () { frame.classList.add("is-playing"); });
+        vid.addEventListener("pause", function () { /* keep controls */ });
+      }
+      // Mobile hamburger menu toggle (event delegation — works even when
+      // the nav is rendered by React after this script runs)
+      document.addEventListener("click", function (e) {
+        var toggle = e.target.closest && e.target.closest(".cbs-mobile-toggle");
+        var navEl  = document.querySelector(".cbs-nav");
+        var btn    = document.querySelector(".cbs-mobile-toggle");
+
+        if (toggle) {
+          e.stopPropagation();
+          if (navEl) {
+            var isOpen = navEl.classList.toggle("is-open");
+            toggle.classList.toggle("is-open", isOpen);
+            toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+            toggle.setAttribute("aria-label", isOpen ? "Close menu" : "Open menu");
+          }
+          return;
+        }
+        // Click on a nav link → close
+        if (e.target.closest && e.target.closest(".cbs-nav-links a")) {
+          if (navEl) navEl.classList.remove("is-open");
+          if (btn)   btn.classList.remove("is-open");
+          return;
+        }
+        // Click outside the nav → close
+        if (navEl && navEl.classList.contains("is-open") && !navEl.contains(e.target)) {
+          navEl.classList.remove("is-open");
+          if (btn) btn.classList.remove("is-open");
+        }
+      });
+     
+
+      })();
+  </script>
+</body>
+</html>

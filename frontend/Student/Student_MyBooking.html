@@ -1,0 +1,2138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Bookings | Campus Bike Sharing</title>
+  <link rel="stylesheet" href="../../Login.css" />
+
+  <!-- Inter for body, Plus Jakarta Sans for headings -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- React + Babel (in-browser JSX so we don't need a build step) -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    /* =========================================================
+       My Bookings — extends the d-* design system from
+       Student_dashboard.html. New `b-*` classes are specific to
+       this page.
+       ========================================================= */
+    :root {
+      --d-bg:        #F8FAFC;
+      --d-bg-soft:   #F1F5F9;
+      --d-card:      #FFFFFF;
+      --d-ink:       #0F172A;
+      --d-muted:     #64748B;
+      --d-border:    #E2E8F0;
+      --d-border-2:  #CBD5E1;
+
+      --d-primary:   #2D7FF9;
+      --d-primary-d: #1E5BC6;
+      --d-primary-soft:#DBEAFE;
+      --d-green:     #22C55E;
+      --d-green-d:   #15803D;
+      --d-green-soft:#DCFCE7;
+      --d-amber:     #F59E0B;
+      --d-amber-soft:#FEF3C7;
+      --d-amber-d:   #92400E;
+      --d-red:       #EF4444;
+      --d-red-soft:  #FEE2E2;
+      --d-purple:    #8B5CF6;
+      --d-purple-soft:#EDE9FE;
+
+      --d-shadow:    0 1px 2px rgba(15, 23, 42, .04), 0 8px 24px rgba(15, 23, 42, .06);
+      --d-shadow-lg: 0 12px 40px rgba(15, 23, 42, .12);
+
+      --d-radius-sm: 10px;
+      --d-radius:    16px;
+      --d-radius-lg: 22px;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--d-bg);
+      color: var(--d-ink);
+      -webkit-font-smoothing: antialiased;
+    }
+    h1, h2, h3, h4 { font-family: "Plus Jakarta Sans", "Inter", sans-serif; margin: 0; color: var(--d-ink); }
+    a { color: inherit; text-decoration: none; }
+    button { font-family: inherit; }
+
+    /* ──────── Top app bar (identical to dashboard) ──────── */
+    .d-shell { display: flex; flex-direction: column; min-height: 100vh; }
+    .d-topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 28px;
+      background: var(--d-card);
+      border-bottom: 1px solid var(--d-border);
+      position: sticky; top: 0; z-index: 50;
+    }
+    .d-brand { display: flex; align-items: center; gap: 12px; cursor: pointer; }
+    .d-brand-logo {
+      width: 40px; height: 40px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--d-green);
+    }
+    .d-brand-name {
+      font-family: "Plus Jakarta Sans", sans-serif;
+      font-weight: 800; font-size: 22px; letter-spacing: -.3px;
+    }
+    .d-brand-name .accent { color: var(--d-green); }
+
+    .d-nav { display: flex; align-items: center; gap: 4px; }
+    .d-nav-item {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 14px;
+      color: var(--d-muted);
+      font-weight: 600; font-size: 14px;
+      border-radius: var(--d-radius-sm);
+      cursor: pointer;
+      border: none; background: transparent;
+      position: relative;
+      transition: color .15s, background .15s;
+    }
+    .d-nav-item:hover { color: var(--d-ink); background: var(--d-bg-soft); }
+    .d-nav-item.active { color: var(--d-ink); }
+    .d-nav-item.active::after {
+      content: ""; position: absolute; left: 14px; right: 14px; bottom: 4px;
+      height: 3px; border-radius: 2px; background: var(--d-green);
+    }
+    .d-icon-btn {
+      width: 42px; height: 42px;
+      display: inline-flex; align-items: center; justify-content: center;
+      border-radius: 12px; background: transparent; border: none; cursor: pointer;
+      color: var(--d-muted); position: relative;
+      transition: color .15s, background .15s;
+    }
+    .d-icon-btn:hover { color: var(--d-ink); background: var(--d-bg-soft); }
+    .d-icon-btn .badge {
+      position: absolute; top: 6px; right: 6px;
+      min-width: 18px; height: 18px; padding: 0 5px;
+      background: var(--d-red); color: #FFFFFF;
+      border-radius: 999px; font-size: 11px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 0 2px var(--d-card);
+    }
+
+    /* ──────── Main shell ──────── */
+    .d-main { display: flex; flex: 1; min-height: 0; }
+    .d-sidebar {
+      width: 80px; flex-shrink: 0;
+      background: var(--d-card);
+      border-right: 1px solid var(--d-border);
+      padding: 22px 14px;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+    }
+    .d-side-btn {
+      width: 52px; height: 52px;
+      border: none; background: transparent; cursor: pointer;
+      border-radius: 14px;
+      color: var(--d-muted);
+      display: flex; align-items: center; justify-content: center;
+      transition: color .15s, background .15s, transform .15s;
+    }
+    .d-side-btn:hover { color: var(--d-green); background: var(--d-green-soft); }
+    .d-side-btn.active { color: var(--d-green); background: var(--d-green-soft); }
+    .d-side-btn:active { transform: scale(.95); }
+    .d-side-spacer { flex: 1; }
+    .d-side-theme {
+      width: 52px; height: 52px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--d-green-soft) 0%, var(--d-primary-soft) 100%);
+      color: var(--d-amber);
+      border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: transform .15s, box-shadow .15s;
+    }
+    .d-side-theme:hover { transform: rotate(20deg); box-shadow: 0 6px 16px rgba(245, 158, 11, .25); }
+
+    /* ──────── Content area ──────── */
+    .d-content {
+      flex: 1; min-width: 0;
+      padding: 28px 32px 48px;
+      max-width: 1480px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    /* ──────── Page header ──────── */
+    .b-page-head {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      gap: 24px; flex-wrap: wrap;
+      margin-bottom: 22px;
+    }
+    .b-page-head .title-block h1 {
+      font-size: 30px; font-weight: 800; letter-spacing: -.6px;
+      margin-bottom: 6px;
+    }
+    .b-page-head .title-block p {
+      margin: 0; color: var(--d-muted); font-size: 14px; font-weight: 500; max-width: 720px;
+      line-height: 1.5;
+    }
+    /* Tiny inline spinner — sits next to the page title while bookings load */
+    .b-spin {
+      display: inline-block;
+      width: 16px; height: 16px;
+      border: 2px solid rgba(34, 197, 94, .25);
+      border-top-color: var(--d-green);
+      border-radius: 50%;
+      animation: b-spin-rot .8s linear infinite;
+      vertical-align: middle;
+      margin-left: 10px;
+    }
+    @keyframes b-spin-rot { to { transform: rotate(360deg); } }
+    /* Error banner shown when the API call fails */
+    .b-error-banner {
+      display: inline-flex; align-items: center; gap: 10px;
+      margin-top: 10px;
+      padding: 9px 14px;
+      background: var(--d-amber-soft);
+      color: var(--d-amber-d);
+      border: 1px solid #FDE68A;
+      border-radius: 10px;
+      font-size: 13px; font-weight: 500;
+    }
+    .b-error-banner svg { color: var(--d-amber-d); flex-shrink: 0; }
+    .b-link-inline {
+      background: transparent; border: none; cursor: pointer;
+      color: var(--d-amber-d); font-weight: 700;
+      text-decoration: underline; font-family: inherit; font-size: inherit;
+      padding: 0;
+    }
+    .b-book-new {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 13px 22px;
+      background: linear-gradient(135deg, var(--d-green) 0%, #16A34A 100%);
+      color: #FFFFFF; font-weight: 700; font-size: 14.5px;
+      border: none; border-radius: 12px; cursor: pointer;
+      box-shadow: 0 8px 22px rgba(34, 197, 94, .32);
+      transition: transform .12s, box-shadow .15s;
+      white-space: nowrap;
+    }
+    .b-book-new:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(34, 197, 94, .40); }
+
+    /* ──────── Stats summary row (5 cards) ──────── */
+    .b-stats {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+    .b-stat-card {
+      background: var(--d-card);
+      border: 1px solid var(--d-border);
+      border-radius: 18px;
+      box-shadow: var(--d-shadow);
+      padding: 18px 20px;
+      display: flex; align-items: center; gap: 14px;
+      transition: transform .15s, box-shadow .15s, border-color .15s;
+    }
+    .b-stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(15, 23, 42, .10);
+      border-color: var(--d-border-2);
+    }
+    .b-stat-icon {
+      width: 52px; height: 52px; flex-shrink: 0;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .b-stat-icon.green  { background: var(--d-green-soft);   color: var(--d-green-d); }
+    .b-stat-icon.blue   { background: var(--d-primary-soft); color: var(--d-primary-d); }
+    .b-stat-icon.check  { background: var(--d-green-soft);   color: var(--d-green-d); }
+    .b-stat-icon.red    { background: var(--d-red-soft);     color: var(--d-red); }
+    .b-stat-icon.amber  { background: #FEF3C7;               color: #B45309; }
+    .b-stat-text { min-width: 0; flex: 1; }
+    .b-stat-text .label { font-size: 12.5px; color: var(--d-muted); font-weight: 600; letter-spacing: .1px; }
+    .b-stat-text .value {
+      font-family: "Plus Jakarta Sans", sans-serif;
+      font-weight: 800; font-size: 26px; line-height: 1.05; letter-spacing: -.5px;
+      color: var(--d-ink);
+      margin: 4px 0 2px;
+    }
+    .b-stat-text .sub { font-size: 12.5px; color: var(--d-muted); font-weight: 500; }
+
+    /* ──────── Two-column row: Active Ride + Upcoming ──────── */
+    .b-mid-row {
+      display: grid;
+      grid-template-columns: 1.55fr 1fr;
+      gap: 18px;
+      margin-bottom: 22px;
+    }
+
+    /* ──────── Active Ride card ──────── */
+    .b-active-card {
+      background: var(--d-card);
+      border: 1px solid var(--d-border);
+      border-radius: 22px;
+      box-shadow: var(--d-shadow);
+      padding: 22px 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    .b-active-head {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      margin-bottom: 16px;
+    }
+    .b-active-head h3 {
+      font-size: 17px; font-weight: 800; letter-spacing: -.2px;
+      display: inline-flex; align-items: center; gap: 10px;
+    }
+    .b-live-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: var(--d-green);
+      box-shadow: 0 0 0 4px rgba(34, 197, 94, .25);
+      animation: b-pulse 1.8s ease-in-out infinite;
+    }
+    @keyframes b-pulse {
+      0%, 100% { box-shadow: 0 0 0 4px rgba(34, 197, 94, .25); }
+      50%      { box-shadow: 0 0 0 9px rgba(34, 197, 94, 0); }
+    }
+    .b-live-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 12px;
+      background: var(--d-green-soft);
+      color: var(--d-green-d);
+      font-size: 12px; font-weight: 700;
+      border-radius: 999px;
+    }
+
+    .b-active-grid {
+      display: grid;
+      grid-template-columns: 220px 1fr 180px;
+      gap: 22px;
+      align-items: start;
+    }
+    .b-bike-frame {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      background: linear-gradient(135deg, #F1F5F9 0%, #E2E8F0 100%);
+      border-radius: 18px;
+      display: flex; align-items: center; justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .b-bike-frame::before {
+      content: "";
+      position: absolute; inset: 0;
+      background: radial-gradient(circle at 30% 70%, rgba(34, 197, 94, .15), transparent 60%);
+    }
+    .b-bike-frame svg { position: relative; z-index: 1; }
+
+    .b-active-info { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+    .b-active-title {
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    }
+    .b-active-title h2 {
+      font-size: 26px; font-weight: 800; letter-spacing: -.5px;
+    }
+    .b-status-tag {
+      display: inline-flex; align-items: center; padding: 3px 12px;
+      border-radius: 999px;
+      font-size: 12px; font-weight: 700; letter-spacing: .2px;
+    }
+    .b-status-tag.active    { background: var(--d-primary-soft); color: var(--d-primary-d); }
+    .b-status-tag.upcoming  { background: var(--d-amber-soft);   color: var(--d-amber-d); }
+    .b-status-tag.completed { background: var(--d-green-soft);   color: var(--d-green-d); }
+    .b-status-tag.cancelled { background: var(--d-red-soft);     color: var(--d-red); }
+    .b-status-tag.expired   { background: var(--d-bg-soft);      color: var(--d-muted); }
+
+    .b-active-fields {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px 22px;
+    }
+    .b-field-label {
+      font-size: 12px; color: var(--d-muted); font-weight: 600;
+      display: inline-flex; align-items: center; gap: 6px;
+      margin-bottom: 4px;
+    }
+    .b-field-label svg { color: var(--d-muted); }
+    .b-field-value { font-size: 15px; font-weight: 700; color: var(--d-ink); letter-spacing: -.1px; }
+    .b-field-value.timer {
+      font-family: "Plus Jakarta Sans", sans-serif;
+      color: var(--d-green-d);
+      font-size: 18px; font-variant-numeric: tabular-nums;
+    }
+
+    .b-active-callouts { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .b-callout {
+      border-radius: 14px;
+      padding: 12px 14px;
+      display: flex; align-items: flex-start; gap: 10px;
+    }
+    .b-callout.time-rem {
+      background: linear-gradient(135deg, #ECFDF5 0%, #F0FDF4 100%);
+      border: 1px solid #BBF7D0;
+    }
+    .b-callout.reminder {
+      background: var(--d-bg-soft);
+      border: 1px solid var(--d-border);
+    }
+    .b-callout-ico { flex-shrink: 0; width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+    .b-callout.time-rem .b-callout-ico { background: rgba(34, 197, 94, .18); color: var(--d-green-d); }
+    .b-callout.reminder .b-callout-ico { background: rgba(15, 23, 42, .07); color: var(--d-muted); }
+    .b-callout-label { font-size: 11.5px; color: var(--d-muted); font-weight: 600; }
+    .b-callout-value { font-family: "Plus Jakarta Sans", sans-serif; font-weight: 800; font-size: 18px; color: var(--d-ink); }
+    .b-callout-value small { font-size: 12px; font-weight: 600; color: var(--d-muted); margin-left: 4px; }
+    .b-callout-text { font-size: 12.5px; color: var(--d-ink); line-height: 1.45; font-weight: 500; }
+    .b-callout-text strong { color: var(--d-ink); font-weight: 700; }
+
+    .b-active-actions { display: flex; gap: 10px; margin-top: 4px; }
+    .b-act {
+      padding: 10px 18px; border-radius: 11px;
+      font-weight: 700; font-size: 13.5px;
+      cursor: pointer; border: 1px solid transparent;
+      font-family: inherit;
+      display: inline-flex; align-items: center; gap: 6px;
+      transition: transform .12s, background .12s, border-color .12s, color .12s, box-shadow .15s;
+    }
+    .b-act:active { transform: translateY(1px); }
+    .b-act.primary {
+      background: linear-gradient(135deg, var(--d-green) 0%, #16A34A 100%);
+      color: #FFFFFF; box-shadow: 0 6px 16px rgba(34, 197, 94, .30);
+    }
+    .b-act.primary:hover { box-shadow: 0 8px 20px rgba(34, 197, 94, .40); }
+    .b-act.outline {
+      background: #FFFFFF; color: var(--d-green-d); border-color: var(--d-green);
+    }
+    .b-act.outline:hover { background: var(--d-green-soft); }
+    .b-act.secondary {
+      background: var(--d-card); color: var(--d-ink); border-color: var(--d-border);
+    }
+    .b-act.secondary:hover { border-color: var(--d-border-2); background: var(--d-bg-soft); }
+    .b-act.danger {
+      background: #FEF2F2; color: var(--d-red); border-color: var(--d-red-soft);
+    }
+    .b-act.danger:hover { background: var(--d-red-soft); border-color: var(--d-red); }
+    .b-act.danger-solid {
+      background: linear-gradient(135deg, var(--d-red) 0%, #B91C1C 100%);
+      color: #FFFFFF; box-shadow: 0 6px 16px rgba(239, 68, 68, .25);
+    }
+    .b-act.danger-solid:hover { box-shadow: 0 8px 20px rgba(239, 68, 68, .35); }
+
+    /* Mini map preview */
+    .b-mini-map {
+      width: 180px; height: 180px;
+      border-radius: 18px;
+      background:
+        linear-gradient(135deg, rgba(45, 127, 249, .08), rgba(34, 197, 94, .10)),
+        repeating-linear-gradient(45deg, #E2E8F0 0 1px, transparent 1px 12px),
+        repeating-linear-gradient(-45deg, #E2E8F0 0 1px, transparent 1px 12px),
+        linear-gradient(180deg, #F1F5F9, #E2E8F0);
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--d-border);
+    }
+    .b-mini-map::before {
+      content: "";
+      position: absolute; inset: 0;
+      background:
+        linear-gradient(90deg, transparent 48%, #CBD5E1 48%, #CBD5E1 52%, transparent 52%),
+        linear-gradient(0deg, transparent 30%, #CBD5E1 30%, #CBD5E1 34%, transparent 34%);
+      opacity: .55;
+    }
+    .b-mini-map-pin {
+      position: absolute;
+      left: 50%; top: 50%;
+      transform: translate(-50%, -100%);
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      background: var(--d-primary);
+      color: #FFFFFF;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 6px 14px rgba(45, 127, 249, .40);
+      z-index: 2;
+    }
+    .b-mini-map-pin::after {
+      content: "";
+      position: absolute; left: 50%; top: 100%;
+      transform: translateX(-50%);
+      border-left: 8px solid transparent;
+      border-right: 8px solid transparent;
+      border-top: 10px solid var(--d-primary);
+      filter: drop-shadow(0 2px 4px rgba(45, 127, 249, .25));
+    }
+
+    /* ──────── Upcoming Bookings sidebar ──────── */
+    .b-upcoming-card {
+      background: var(--d-card);
+      border: 1px solid var(--d-border);
+      border-radius: 22px;
+      box-shadow: var(--d-shadow);
+      padding: 22px 22px 18px;
+      display: flex; flex-direction: column;
+      gap: 14px;
+    }
+    .b-upcoming-head {
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .b-upcoming-head h3 { font-size: 17px; font-weight: 800; letter-spacing: -.2px; }
+    .b-link {
+      background: transparent; border: none; cursor: pointer;
+      color: var(--d-primary); font-weight: 700; font-size: 13px;
+      font-family: inherit;
+    }
+    .b-link:hover { text-decoration: underline; }
+    .b-upcoming-list { display: flex; flex-direction: column; gap: 10px; }
+    .b-up-item {
+      display: grid;
+      grid-template-columns: 56px 1fr auto;
+      gap: 12px;
+      align-items: center;
+      padding: 12px;
+      border: 1px solid var(--d-border);
+      border-radius: 14px;
+      background: var(--d-card);
+      transition: border-color .15s, background .15s, transform .12s;
+    }
+    .b-up-item:hover { border-color: var(--d-border-2); background: #FCFDFD; transform: translateY(-1px); }
+    .b-up-thumb {
+      width: 56px; height: 56px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #F1F5F9 0%, #E2E8F0 100%);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--d-green-d);
+      flex-shrink: 0;
+    }
+    .b-up-body { min-width: 0; }
+    .b-up-title {
+      display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+      margin-bottom: 4px;
+    }
+    .b-up-title strong { font-size: 14px; font-weight: 800; color: var(--d-ink); }
+    .b-up-meta {
+      display: flex; flex-direction: column; gap: 2px;
+      font-size: 12.5px; color: var(--d-muted);
+    }
+    .b-up-meta span { display: inline-flex; align-items: center; gap: 5px; }
+    .b-up-meta svg { color: var(--d-muted); }
+    .b-up-cta {
+      padding: 7px 12px; border-radius: 9px;
+      font-size: 12.5px; font-weight: 700;
+      background: #FFFFFF; color: var(--d-green-d); border: 1px solid var(--d-green);
+      cursor: pointer; font-family: inherit;
+      transition: background .12s;
+      white-space: nowrap;
+    }
+    .b-up-cta:hover { background: var(--d-green-soft); }
+    .b-upcoming-foot {
+      margin-top: 4px;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 10px;
+      color: var(--d-primary);
+      font-size: 13px; font-weight: 700;
+      border-radius: 12px;
+      cursor: pointer;
+      background: transparent; border: none; font-family: inherit;
+      transition: background .12s;
+    }
+    .b-upcoming-foot:hover { background: var(--d-primary-soft); }
+    .b-upcoming-empty {
+      text-align: center; padding: 24px 12px;
+      color: var(--d-muted); font-size: 13px;
+    }
+
+    /* ──────── Booking History table card ──────── */
+    .b-history-card {
+      background: var(--d-card);
+      border: 1px solid var(--d-border);
+      border-radius: 22px;
+      box-shadow: var(--d-shadow);
+      padding: 22px 24px 18px;
+    }
+    .b-history-head {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 14px; flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+    .b-history-head h3 { font-size: 18px; font-weight: 800; letter-spacing: -.2px; }
+    .b-history-tools {
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+      position: relative;
+    }
+    .b-search {
+      width: 280px; max-width: 100%;
+      height: 40px;
+      display: flex; align-items: center; gap: 10px;
+      padding: 0 14px;
+      background: var(--d-bg-soft);
+      border: 1px solid var(--d-border);
+      border-radius: 12px;
+      transition: border-color .15s, background .15s;
+    }
+    .b-search:focus-within { border-color: var(--d-primary); background: var(--d-card); }
+    .b-search input {
+      flex: 1; border: none; outline: none; background: transparent;
+      font-size: 14px; color: var(--d-ink); font-family: inherit;
+    }
+    .b-filter-btn, .b-icon-tool {
+      height: 40px;
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 0 14px;
+      background: var(--d-card); border: 1px solid var(--d-border);
+      border-radius: 12px; color: var(--d-ink);
+      font-weight: 600; font-size: 13.5px; cursor: pointer;
+      font-family: inherit;
+      transition: border-color .15s, background .15s;
+    }
+    .b-icon-tool { padding: 0; width: 40px; justify-content: center; color: var(--d-muted); }
+    .b-filter-btn:hover, .b-icon-tool:hover { border-color: var(--d-border-2); color: var(--d-ink); }
+    .b-filter-pop {
+      position: absolute; right: 0; top: calc(100% + 8px);
+      background: var(--d-card); border: 1px solid var(--d-border);
+      border-radius: 14px; box-shadow: var(--d-shadow-lg);
+      padding: 8px; min-width: 220px; z-index: 30;
+    }
+    .b-filter-pop button {
+      display: flex; align-items: center; gap: 10px; width: 100%;
+      padding: 9px 12px; border-radius: 10px;
+      background: transparent; border: none; cursor: pointer;
+      font-size: 14px; color: var(--d-ink); font-weight: 500; font-family: inherit;
+      text-align: left;
+    }
+    .b-filter-pop button:hover { background: var(--d-bg-soft); }
+    .b-filter-pop button.sel { color: var(--d-primary); font-weight: 700; }
+    .b-filter-pop .b-filter-label {
+      padding: 8px 12px 6px; font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .5px; color: var(--d-muted);
+    }
+
+    /* ──────── Actual table ──────── */
+    .b-table-wrap { overflow-x: auto; margin: 0 -4px; }
+    .b-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+      min-width: 980px;
+    }
+    .b-table thead th {
+      background: var(--d-bg-soft);
+      color: var(--d-muted);
+      font-weight: 700;
+      font-size: 11.5px;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+      padding: 12px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--d-border);
+      white-space: nowrap;
+    }
+    .b-table thead th:first-child { border-top-left-radius: 12px; border-bottom-left-radius: 12px; padding-left: 18px; }
+    .b-table thead th:last-child  { border-top-right-radius: 12px; border-bottom-right-radius: 12px; padding-right: 18px; text-align: center; }
+    .b-table tbody td {
+      padding: 14px;
+      border-bottom: 1px solid var(--d-border);
+      color: var(--d-ink);
+      font-weight: 500;
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+    .b-table tbody td:first-child { padding-left: 18px; font-family: ui-monospace, "SF Mono", monospace; font-size: 12.5px; }
+    .b-table tbody td:last-child  { padding-right: 18px; text-align: center; }
+    .b-table tbody tr { transition: background .12s; }
+    .b-table tbody tr:hover { background: var(--d-bg-soft); }
+    .b-table tbody tr:last-child td { border-bottom: none; }
+    .b-table .col-amount { font-weight: 700; }
+    .b-table .col-bike { font-weight: 700; }
+    .b-table .row-actions {
+      display: inline-flex; gap: 6px;
+    }
+    .b-row-act {
+      width: 32px; height: 32px;
+      border: 1px solid var(--d-border); background: var(--d-card);
+      border-radius: 9px; cursor: pointer; color: var(--d-muted);
+      display: inline-flex; align-items: center; justify-content: center;
+      transition: color .12s, border-color .12s, background .12s, transform .12s;
+    }
+    .b-row-act:hover { color: var(--d-primary); border-color: var(--d-primary); background: var(--d-primary-soft); }
+    .b-row-act:active { transform: scale(.94); }
+
+    /* status pills in table */
+    .b-pill {
+      display: inline-flex; align-items: center;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 11.5px; font-weight: 700;
+      text-transform: capitalize;
+    }
+    .b-pill.completed { background: var(--d-green-soft); color: var(--d-green-d); }
+    .b-pill.cancelled { background: var(--d-red-soft);   color: var(--d-red); }
+    .b-pill.active    { background: var(--d-primary-soft); color: var(--d-primary-d); }
+    .b-pill.upcoming  { background: var(--d-amber-soft); color: var(--d-amber-d); }
+    .b-pill.expired   { background: var(--d-bg-soft);    color: var(--d-muted); }
+
+    /* Empty state */
+    .b-table-empty {
+      padding: 50px 24px; text-align: center;
+      color: var(--d-muted); font-size: 14px;
+    }
+    .b-table-empty h4 { font-size: 16px; font-weight: 800; color: var(--d-ink); margin-bottom: 6px; }
+
+    /* Pagination */
+    .b-pager {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 14px; flex-wrap: wrap;
+      margin-top: 16px; padding-top: 6px;
+    }
+    .b-pager-info { font-size: 13px; color: var(--d-muted); font-weight: 500; }
+    .b-pager-info strong { color: var(--d-ink); font-weight: 700; }
+    .b-pager-nav { display: inline-flex; align-items: center; gap: 6px; }
+    .b-pager-btn {
+      min-width: 36px; height: 36px;
+      border: 1px solid var(--d-border); background: var(--d-card);
+      border-radius: 9px; cursor: pointer; color: var(--d-ink);
+      font-family: inherit; font-weight: 600; font-size: 13.5px;
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 0 10px;
+      transition: border-color .12s, background .12s, color .12s;
+    }
+    .b-pager-btn:hover:not(:disabled) { border-color: var(--d-primary); color: var(--d-primary); }
+    .b-pager-btn:disabled { opacity: .5; cursor: not-allowed; }
+    .b-pager-btn.active {
+      background: linear-gradient(135deg, var(--d-green) 0%, #16A34A 100%);
+      color: #FFFFFF; border-color: transparent;
+      box-shadow: 0 4px 12px rgba(34, 197, 94, .28);
+    }
+    .b-pager-rows {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 13px; color: var(--d-muted);
+    }
+    .b-pager-rows select {
+      height: 36px; padding: 0 28px 0 10px;
+      border: 1px solid var(--d-border); background: var(--d-card);
+      border-radius: 9px; font-family: inherit; font-size: 13.5px;
+      color: var(--d-ink); font-weight: 600;
+      cursor: pointer;
+      appearance: none; -webkit-appearance: none;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+    }
+    .b-pager-rows select:focus { outline: none; border-color: var(--d-primary); }
+
+    /* ──────── Modals (reused from dashboard) ──────── */
+    .d-overlay {
+      position: fixed; inset: 0; background: rgba(15, 23, 42, .55);
+      display: flex; align-items: center; justify-content: center;
+      padding: 16px; z-index: 200;
+      animation: fade .15s;
+    }
+    @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+    .d-modal {
+      background: var(--d-card);
+      border-radius: 22px;
+      width: 100%; max-width: 540px;
+      box-shadow: var(--d-shadow-lg);
+      overflow: hidden;
+      animation: pop .2s cubic-bezier(.18,.89,.32,1.28);
+    }
+    @keyframes pop { from { transform: scale(.92); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .d-modal-head { padding: 22px 24px 6px; }
+    .d-modal-head h3 { font-size: 20px; font-weight: 800; letter-spacing: -.3px; }
+    .d-modal-head p { color: var(--d-muted); font-size: 14px; margin: 6px 0 0; }
+    .d-modal-body { padding: 14px 24px 18px; }
+    .d-modal-foot {
+      padding: 12px 24px 22px;
+      display: flex; gap: 10px; justify-content: flex-end;
+    }
+    .d-btn {
+      padding: 11px 18px; border-radius: 12px; font-weight: 700; font-size: 14px;
+      cursor: pointer; border: 1px solid transparent; transition: transform .12s, box-shadow .15s;
+      font-family: inherit;
+    }
+    .d-btn:active { transform: translateY(1px); }
+    .d-btn-secondary { background: var(--d-card); color: var(--d-ink); border-color: var(--d-border); }
+    .d-btn-secondary:hover { border-color: var(--d-border-2); }
+    .d-btn-primary {
+      background: linear-gradient(135deg, var(--d-green) 0%, #16A34A 100%);
+      color: #FFFFFF; box-shadow: 0 6px 16px rgba(34, 197, 94, .35);
+    }
+    .d-btn-primary:hover { box-shadow: 0 8px 20px rgba(34, 197, 94, .45); }
+    .d-btn-primary:disabled { background: #94A3B8; box-shadow: none; cursor: not-allowed; }
+    .d-btn-danger {
+      background: linear-gradient(135deg, var(--d-red) 0%, #B91C1C 100%);
+      color: #FFFFFF; box-shadow: 0 6px 16px rgba(239, 68, 68, .35);
+    }
+    .d-btn-danger:hover { box-shadow: 0 8px 20px rgba(239, 68, 68, .45); }
+    .d-summary {
+      background: var(--d-bg-soft); border: 1px solid var(--d-border);
+      border-radius: 14px; padding: 14px 16px; margin-top: 6px;
+    }
+    .d-summary-row { display: flex; justify-content: space-between; padding: 5px 0; font-size: 14px; gap: 12px; }
+    .d-summary-row .k { color: var(--d-muted); }
+    .d-summary-row .v { font-weight: 700; color: var(--d-ink); text-align: right; }
+
+    /* Star rating */
+    .b-stars { display: inline-flex; gap: 6px; }
+    .b-star-btn {
+      width: 40px; height: 40px;
+      background: transparent; border: none; cursor: pointer;
+      color: #CBD5E1; padding: 0;
+      transition: transform .12s, color .12s;
+    }
+    .b-star-btn:hover { transform: scale(1.1); }
+    .b-star-btn.on { color: #FBBF24; }
+    .b-textarea {
+      width: 100%; padding: 12px 14px;
+      background: var(--d-bg-soft); border: 1px solid var(--d-border);
+      border-radius: 12px; color: var(--d-ink); font-family: inherit; font-size: 14px;
+      outline: none; min-height: 100px; resize: vertical;
+      transition: border-color .12s, background .12s;
+      margin-top: 12px;
+    }
+    .b-textarea:focus { border-color: var(--d-primary); background: var(--d-card); }
+
+    /* ──────── User menu + Notifications ──────── */
+    .d-notif-wrap, .d-user-wrap { position: relative; }
+    .d-notif-panel, .d-user-panel {
+      position: absolute; right: 0; top: calc(100% + 12px);
+      width: 360px; max-width: calc(100vw - 32px);
+      background: var(--d-card);
+      border: 1px solid var(--d-border);
+      border-radius: 18px;
+      box-shadow: var(--d-shadow-lg);
+      overflow: hidden;
+      z-index: 100;
+      animation: notifIn .18s ease-out;
+    }
+    @keyframes notifIn {
+      from { opacity: 0; transform: translateY(-6px) scale(.97); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .d-user-panel { width: 300px; }
+    .d-user-head {
+      display: flex; gap: 14px; align-items: center;
+      padding: 18px;
+      background: linear-gradient(135deg, #EFF6FF 0%, #ECFDF5 100%);
+      border-bottom: 1px solid var(--d-border);
+    }
+    .d-user-head .name { font-size: 15px; font-weight: 800; color: var(--d-ink); letter-spacing: -.2px; }
+    .d-user-head .email { font-size: 12px; color: var(--d-muted); margin-top: 2px; word-break: break-all; }
+    .d-user-head .role-pill {
+      display: inline-block; margin-top: 6px;
+      padding: 2px 9px;
+      background: var(--d-green-soft); color: var(--d-green-d);
+      font-size: 10px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase;
+      border-radius: 999px;
+    }
+    .d-user-list { padding: 8px; }
+    .d-user-list button {
+      display: flex; align-items: center; gap: 12px; width: 100%;
+      padding: 11px 12px; border-radius: 10px;
+      background: transparent; border: none; cursor: pointer;
+      color: var(--d-ink); font-family: inherit; font-size: 14px; font-weight: 500;
+      text-align: left;
+    }
+    .d-user-list button:hover { background: var(--d-bg-soft); }
+    .d-user-list button .ico { color: var(--d-muted); display: inline-flex; }
+    .d-user-foot { padding: 8px; border-top: 1px solid var(--d-border); }
+    .d-user-foot button {
+      display: flex; align-items: center; gap: 12px; width: 100%;
+      padding: 11px 12px; border-radius: 10px;
+      background: transparent; border: none; cursor: pointer;
+      color: var(--d-red); font-family: inherit; font-size: 14px; font-weight: 600;
+      text-align: left;
+    }
+    .d-user-foot button:hover { background: rgba(239, 68, 68, .08); }
+    .d-user-avatar {
+      width: 100%; height: 100%;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--d-primary) 0%, #5B9BFF 100%);
+      color: #FFFFFF;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-family: "Plus Jakarta Sans", sans-serif;
+      font-weight: 800; font-size: 15px;
+    }
+    .d-user-avatar.lg { width: 52px; height: 52px; font-size: 19px; flex-shrink: 0; }
+    .d-user-btn {
+      width: 42px; height: 42px;
+      border: 2px solid transparent; cursor: pointer; padding: 0;
+      border-radius: 50%; background: transparent;
+      transition: border-color .15s, transform .12s;
+    }
+    .d-user-btn:hover { border-color: var(--d-border-2); transform: translateY(-1px); }
+    .d-user-btn.open { border-color: var(--d-primary); }
+    .d-notif-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--d-border);
+    }
+    .d-notif-head h3 { font-size: 16px; font-weight: 800; }
+    .d-notif-mark {
+      background: transparent; border: none; cursor: pointer;
+      color: var(--d-primary); font-weight: 600; font-size: 13px; font-family: inherit;
+    }
+    .d-notif-mark:hover { text-decoration: underline; }
+    .d-notif-list { max-height: 420px; overflow: auto; }
+    .d-notif-item {
+      display: flex; gap: 12px; padding: 14px 18px;
+      border-bottom: 1px solid var(--d-border);
+      cursor: pointer; transition: background .12s;
+    }
+    .d-notif-item:hover { background: var(--d-bg-soft); }
+    .d-notif-item:last-child { border-bottom: none; }
+    .d-notif-item.unread { background: linear-gradient(90deg, #EFF6FF, transparent); }
+    .d-notif-icon {
+      flex-shrink: 0; width: 36px; height: 36px;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .d-notif-icon.success { background: var(--d-green-soft); color: var(--d-green-d); }
+    .d-notif-icon.info    { background: #DBEAFE; color: #1E3A8A; }
+    .d-notif-icon.warn    { background: var(--d-amber-soft); color: #92400E; }
+    .d-notif-body { flex: 1; min-width: 0; }
+    .d-notif-title { font-size: 14px; font-weight: 700; color: var(--d-ink); margin-bottom: 2px; }
+    .d-notif-text  { font-size: 13px; color: var(--d-muted); line-height: 1.45; }
+    .d-notif-time  { font-size: 12px; color: var(--d-muted); margin-top: 4px; }
+    .d-notif-empty { padding: 32px 18px; text-align: center; color: var(--d-muted); font-size: 13px; }
+
+    /* ──────── Toast stack ──────── */
+    .d-toasts {
+      position: fixed; right: 24px; bottom: 24px;
+      display: flex; flex-direction: column; gap: 10px;
+      z-index: 300;
+    }
+    .d-toast {
+      background: var(--d-card);
+      border: 1px solid var(--d-border);
+      border-left: 4px solid var(--d-green);
+      border-radius: 14px;
+      padding: 14px 18px;
+      box-shadow: var(--d-shadow-lg);
+      min-width: 280px; max-width: 380px;
+      animation: toastIn .22s cubic-bezier(.18,.89,.32,1.28);
+    }
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateX(20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    .d-toast h4 { font-size: 14px; font-weight: 800; margin: 0 0 3px; color: var(--d-ink); }
+    .d-toast p { font-size: 13px; color: var(--d-muted); margin: 0; line-height: 1.45; }
+
+    /* ════════════════════ Responsive ════════════════════
+       Five-tier breakpoint ladder:
+         ≥ 1281  full desktop
+         1100   compact desktop / tablet landscape
+         900    tablet portrait — drop the icon sidebar, collapse mid-row
+         640    phablet — stack everything, hide non-essential columns
+         420    small phone — single column, ultra-tight padding
+    */
+    @media (max-width: 1280px) {
+      .d-content { padding: 24px 24px 40px; }
+      .b-stats { grid-template-columns: repeat(5, 1fr); gap: 12px; }
+      .b-stat-card { padding: 14px 14px; gap: 10px; }
+      .b-stat-icon { width: 44px; height: 44px; }
+      .b-stat-text .value { font-size: 22px; }
+      .b-mid-row { grid-template-columns: 1.4fr 1fr; }
+      .b-active-grid { grid-template-columns: 180px 1fr 150px; gap: 16px; }
+      .b-mini-map { width: 150px; height: 150px; }
+      .b-active-info .b-active-fields { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 1100px) {
+      .b-stats { grid-template-columns: repeat(3, 1fr); }
+      .b-mid-row { grid-template-columns: 1fr; }
+      .b-active-grid { grid-template-columns: 180px 1fr; }
+      .b-active-info .b-active-fields { grid-template-columns: repeat(3, 1fr); }
+      .b-mini-map { display: none; }
+      .b-up-item { grid-template-columns: 48px 1fr auto; }
+    }
+    @media (max-width: 900px) {
+      .d-sidebar { display: none; }
+      .d-topbar { padding: 12px 18px; }
+      .d-nav-item .d-nav-text { display: none; }
+      .d-content { padding: 22px 18px 40px; }
+      .b-page-head { gap: 14px; }
+      .b-page-head .title-block h1 { font-size: 24px; }
+      .b-book-new { padding: 11px 18px; font-size: 13.5px; }
+      .b-stats { grid-template-columns: repeat(2, 1fr); }
+      .b-active-grid { grid-template-columns: 1fr; }
+      .b-active-fields { grid-template-columns: repeat(3, 1fr); }
+      .b-bike-frame { max-width: 280px; margin: 0 auto; }
+      /* Table needs a horizontal scrollbar on tablets */
+      .b-table { min-width: 880px; }
+      .b-history-tools { width: 100%; flex-wrap: wrap; }
+      .b-search { width: 100%; max-width: none; }
+    }
+    @media (max-width: 640px) {
+      .d-content { padding: 18px 14px 36px; }
+      .d-brand-name { font-size: 18px; }
+      .d-brand-logo { width: 34px; height: 34px; }
+      .b-page-head .title-block h1 { font-size: 22px; }
+      .b-page-head .title-block p { font-size: 13px; }
+      .b-stats { grid-template-columns: 1fr 1fr; gap: 10px; }
+      .b-stat-card { padding: 12px 14px; border-radius: 14px; }
+      .b-stat-icon { width: 40px; height: 40px; }
+      .b-stat-text .label { font-size: 11.5px; }
+      .b-stat-text .value { font-size: 20px; }
+      .b-stat-text .sub { font-size: 11.5px; }
+      .b-active-card, .b-upcoming-card, .b-history-card { padding: 16px 16px 14px; border-radius: 18px; }
+      .b-active-fields { grid-template-columns: 1fr 1fr; gap: 10px 16px; }
+      .b-active-callouts { grid-template-columns: 1fr; gap: 10px; }
+      .b-active-actions { flex-direction: column; gap: 8px; }
+      .b-act { width: 100%; justify-content: center; padding: 11px 16px; }
+      .b-up-item { padding: 10px; gap: 10px; grid-template-columns: 44px 1fr; }
+      .b-up-cta { grid-column: 1 / -1; width: 100%; padding: 9px; }
+      /* Pager: simplify on phone */
+      .b-pager { flex-direction: column; align-items: stretch; gap: 10px; }
+      .b-pager-info { text-align: center; }
+      .b-pager-nav { justify-content: center; flex-wrap: wrap; }
+      .b-pager-rows { justify-content: center; }
+      /* History table is unconditionally scrollable on phone */
+      .b-table { min-width: 800px; font-size: 12.5px; }
+      .b-table thead th, .b-table tbody td { padding: 10px 12px; }
+      /* Title spinner shrinks slightly */
+      .b-spin { width: 14px; height: 14px; margin-left: 8px; }
+    }
+    @media (max-width: 420px) {
+      .d-content { padding: 14px 10px 32px; }
+      .d-topbar { padding: 10px 14px; }
+      .b-stats { grid-template-columns: 1fr; }
+      .b-stat-card { padding: 12px 14px; }
+      .b-active-fields { grid-template-columns: 1fr; }
+      .b-active-card, .b-upcoming-card, .b-history-card { padding: 14px; }
+      .b-bike-frame { aspect-ratio: 16 / 9; }
+      .b-page-head .title-block h1 { font-size: 20px; }
+      .b-book-new { width: 100%; justify-content: center; }
+      /* Hide some toolbar tools to free space — search stays */
+      .b-icon-tool { display: none; }
+      /* Toasts stretch to the screen */
+      .d-toasts { right: 12px; bottom: 12px; left: 12px; }
+      .d-toast { min-width: 0; }
+    }
+
+    /* Print: hide chrome, just dump the table */
+    @media print {
+      .d-topbar, .d-sidebar, .b-page-head .b-book-new,
+      .b-stats, .b-mid-row, .b-history-tools, .b-pager,
+      .d-toasts { display: none !important; }
+      .d-content { padding: 0; }
+      .b-history-card { box-shadow: none; border: none; }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel" data-presets="env,react">
+    /* ════════════════════════════════════════════════════════
+       Campus Bike Sharing — Student "My Bookings" page
+       ════════════════════════════════════════════════════════ */
+    const { useEffect, useMemo, useRef, useState } = React;
+
+    /* Auth guard — kick back to login if no token */
+    (function authGuard(){
+      try {
+        const t = localStorage.getItem("cbs_token");
+        if (!t) window.location.replace("../../login.html?next=" + encodeURIComponent(location.pathname));
+      } catch(_) {}
+    })();
+
+    /* ─── Helpers ──────────────────────────────────────────── */
+    const fmtPrice = (v) => "$" + Number(v || 0).toFixed(2);
+    const fmtRelative = (ts) => {
+      const diff = Math.max(1, Math.floor((Date.now() - ts) / 1000));
+      if (diff < 60) return diff + "s ago";
+      if (diff < 3600) return Math.floor(diff/60) + "m ago";
+      if (diff < 86400) return Math.floor(diff/3600) + "h ago";
+      return Math.floor(diff/86400) + "d ago";
+    };
+    const fmtLongDate = (d) => new Date(d).toLocaleDateString("en-AU", { month: "short", day: "numeric", year: "numeric" });
+    const fmtShortDate = (d) => new Date(d).toLocaleDateString("en-AU", { weekday: "short", day: "numeric", month: "short" });
+    const fmtTime = (d) => new Date(d).toLocaleTimeString("en-AU", { hour: "numeric", minute: "2-digit", hour12: true });
+    const fmtDateTime = (d) => fmtLongDate(d) + " " + fmtTime(d);
+    const fmtDuration = (mins) => {
+      if (!mins && mins !== 0) return "—";
+      if (mins < 60) return mins + "m";
+      const h = Math.floor(mins / 60);
+      const m = mins % 60;
+      return m === 0 ? `${h}h` : `${h}h ${m}m`;
+    };
+    /* HH:MM:SS for elapsed/remaining timers */
+    const fmtTimer = (totalSec) => {
+      const s = Math.max(0, Math.floor(totalSec));
+      const h = String(Math.floor(s / 3600)).padStart(2, "0");
+      const m = String(Math.floor((s % 3600) / 60)).padStart(2, "0");
+      const sec = String(s % 60).padStart(2, "0");
+      return `${h}:${m}:${sec}`;
+    };
+    /* Last 4 of a payment reference for "•••• 4242" style display */
+    const lastFour = (s) => {
+      const t = String(s || "");
+      return t ? "•••• " + t.slice(-4) : "Card";
+    };
+
+    /* Normalise a record into uniform shape. Handles three input shapes:
+        1) API response from GET /api/bookings/user/:id (snake_case)
+        2) localStorage cbs_bookings (camelCase, from dashboard Stripe flow)
+        3) Built-in dev seed (camelCase)
+    */
+    function normalise(b) {
+      const startMs = b.start_time ? new Date(b.start_time).getTime()
+                    : b.start      ? new Date(b.start).getTime()
+                    : (b.startMs || 0);
+      const endMs   = b.end_time   ? new Date(b.end_time).getTime()
+                    : b.end        ? new Date(b.end).getTime()
+                    : (b.endMs   || 0);
+      const status  = b.status || deriveStatus(startMs, endMs);
+      const id = b.booking_id != null
+        ? "BK-" + String(b.booking_id).padStart(7, "0")
+        : (b.id || "BK-" + Math.floor(Date.now()/1000));
+      const paymentMethod = b.payment_method || b.paymentMethod || "card";
+      const paymentLabel  = paymentMethod === "wallet" ? "Wallet"
+                          : paymentMethod === "campus_card" ? "Campus Card"
+                          : paymentMethod === "waived"   ? "Waived"
+                          : b.payment || lastFour(b.transaction_reference || b.paymentReference || b.paymentSessionId || "4242");
+      return {
+        id,
+        bikeCode:  b.bike_code || b.bikeCode || ("B" + String(Math.floor(10 + Math.random()*89))),
+        bikeType:  b.bike_type || b.bikeType || b.type || "Standard",
+        pickupStation: b.pickup_station || b.pickupStation || b.stationName || b.station || "—",
+        returnStation: b.return_station || b.returnStation || b.pickup_station || b.stationName || b.station || "—",
+        startMs, endMs,
+        duration:  Number(b.duration_minutes || b.duration || b.duration_min || Math.max(0, Math.round((endMs - startMs)/60000))),
+        amount:    Number(b.amount != null ? b.amount
+                          : b.fee_amount != null ? b.fee_amount
+                          : b.amount_paid != null ? b.amount_paid
+                          : b.cost != null ? b.cost
+                          : b.fee || 0),
+        payment:   paymentLabel,
+        paymentMethod,
+        status,
+        rating:    b.rating || null,
+        notes:     b.notes || "",
+      };
+    }
+    function deriveStatus(startMs, endMs) {
+      const now = Date.now();
+      if (now < startMs) return "upcoming";
+      if (now >= startMs && now < endMs) return "active";
+      return "completed";
+    }
+
+    /* ─── Seed bookings (so the page looks alive on first paint) ───────────── */
+    const NOW = Date.now();
+    const min = (n) => n * 60 * 1000;
+    const hr  = (n) => n * 3600 * 1000;
+    const day = (n) => n * 86400 * 1000;
+
+    /* Dev fallback — only shown if the backend is unreachable AND there's
+       nothing cached in localStorage. Real users see their own DB rows. */
+    const SEED_BOOKINGS_FALLBACK = [
+      /* Active ride — currently in progress */
+      { id:"BK-2026-00130", bikeCode:"B12", bikeType:"Standard",
+        pickupStation:"Academic Quad", returnStation:"Academic Quad",
+        startMs: NOW - min(45) - 20*1000, endMs: NOW + min(12) + 30*1000,
+        duration: 60, amount: 3.00, payment: lastFour("4242"), paymentMethod:"card",
+        status:"active" },
+
+      /* Upcoming */
+      { id:"BK-2026-00131", bikeCode:"B18", bikeType:"Standard",
+        pickupStation:"Central Library", returnStation:"Central Library",
+        startMs: NOW + day(11) - hr(3) - min(30), endMs: NOW + day(11) - hr(3),
+        duration: 30, amount: 1.50, payment: lastFour("4242"), paymentMethod:"card",
+        status:"upcoming" },
+      { id:"BK-2026-00132", bikeCode:"B21", bikeType:"Electric",
+        pickupStation:"Student Center", returnStation:"Engineering Block",
+        startMs: NOW + day(13) - hr(1), endMs: NOW + day(13) - hr(1) + min(45),
+        duration: 45, amount: 2.50, payment: lastFour("4242"), paymentMethod:"card",
+        status:"upcoming" },
+
+      /* History */
+      { id:"BK-2024-00125", bikeCode:"B12", bikeType:"Standard",
+        pickupStation:"Academic Quad", returnStation:"Central Library",
+        startMs: new Date("2026-05-20T10:30:00").getTime(), endMs: new Date("2026-05-20T11:45:00").getTime(),
+        duration: 75, amount: 3.00, payment: lastFour("4242"), paymentMethod:"card",
+        status:"completed", rating: 5 },
+      { id:"BK-2024-00124", bikeCode:"B07", bikeType:"Standard",
+        pickupStation:"Student Center", returnStation:"Engineering Block",
+        startMs: new Date("2026-05-19T15:15:00").getTime(), endMs: new Date("2026-05-19T16:05:00").getTime(),
+        duration: 50, amount: 2.50, payment: lastFour("4242"), paymentMethod:"card",
+        status:"completed", rating: 4 },
+      { id:"BK-2024-00123", bikeCode:"B03", bikeType:"Standard",
+        pickupStation:"Hostel Area", returnStation:"Academic Quad",
+        startMs: new Date("2026-05-18T09:00:00").getTime(), endMs: new Date("2026-05-18T09:40:00").getTime(),
+        duration: 40, amount: 2.00, payment: "Wallet", paymentMethod:"wallet",
+        status:"completed" },
+      { id:"BK-2024-00122", bikeCode:"B18", bikeType:"Standard",
+        pickupStation:"Sports Complex", returnStation:"Central Library",
+        startMs: new Date("2026-05-17T17:20:00").getTime(), endMs: new Date("2026-05-17T18:10:00").getTime(),
+        duration: 50, amount: 2.50, payment: lastFour("4242"), paymentMethod:"card",
+        status:"cancelled" },
+      { id:"BK-2024-00121", bikeCode:"B21", bikeType:"Electric",
+        pickupStation:"Academic Quad", returnStation:"Student Center",
+        startMs: new Date("2026-05-16T11:05:00").getTime(), endMs: new Date("2026-05-16T11:55:00").getTime(),
+        duration: 50, amount: 2.50, payment: "UPI", paymentMethod:"upi",
+        status:"completed", rating: 5 },
+      { id:"BK-2024-00120", bikeCode:"B05", bikeType:"Standard",
+        pickupStation:"Library Plaza", returnStation:"Sports Complex",
+        startMs: new Date("2026-05-14T13:10:00").getTime(), endMs: new Date("2026-05-14T13:55:00").getTime(),
+        duration: 45, amount: 2.50, payment: lastFour("4242"), paymentMethod:"card",
+        status:"completed" },
+      { id:"BK-2024-00119", bikeCode:"B09", bikeType:"Standard",
+        pickupStation:"Engineering Block", returnStation:"Hostel Area",
+        startMs: new Date("2026-05-12T08:00:00").getTime(), endMs: new Date("2026-05-12T08:35:00").getTime(),
+        duration: 35, amount: 2.00, payment: lastFour("4242"), paymentMethod:"card",
+        status:"completed", rating: 4 },
+      { id:"BK-2024-00118", bikeCode:"B14", bikeType:"Electric",
+        pickupStation:"Academic Quad", returnStation:"Library Plaza",
+        startMs: new Date("2026-05-11T16:30:00").getTime(), endMs: new Date("2026-05-11T17:15:00").getTime(),
+        duration: 45, amount: 2.50, payment: lastFour("4242"), paymentMethod:"card",
+        status:"completed" },
+      { id:"BK-2024-00117", bikeCode:"B02", bikeType:"Standard",
+        pickupStation:"Central Library", returnStation:"Academic Quad",
+        startMs: new Date("2026-05-09T19:40:00").getTime(), endMs: new Date("2026-05-09T20:25:00").getTime(),
+        duration: 45, amount: 2.50, payment: "Wallet", paymentMethod:"wallet",
+        status:"cancelled" },
+      { id:"BK-2024-00116", bikeCode:"B11", bikeType:"Standard",
+        pickupStation:"Hostel Area", returnStation:"Sports Complex",
+        startMs: new Date("2026-05-07T07:20:00").getTime(), endMs: new Date("2026-05-07T08:05:00").getTime(),
+        duration: 45, amount: 2.50, payment: lastFour("4242"), paymentMethod:"card",
+        status:"completed", rating: 3 },
+    ];
+
+    function seedNotifications(userName) {
+      const n = (id, kind, title, text, mins, unread = true) =>
+        ({ id, kind, title, text, when: Date.now() - mins*60*1000, unread });
+      return [
+        n("n1", "success", "Ride in progress", `Hi ${userName || "rider"} — Bike #B12 is checked out and the timer is running. Drop it at any station to end.`, 45),
+        n("n2", "info",    "Booking confirmed", "Your booking at Central Library for May 22 is locked in.", 22*60),
+        n("n3", "warn",    "Heads up", "Add extra time to avoid late return fees on your current ride.", 5),
+      ];
+    }
+
+    /* ─── Icon library ─────────────────────────────────────── */
+    const Icon = {
+      logo:    () => (<svg viewBox="0 0 64 64" width="40" height="40" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="16" cy="44" r="12"/><circle cx="48" cy="44" r="12"/><path d="M16 44 L28 24 L42 24 L48 44"/><path d="M28 24 L34 14 L42 14"/><circle cx="32" cy="24" r="2" fill="currentColor"/></svg>),
+      home:    () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-4a2 2 0 0 0-2-2h0a2 2 0 0 0-2 2v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/></svg>,
+      calendar:() => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>,
+      logout:  () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>,
+      bell:    () => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>,
+      map:     () => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21 3 6"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>,
+      bike:    ({ s = 22 } = {}) => (<svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18.5" cy="17.5" r="3.5"/><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="15" cy="5" r="1" fill="currentColor"/><path d="M12 17.5V14l-3-3 4-3 2 3h2"/></svg>),
+      person:  () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>,
+      help:    () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>,
+      pin:     () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>,
+      pinSolid:() => <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg>,
+      clock:   () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
+      stopwatch:() => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2"/><line x1="9" y1="2" x2="15" y2="2"/><line x1="12" y1="6" x2="12" y2="2"/></svg>,
+      info:    () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>,
+      check:   () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>,
+      checkCircle:() => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>,
+      xCircle: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>,
+      wallet:  () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4z"/></svg>,
+      plus:    () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>,
+      mail:    () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>,
+      settings:() => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>,
+      star:    ({on}) => <svg width="22" height="22" viewBox="0 0 24 24" fill={on ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>,
+      ticket:  () => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z"/><line x1="13" y1="5" x2="13" y2="19"/></svg>,
+      alert:   () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>,
+      search:  () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>,
+      filter:  () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>,
+      chevDown:() => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>,
+      chevL:   () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>,
+      chevR:   () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>,
+      sun:     () => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>,
+      doc:     () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg>,
+      download:() => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>,
+      route:   () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="6" cy="19" r="3"/><circle cx="18" cy="5" r="3"/><path d="M6 19h6a4 4 0 0 0 0-8H8a4 4 0 0 1 0-8h4"/></svg>,
+      /* Big bicycle illustration for the active-ride image tile */
+      bikeBig: () => (
+        <svg width="140" height="140" viewBox="0 0 200 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+          {/* Rear wheel */}
+          <circle cx="42" cy="118" r="32" stroke="#1E5BC6" strokeWidth="4"/>
+          <circle cx="42" cy="118" r="4" fill="#1E5BC6"/>
+          <line x1="42" y1="118" x2="42" y2="86" stroke="#94A3B8" strokeWidth="1.5"/>
+          <line x1="42" y1="118" x2="74" y2="118" stroke="#94A3B8" strokeWidth="1.5"/>
+          <line x1="42" y1="118" x2="20" y2="135" stroke="#94A3B8" strokeWidth="1.5"/>
+          <line x1="42" y1="118" x2="64" y2="135" stroke="#94A3B8" strokeWidth="1.5"/>
+          {/* Front wheel */}
+          <circle cx="158" cy="118" r="32" stroke="#1E5BC6" strokeWidth="4"/>
+          <circle cx="158" cy="118" r="4" fill="#1E5BC6"/>
+          <line x1="158" y1="118" x2="158" y2="86" stroke="#94A3B8" strokeWidth="1.5"/>
+          <line x1="158" y1="118" x2="126" y2="118" stroke="#94A3B8" strokeWidth="1.5"/>
+          <line x1="158" y1="118" x2="180" y2="135" stroke="#94A3B8" strokeWidth="1.5"/>
+          <line x1="158" y1="118" x2="136" y2="135" stroke="#94A3B8" strokeWidth="1.5"/>
+          {/* Frame */}
+          <path d="M42 118 L96 60 L130 60 L158 118" stroke="#0F172A" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round"/>
+          <path d="M96 60 L120 118" stroke="#0F172A" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round"/>
+          <path d="M120 118 L158 118" stroke="#0F172A" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round"/>
+          {/* Handlebar + saddle */}
+          <line x1="130" y1="60" x2="155" y2="42" stroke="#0F172A" strokeWidth="6" strokeLinecap="round"/>
+          <line x1="146" y1="42" x2="170" y2="42" stroke="#0F172A" strokeWidth="6" strokeLinecap="round"/>
+          <rect x="86" y="54" width="20" height="6" rx="3" fill="#0F172A"/>
+          {/* Pedal */}
+          <circle cx="120" cy="118" r="6" fill="#22C55E"/>
+          {/* Basket */}
+          <path d="M138 42 H172 L168 56 H142 Z" fill="#22C55E" opacity="0.85"/>
+          <path d="M138 42 H172" stroke="#15803D" strokeWidth="2"/>
+        </svg>
+      ),
+    };
+
+    /* ─── User Menu dropdown ───────────────────────────────── */
+    function UserMenu({ user, firstName, onAction, onLogout }) {
+      const role = (user && user.role ? user.role : "Student");
+      const email = (user && user.email) || "you@university.edu";
+      const fullName = (user && (user.full_name || user.name)) || firstName;
+      return (
+        <div className="d-user-panel" onClick={e => e.stopPropagation()}>
+          <div className="d-user-head">
+            <div className="d-user-avatar lg">{firstName.charAt(0).toUpperCase()}</div>
+            <div style={{minWidth:0, flex:1}}>
+              <div className="name">{fullName}</div>
+              <div className="email">{email}</div>
+              <span className="role-pill">{role}</span>
+            </div>
+          </div>
+          <div className="d-user-list">
+            <button onClick={() => onAction("profile")}><span className="ico"><Icon.person/></span>View Profile</button>
+            <button onClick={() => onAction("bookings")}><span className="ico"><Icon.calendar/></span>My Bookings</button>
+            <button onClick={() => onAction("history")}><span className="ico"><Icon.bike s={18}/></span>Ride History</button>
+            <button onClick={() => onAction("settings")}><span className="ico"><Icon.settings/></span>Account Settings</button>
+            <button onClick={() => onAction("inbox")}><span className="ico"><Icon.mail/></span>Messages</button>
+            <button onClick={() => onAction("help")}><span className="ico"><Icon.help/></span>Help &amp; Support</button>
+          </div>
+          <div className="d-user-foot">
+            <button onClick={onLogout}><Icon.logout/>Sign out</button>
+          </div>
+        </div>
+      );
+    }
+
+    /* ─── Notification panel ───────────────────────────────── */
+    function NotifPanel({ notifications, onMarkAll, onClickItem }) {
+      return (
+        <div className="d-notif-panel" onClick={e => e.stopPropagation()}>
+          <div className="d-notif-head">
+            <h3>Notifications</h3>
+            <button className="d-notif-mark" onClick={onMarkAll}>Mark all read</button>
+          </div>
+          <div className="d-notif-list">
+            {notifications.length === 0 ? (
+              <div className="d-notif-empty">No notifications yet — your bookings will show up here.</div>
+            ) : notifications.map(n => (
+              <div key={n.id} className={"d-notif-item" + (n.unread ? " unread" : "")} onClick={() => onClickItem(n.id)}>
+                <div className={"d-notif-icon " + n.kind}>
+                  {n.kind === "success" ? <Icon.check/> : n.kind === "warn" ? <Icon.alert/> : <Icon.info/>}
+                </div>
+                <div className="d-notif-body">
+                  <div className="d-notif-title">{n.title}</div>
+                  <div className="d-notif-text">{n.text}</div>
+                  <div className="d-notif-time">{fmtRelative(n.when)}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    /* ─── Active Ride card ─────────────────────────────────── */
+    function ActiveRideCard({ ride, onExtend, onEnd }) {
+      const [now, setNow] = useState(Date.now());
+      useEffect(() => {
+        const i = setInterval(() => setNow(Date.now()), 1000);
+        return () => clearInterval(i);
+      }, []);
+
+      if (!ride) {
+        return (
+          <div className="b-active-card">
+            <div className="b-active-head">
+              <h3><span className="b-live-dot"/> Current Active Ride</h3>
+            </div>
+            <div style={{padding: "32px 8px", textAlign: "center", color: "var(--d-muted)"}}>
+              <Icon.bike s={36}/>
+              <h4 style={{fontSize: 16, fontWeight: 800, color: "var(--d-ink)", margin: "10px 0 4px"}}>No ride in progress</h4>
+              <p style={{margin: 0, fontSize: 13.5}}>Pick up a bike from the dashboard to start riding.</p>
+              <button
+                className="b-act primary"
+                style={{marginTop: 16}}
+                onClick={() => window.location.href = "Student_dashboard.html"}>
+                <Icon.bike s={16}/> Book a ride
+              </button>
+            </div>
+          </div>
+        );
+      }
+
+      const elapsedSec = Math.max(0, Math.floor((now - ride.startMs) / 1000));
+      const remainSec  = Math.max(0, Math.floor((ride.endMs - now) / 1000));
+      const remainMinTxt = Math.floor(remainSec / 60) + ":" + String(remainSec % 60).padStart(2, "0");
+
+      return (
+        <div className="b-active-card">
+          <div className="b-active-head">
+            <h3><span className="b-live-dot"/> Current Active Ride</h3>
+            <span className="b-live-pill"><span className="b-live-dot" style={{width:6, height:6, boxShadow:"none"}}/> Live</span>
+          </div>
+
+          <div className="b-active-grid">
+            {/* Left: bike illustration */}
+            <div className="b-bike-frame">
+              <Icon.bikeBig/>
+            </div>
+
+            {/* Middle: info */}
+            <div className="b-active-info">
+              <div className="b-active-title">
+                <h2>Bike #{ride.bikeCode}</h2>
+                <span className="b-status-tag active">Active</span>
+              </div>
+
+              <div className="b-active-fields">
+                <div>
+                  <div className="b-field-label"><Icon.pin/> Pickup Station</div>
+                  <div className="b-field-value">{ride.pickupStation}</div>
+                </div>
+                <div>
+                  <div className="b-field-label"><Icon.clock/> Start Time</div>
+                  <div className="b-field-value">Today, {fmtTime(ride.startMs)}</div>
+                </div>
+                <div>
+                  <div className="b-field-label"><Icon.stopwatch/> Ride Duration</div>
+                  <div className="b-field-value timer">{fmtTimer(elapsedSec)}</div>
+                </div>
+              </div>
+
+              <div className="b-active-callouts">
+                <div className="b-callout time-rem">
+                  <div className="b-callout-ico"><Icon.stopwatch/></div>
+                  <div style={{minWidth:0}}>
+                    <div className="b-callout-label">Time Remaining</div>
+                    <div className="b-callout-value">{remainMinTxt}<small>Minutes</small></div>
+                  </div>
+                </div>
+                <div className="b-callout reminder">
+                  <div className="b-callout-ico"><Icon.info/></div>
+                  <div style={{minWidth:0}}>
+                    <div className="b-callout-text"><strong>Reminder:</strong> Add extra time to avoid late fees.</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="b-active-actions">
+                <button className="b-act outline" onClick={() => onExtend(ride)}>
+                  <Icon.plus/> Extend Ride
+                </button>
+                <button className="b-act danger-solid" onClick={() => onEnd(ride)}>
+                  <Icon.checkCircle/> End Ride
+                </button>
+              </div>
+            </div>
+
+            {/* Right: mini map */}
+            <div className="b-mini-map">
+              <div className="b-mini-map-pin"><Icon.pinSolid/></div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    /* ─── Upcoming Bookings sidebar ────────────────────────── */
+    function UpcomingCard({ upcoming, onView, onViewAll }) {
+      return (
+        <div className="b-upcoming-card">
+          <div className="b-upcoming-head">
+            <h3>Upcoming Bookings</h3>
+            <button className="b-link" onClick={onViewAll}>View All</button>
+          </div>
+
+          {upcoming.length === 0 ? (
+            <div className="b-upcoming-empty">
+              <Icon.calendar/>
+              <div style={{marginTop: 6}}>No upcoming bookings.</div>
+            </div>
+          ) : (
+            <div className="b-upcoming-list">
+              {upcoming.slice(0, 3).map(b => (
+                <div key={b.id} className="b-up-item">
+                  <div className="b-up-thumb"><Icon.bike s={28}/></div>
+                  <div className="b-up-body">
+                    <div className="b-up-title">
+                      <strong>Bike #{b.bikeCode}</strong>
+                      <span className="b-status-tag upcoming">Upcoming</span>
+                    </div>
+                    <div className="b-up-meta">
+                      <span><Icon.pin/> {b.pickupStation}</span>
+                      <span><Icon.calendar/> {fmtLongDate(b.startMs)} · {fmtTime(b.startMs)}</span>
+                    </div>
+                  </div>
+                  <button className="b-up-cta" onClick={() => onView(b)}>View Details</button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {upcoming.length > 0 && (
+            <button className="b-upcoming-foot" onClick={onViewAll}>
+              View All Upcoming <Icon.chevR/>
+            </button>
+          )}
+        </div>
+      );
+    }
+
+    /* ─── Modals (reused) ──────────────────────────────────── */
+    function DetailModal({ b, onClose }) {
+      if (!b) return null;
+      return (
+        <div className="d-overlay" onClick={onClose}>
+          <div className="d-modal" onClick={e => e.stopPropagation()}>
+            <div className="d-modal-head">
+              <h3>Booking details</h3>
+              <p>Reference <strong>#{b.id}</strong></p>
+            </div>
+            <div className="d-modal-body">
+              <div className="d-summary">
+                <div className="d-summary-row"><span className="k">Status</span><span className="v" style={{textTransform:"capitalize"}}>{b.status}</span></div>
+                <div className="d-summary-row"><span className="k">Bike</span><span className="v">#{b.bikeCode} · {b.bikeType}</span></div>
+                <div className="d-summary-row"><span className="k">Pickup</span><span className="v">{b.pickupStation}</span></div>
+                <div className="d-summary-row"><span className="k">Return</span><span className="v">{b.returnStation}</span></div>
+                <div className="d-summary-row"><span className="k">Start</span><span className="v">{fmtDateTime(b.startMs)}</span></div>
+                <div className="d-summary-row"><span className="k">End</span><span className="v">{fmtDateTime(b.endMs)}</span></div>
+                <div className="d-summary-row"><span className="k">Duration</span><span className="v">{fmtDuration(b.duration)}</span></div>
+                <div className="d-summary-row"><span className="k">Amount</span><span className="v">{fmtPrice(b.amount)}</span></div>
+                <div className="d-summary-row"><span className="k">Payment</span><span className="v">{b.payment}</span></div>
+              </div>
+            </div>
+            <div className="d-modal-foot">
+              <button className="d-btn d-btn-secondary" onClick={onClose}>Close</button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function CancelModal({ b, onClose, onConfirm }) {
+      if (!b) return null;
+      return (
+        <div className="d-overlay" onClick={onClose}>
+          <div className="d-modal" onClick={e => e.stopPropagation()}>
+            <div className="d-modal-head">
+              <h3>Cancel this booking?</h3>
+              <p>This will release Bike #{b.bikeCode} at {b.pickupStation}. Cancellations made &gt; 1 hr ahead are fully refunded.</p>
+            </div>
+            <div className="d-modal-body">
+              <div className="d-summary">
+                <div className="d-summary-row"><span className="k">Booking</span><span className="v">#{b.id}</span></div>
+                <div className="d-summary-row"><span className="k">When</span><span className="v">{fmtDateTime(b.startMs)}</span></div>
+                <div className="d-summary-row"><span className="k">Hold</span><span className="v">{fmtPrice(b.amount)}</span></div>
+              </div>
+            </div>
+            <div className="d-modal-foot">
+              <button className="d-btn d-btn-secondary" onClick={onClose}>Keep booking</button>
+              <button className="d-btn d-btn-danger" onClick={() => onConfirm(b)}>Yes, cancel</button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function ExtendModal({ b, onClose, onConfirm }) {
+      const [mins, setMins] = useState(30);
+      if (!b) return null;
+      /* Pay-as-you-ride extension: 20¢ per extra minute (matches global pricing) */
+      const extraCost = Math.round(mins * 0.20 * 100) / 100;
+      return (
+        <div className="d-overlay" onClick={onClose}>
+          <div className="d-modal" onClick={e => e.stopPropagation()}>
+            <div className="d-modal-head">
+              <h3>Extend your ride</h3>
+              <p>Add more time to Bike #{b.bikeCode} — you'll be charged the per-minute rate.</p>
+            </div>
+            <div className="d-modal-body">
+              <div style={{display:"flex", gap:8, flexWrap:"wrap", marginBottom: 14}}>
+                {[15, 30, 60, 120].map(m => (
+                  <button key={m}
+                    onClick={() => setMins(m)}
+                    style={{
+                      padding: "10px 14px", borderRadius: 12, cursor: "pointer", fontFamily:"inherit",
+                      fontWeight: 700, fontSize: 13.5,
+                      border: "1px solid " + (mins === m ? "var(--d-green)" : "var(--d-border)"),
+                      background: mins === m ? "var(--d-green-soft)" : "var(--d-card)",
+                      color: mins === m ? "var(--d-green-d)" : "var(--d-ink)"
+                    }}>
+                    +{m} min
+                  </button>
+                ))}
+              </div>
+              <div className="d-summary">
+                <div className="d-summary-row"><span className="k">Extra time</span><span className="v">+{mins} min</span></div>
+                <div className="d-summary-row"><span className="k">Additional charge</span><span className="v">{fmtPrice(extraCost)}</span></div>
+              </div>
+            </div>
+            <div className="d-modal-foot">
+              <button className="d-btn d-btn-secondary" onClick={onClose}>Not now</button>
+              <button className="d-btn d-btn-primary" onClick={() => onConfirm(b, mins, extraCost)}>Confirm extension</button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function RateModal({ b, onClose, onSubmit }) {
+      const [stars, setStars] = useState(0);
+      const [note, setNote] = useState("");
+      if (!b) return null;
+      return (
+        <div className="d-overlay" onClick={onClose}>
+          <div className="d-modal" onClick={e => e.stopPropagation()}>
+            <div className="d-modal-head">
+              <h3>Rate your ride</h3>
+              <p>How was your trip on Bike #{b.bikeCode}?</p>
+            </div>
+            <div className="d-modal-body">
+              <div className="b-stars">
+                {[1,2,3,4,5].map(n => (
+                  <button key={n} type="button" className={"b-star-btn" + (n <= stars ? " on" : "")} onClick={() => setStars(n)} aria-label={n + " star"}>
+                    <Icon.star on={n <= stars}/>
+                  </button>
+                ))}
+              </div>
+              <textarea
+                className="b-textarea"
+                placeholder="Anything we should know about the bike or the route? (optional)"
+                value={note}
+                onChange={e => setNote(e.target.value)}
+              />
+            </div>
+            <div className="d-modal-foot">
+              <button className="d-btn d-btn-secondary" onClick={onClose}>Skip</button>
+              <button className="d-btn d-btn-primary" disabled={stars === 0} onClick={() => onSubmit(b, stars, note)}>Submit rating</button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function ToastStack({ toasts }) {
+      if (!toasts || toasts.length === 0) return null;
+      return (
+        <div className="d-toasts">
+          {toasts.map(t => (
+            <div key={t.id} className="d-toast">
+              <h4>{t.title}</h4>
+              <p>{t.body}</p>
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    /* API base — same-origin works because Express serves the frontend too */
+    const API_BASE = "/api";
+
+    /* Read any locally cached bookings (post-payment from the dashboard) */
+    function readLocalBookings() {
+      try {
+        const raw = JSON.parse(localStorage.getItem("cbs_bookings") || "[]");
+        return Array.isArray(raw) ? raw.map(normalise) : [];
+      } catch (_) { return []; }
+    }
+
+    /* Merge multiple lists keyed by id (later sources win) */
+    function mergeBookings(...lists) {
+      const byId = new Map();
+      for (const list of lists) {
+        if (!list) continue;
+        for (const b of list) byId.set(b.id, b);
+      }
+      return Array.from(byId.values());
+    }
+
+    /* ═══════════════════ Main App ═══════════════════ */
+    function App() {
+      const [user, setUser] = useState(null);
+      /* Start with whatever the dashboard's localStorage cache has so the
+         page is never empty on first paint, then upgrade to the DB list
+         as soon as the API responds. */
+      const [bookings, setBookings] = useState(() => readLocalBookings());
+      const [loading, setLoading]   = useState(true);
+      const [apiError, setApiError] = useState(null);
+
+      const [filter, setFilter]   = useState("all");
+      const [search, setSearch]   = useState("");
+      const [showFilter, setShowFilter] = useState(false);
+      const [page, setPage] = useState(1);
+      const [rowsPerPage, setRowsPerPage] = useState(5);
+
+      const [notifications, setNotifications] = useState([]);
+      const [notifOpen, setNotifOpen] = useState(false);
+      const [userOpen,  setUserOpen]  = useState(false);
+      const [detailFor,   setDetailFor]   = useState(null);
+      const [cancelFor,   setCancelFor]   = useState(null);
+      const [extendFor,   setExtendFor]   = useState(null);
+      const [rateFor,     setRateFor]     = useState(null);
+      const [toasts, setToasts] = useState([]);
+
+      const firstName = useMemo(() => {
+        const name = (user && (user.full_name || user.name)) || "Rider";
+        return String(name).split(" ")[0] || "Rider";
+      }, [user]);
+      const unread = notifications.filter(n => n.unread).length;
+
+      /* Load logged-in user from localStorage (set by the login flow) */
+      useEffect(() => {
+        try {
+          const raw = localStorage.getItem("cbs_user");
+          if (raw) {
+            const u = JSON.parse(raw);
+            setUser(u);
+            setNotifications(seedNotifications(u && (u.full_name || u.name)));
+          } else {
+            setNotifications(seedNotifications("Rider"));
+          }
+        } catch (_) {
+          setNotifications(seedNotifications("Rider"));
+        }
+      }, []);
+
+      /* Fetch this user's bookings from the API.
+         The endpoint /api/bookings/user/:id is JWT-protected and only returns
+         rows where bookings.user_id matches the currently authenticated user
+         (or the user the admin is impersonating). So each student sees only
+         their own bookings. */
+      const fetchBookings = React.useCallback(async () => {
+        if (!user || !user.id) return;
+        const token = (() => { try { return localStorage.getItem("cbs_token"); } catch (_) { return null; } })();
+        if (!token) { setLoading(false); return; }
+
+        try {
+          const res = await fetch(`${API_BASE}/bookings/user/${encodeURIComponent(user.id)}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (!res.ok) {
+            const data = await res.json().catch(() => ({}));
+            throw new Error(data.error || `Request failed (${res.status})`);
+          }
+          const data = await res.json();
+          const fromApi = Array.isArray(data.bookings) ? data.bookings.map(normalise) : [];
+          /* Merge: API is authoritative, but also keep localStorage-only entries
+             (e.g. a booking the dashboard just queued post-payment that the API
+             hasn't reflected yet). NO seed data when the API succeeds. */
+          setBookings(mergeBookings(readLocalBookings(), fromApi));
+          setApiError(null);
+        } catch (err) {
+          /* Backend down or auth expired. Show whatever we cached locally; if
+             that's empty too, fall back to the dev seed so the page renders. */
+          setApiError(err.message || "Could not load your bookings from the server.");
+          const local = readLocalBookings();
+          setBookings(local.length > 0 ? local : SEED_BOOKINGS_FALLBACK);
+        } finally {
+          setLoading(false);
+        }
+      }, [user]);
+
+      /* Initial fetch + refetch on focus/storage so dashboard bookings appear immediately */
+      useEffect(() => { fetchBookings(); }, [fetchBookings]);
+      useEffect(() => {
+        function onFocus() { fetchBookings(); }
+        function onStorage(e) {
+          /* Only react to keys we care about */
+          if (!e.key || e.key === "cbs_bookings" || e.key === "cbs_user" || e.key === "cbs_token") fetchBookings();
+        }
+        window.addEventListener("focus", onFocus);
+        window.addEventListener("storage", onStorage);
+        return () => {
+          window.removeEventListener("focus", onFocus);
+          window.removeEventListener("storage", onStorage);
+        };
+      }, [fetchBookings]);
+
+      /* Close dropdowns on outside click */
+      useEffect(() => {
+        function close() { setNotifOpen(false); setUserOpen(false); setShowFilter(false); }
+        document.addEventListener("click", close);
+        return () => document.removeEventListener("click", close);
+      }, []);
+
+      function pushToast(title, body) {
+        const id = "t" + Date.now() + "_" + Math.random().toString(36).slice(2,6);
+        setToasts(ts => [...ts, { id, title, body }]);
+        setTimeout(() => setToasts(ts => ts.filter(t => t.id !== id)), 4000);
+      }
+
+      /* Counts for stat cards */
+      const counts = useMemo(() => {
+        const c = { all: bookings.length, upcoming: 0, active: 0, completed: 0, cancelled: 0, expired: 0 };
+        for (const b of bookings) c[b.status] = (c[b.status] || 0) + 1;
+        return c;
+      }, [bookings]);
+
+      const activeRide = useMemo(() => bookings.find(b => b.status === "active") || null, [bookings]);
+      const upcoming   = useMemo(
+        () => bookings.filter(b => b.status === "upcoming").sort((a,b) => a.startMs - b.startMs),
+        [bookings]
+      );
+
+      /* History rows — everything that is not the currently active ride.
+         The user can filter further via status pills. */
+      const historyFiltered = useMemo(() => {
+        const q = search.trim().toLowerCase();
+        let rows = bookings.filter(b => b.status !== "active");
+        if (filter !== "all") rows = rows.filter(b => b.status === filter);
+        if (q) {
+          rows = rows.filter(b =>
+            b.id.toLowerCase().includes(q) ||
+            b.bikeCode.toLowerCase().includes(q) ||
+            b.pickupStation.toLowerCase().includes(q) ||
+            (b.returnStation || "").toLowerCase().includes(q) ||
+            (b.payment || "").toLowerCase().includes(q)
+          );
+        }
+        rows.sort((a, b) => b.startMs - a.startMs);
+        return rows;
+      }, [bookings, filter, search]);
+
+      const totalPages = Math.max(1, Math.ceil(historyFiltered.length / rowsPerPage));
+      useEffect(() => { if (page > totalPages) setPage(totalPages); }, [totalPages, page]);
+      const pageRows = historyFiltered.slice((page - 1) * rowsPerPage, page * rowsPerPage);
+
+      /* Actions */
+      function persist(next) {
+        /* Save back to localStorage so the dashboard sees the same state */
+        try {
+          const payload = next.map(b => ({
+            id: b.id,
+            bikeCode: b.bikeCode,
+            bikeType: b.bikeType,
+            pickupStation: b.pickupStation,
+            returnStation: b.returnStation,
+            start: new Date(b.startMs).toISOString(),
+            end:   new Date(b.endMs).toISOString(),
+            duration: b.duration,
+            amount: b.amount,
+            payment: b.payment,
+            paymentMethod: b.paymentMethod,
+            status: b.status,
+            rating: b.rating,
+            notes: b.notes,
+          }));
+          localStorage.setItem("cbs_bookings", JSON.stringify(payload));
+        } catch (_) {}
+      }
+      function updateBookings(updater) {
+        setBookings(prev => {
+          const next = typeof updater === "function" ? updater(prev) : updater;
+          persist(next);
+          return next;
+        });
+      }
+
+      function onEndRide(b) {
+        updateBookings(arr => arr.map(x => x.id === b.id ? { ...x, status: "completed", endMs: Date.now() } : x));
+        pushToast("Ride ended", `Bike #${b.bikeCode} returned. Receipt is in your history.`);
+      }
+      function onCancel(b) { setCancelFor(b); }
+      function confirmCancel(b) {
+        updateBookings(arr => arr.map(x => x.id === b.id ? { ...x, status: "cancelled" } : x));
+        setCancelFor(null);
+        pushToast("Booking cancelled", `#${b.id} was cancelled. Refund (if any) lands in 3–5 business days.`);
+      }
+      function onExtend(b) { setExtendFor(b); }
+      function confirmExtend(b, extraMin, extraCost) {
+        updateBookings(arr => arr.map(x => x.id === b.id
+          ? { ...x, duration: (x.duration || 0) + extraMin, endMs: x.endMs + extraMin*60*1000, amount: x.amount + extraCost }
+          : x));
+        setExtendFor(null);
+        pushToast("Ride extended", `Added ${extraMin} min for ${fmtPrice(extraCost)}.`);
+      }
+      function onRate(b) { setRateFor(b); }
+      function submitRating(b, stars, note) {
+        updateBookings(arr => arr.map(x => x.id === b.id ? { ...x, rating: stars, notes: note } : x));
+        setRateFor(null);
+        pushToast("Thanks for the feedback!", `${stars} star${stars === 1 ? "" : "s"} saved.`);
+      }
+      function onView(b) { setDetailFor(b); }
+
+      function markAllRead() { setNotifications(arr => arr.map(n => ({ ...n, unread: false }))); }
+      function clickNotif(id) { setNotifications(arr => arr.map(n => n.id === id ? { ...n, unread: false } : n)); }
+
+      function onLogout() {
+        try {
+          localStorage.removeItem("cbs_token");
+          localStorage.removeItem("cbs_user");
+        } catch (_) {}
+        window.location.href = "../../login.html?loggedout=1";
+      }
+
+      const filterOptions = [
+        { v: "all",       label: "All" },
+        { v: "upcoming",  label: "Upcoming" },
+        { v: "completed", label: "Completed" },
+        { v: "cancelled", label: "Cancelled" },
+        { v: "expired",   label: "Expired" },
+      ];
+
+      /* Pagination buttons (with ellipsis if many pages) */
+      const pageBtns = useMemo(() => {
+        const arr = [];
+        const max = totalPages;
+        if (max <= 5) {
+          for (let i = 1; i <= max; i++) arr.push(i);
+        } else {
+          arr.push(1);
+          if (page > 3) arr.push("…");
+          for (let i = Math.max(2, page-1); i <= Math.min(max-1, page+1); i++) arr.push(i);
+          if (page < max - 2) arr.push("…");
+          arr.push(max);
+        }
+        return arr;
+      }, [page, totalPages]);
+
+      const startIdx = historyFiltered.length === 0 ? 0 : (page - 1) * rowsPerPage + 1;
+      const endIdx = Math.min(historyFiltered.length, page * rowsPerPage);
+
+      return (
+        <div className="d-shell">
+          {/* TOP BAR */}
+          <header className="d-topbar">
+            <a href="Student_dashboard.html" className="d-brand" title="Dashboard">
+              <span className="d-brand-logo"><Icon.logo/></span>
+              <span className="d-brand-name">Campus <span className="accent">Bike Sharing</span></span>
+            </a>
+            <nav className="d-nav">
+              <button className="d-nav-item" onClick={() => window.location.href = "Student_dashboard.html"}>
+                <Icon.home/><span className="d-nav-text">Home</span>
+              </button>
+              <button className="d-nav-item active">
+                <Icon.calendar/><span className="d-nav-text">My Bookings</span>
+              </button>
+              <div className="d-notif-wrap">
+                <button className="d-icon-btn" onClick={(e) => { e.stopPropagation(); setNotifOpen(v => !v); setUserOpen(false); }} title="Notifications">
+                  <Icon.bell/>
+                  {unread > 0 && <span className="badge">{unread > 9 ? "9+" : unread}</span>}
+                </button>
+                {notifOpen && <NotifPanel notifications={notifications} onMarkAll={markAllRead} onClickItem={clickNotif}/>}
+              </div>
+              <div className="d-user-wrap">
+                <button className={"d-user-btn" + (userOpen ? " open" : "")}
+                        onClick={(e) => { e.stopPropagation(); setUserOpen(v => !v); setNotifOpen(false); }}
+                        title="Account">
+                  <span className="d-user-avatar">{firstName.charAt(0).toUpperCase()}</span>
+                </button>
+                {userOpen && (
+                  <UserMenu user={user} firstName={firstName}
+                            onAction={(a) => { setUserOpen(false); pushToast("Coming soon", a.charAt(0).toUpperCase() + a.slice(1) + " page is under construction."); }}
+                            onLogout={onLogout}/>
+                )}
+              </div>
+            </nav>
+          </header>
+
+          <div className="d-main">
+            {/* SIDEBAR */}
+            <aside className="d-sidebar">
+              <button className="d-side-btn" title="Map"      onClick={() => window.location.href = "Student_dashboard.html"}><Icon.map/></button>
+              <button className="d-side-btn active" title="Bookings"><Icon.calendar/></button>
+              <button className="d-side-btn" title="My rides" onClick={() => pushToast("Coming soon", "Ride history page.")}><Icon.bike/></button>
+              <button className="d-side-btn" title="Profile"  onClick={() => pushToast("Coming soon", "Profile page.")}><Icon.person/></button>
+              <button className="d-side-btn" title="Help"     onClick={() => pushToast("Need help?", "Email us at campusbikesharing@gmail.com")}><Icon.help/></button>
+              <div className="d-side-spacer"/>
+              <button className="d-side-theme" title="Toggle theme" onClick={() => pushToast("Theme", "Dark mode coming soon.")}><Icon.sun/></button>
+            </aside>
+
+            {/* CONTENT */}
+            <main className="d-content">
+              {/* Page header */}
+              <div className="b-page-head">
+                <div className="title-block">
+                  <h1>My Bookings {loading && <span className="b-spin" aria-label="Loading"/>}</h1>
+                  <p>View your current rides, upcoming reservations, completed rides, cancellations, payments, and ride history.</p>
+                  {apiError && (
+                    <div className="b-error-banner" role="alert">
+                      <Icon.alert/>
+                      <span>Couldn't reach the server — showing your saved bookings. <button className="b-link-inline" onClick={() => { setLoading(true); fetchBookings(); }}>Try again</button></span>
+                    </div>
+                  )}
+                </div>
+                <button className="b-book-new" onClick={() => window.location.href = "Student_dashboard.html"}>
+                  <Icon.bike s={18}/> Book Another Bike
+                </button>
+              </div>
+
+              {/* Stats summary — 5 cards */}
+              <div className="b-stats">
+                <div className="b-stat-card">
+                  <div className="b-stat-icon green"><Icon.calendar/></div>
+                  <div className="b-stat-text">
+                    <div className="label">Upcoming</div>
+                    <div className="value">{counts.upcoming}</div>
+                    <div className="sub">Bookings</div>
+                  </div>
+                </div>
+                <div className="b-stat-card">
+                  <div className="b-stat-icon blue"><Icon.bike s={24}/></div>
+                  <div className="b-stat-text">
+                    <div className="label">Active Ride</div>
+                    <div className="value">{counts.active}</div>
+                    <div className="sub">{counts.active > 0 ? "Ongoing" : "None right now"}</div>
+                  </div>
+                </div>
+                <div className="b-stat-card">
+                  <div className="b-stat-icon check"><Icon.checkCircle/></div>
+                  <div className="b-stat-text">
+                    <div className="label">Completed</div>
+                    <div className="value">{counts.completed}</div>
+                    <div className="sub">Rides</div>
+                  </div>
+                </div>
+                <div className="b-stat-card">
+                  <div className="b-stat-icon red"><Icon.xCircle/></div>
+                  <div className="b-stat-text">
+                    <div className="label">Cancelled</div>
+                    <div className="value">{counts.cancelled}</div>
+                    <div className="sub">Bookings</div>
+                  </div>
+                </div>
+                <div className="b-stat-card">
+                  <div className="b-stat-icon amber"><Icon.wallet/></div>
+                  <div className="b-stat-text">
+                    <div className="label">Total Rides</div>
+                    <div className="value">{counts.all}</div>
+                    <div className="sub">All Time</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Active Ride + Upcoming row */}
+              <div className="b-mid-row">
+                <ActiveRideCard ride={activeRide} onExtend={onExtend} onEnd={onEndRide}/>
+                <UpcomingCard
+                  upcoming={upcoming}
+                  onView={onView}
+                  onViewAll={() => { setFilter("upcoming"); setPage(1); pushToast("Filtered", "Showing upcoming bookings below."); }}
+                />
+              </div>
+
+              {/* Booking History */}
+              <div className="b-history-card">
+                <div className="b-history-head">
+                  <h3>Booking History</h3>
+                  <div className="b-history-tools">
+                    <div className="b-search">
+                      <Icon.search/>
+                      <input placeholder="Search bookings…" value={search} onChange={e => { setSearch(e.target.value); setPage(1); }}/>
+                    </div>
+                    <button className="b-filter-btn" onClick={(e) => { e.stopPropagation(); setShowFilter(v => !v); }}>
+                      <Icon.filter/> Filter <Icon.chevDown/>
+                    </button>
+                    <button className="b-icon-tool" title="Date range — coming soon" onClick={() => pushToast("Coming soon", "Custom date range filter.")}>
+                      <Icon.calendar/>
+                    </button>
+                    {showFilter && (
+                      <div className="b-filter-pop" onClick={e => e.stopPropagation()}>
+                        <div className="b-filter-label">Status</div>
+                        {filterOptions.map(o => (
+                          <button key={o.v} className={filter === o.v ? "sel" : ""} onClick={() => { setFilter(o.v); setShowFilter(false); setPage(1); }}>
+                            {filter === o.v ? <Icon.check/> : <span style={{width:14}}/>} {o.label}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="b-table-wrap">
+                  <table className="b-table">
+                    <thead>
+                      <tr>
+                        <th>Booking ID</th>
+                        <th>Bike ID</th>
+                        <th>Pickup Station</th>
+                        <th>Return Station</th>
+                        <th>Start Time</th>
+                        <th>End Time</th>
+                        <th>Duration</th>
+                        <th>Amount</th>
+                        <th>Payment</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {pageRows.length === 0 ? (
+                        <tr>
+                          <td colSpan={11} className="b-table-empty">
+                            <h4>No bookings to show</h4>
+                            <div>Try clearing your search or filter — or book a new ride from the dashboard.</div>
+                          </td>
+                        </tr>
+                      ) : pageRows.map(b => (
+                        <tr key={b.id}>
+                          <td>{b.id}</td>
+                          <td className="col-bike">{b.bikeCode}</td>
+                          <td>{b.pickupStation}</td>
+                          <td>{b.returnStation}</td>
+                          <td>{fmtLongDate(b.startMs)} {fmtTime(b.startMs)}</td>
+                          <td>{fmtLongDate(b.endMs)} {fmtTime(b.endMs)}</td>
+                          <td>{fmtDuration(b.duration)}</td>
+                          <td className="col-amount">{fmtPrice(b.amount)}</td>
+                          <td>{b.payment}</td>
+                          <td><span className={"b-pill " + b.status}>{b.status}</span></td>
+                          <td>
+                            <div className="row-actions">
+                              <button className="b-row-act" title="View details" onClick={() => onView(b)}><Icon.doc/></button>
+                              <button className="b-row-act" title="Download receipt" onClick={() => pushToast("Receipt", `Receipt for #${b.id} downloaded.`)}><Icon.download/></button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Pagination */}
+                <div className="b-pager">
+                  <div className="b-pager-info">
+                    Showing <strong>{startIdx}</strong> to <strong>{endIdx}</strong> of <strong>{historyFiltered.length}</strong> bookings
+                  </div>
+                  <div className="b-pager-nav">
+                    <button className="b-pager-btn" disabled={page === 1} onClick={() => setPage(p => Math.max(1, p - 1))} aria-label="Previous page">
+                      <Icon.chevL/>
+                    </button>
+                    {pageBtns.map((p, idx) => p === "…" ? (
+                      <span key={"e" + idx} style={{color: "var(--d-muted)", padding: "0 4px"}}>…</span>
+                    ) : (
+                      <button key={p} className={"b-pager-btn" + (page === p ? " active" : "")} onClick={() => setPage(p)}>{p}</button>
+                    ))}
+                    <button className="b-pager-btn" disabled={page === totalPages} onClick={() => setPage(p => Math.min(totalPages, p + 1))} aria-label="Next page">
+                      <Icon.chevR/>
+                    </button>
+                  </div>
+                  <div className="b-pager-rows">
+                    Rows per page
+                    <select value={rowsPerPage} onChange={e => { setRowsPerPage(Number(e.target.value)); setPage(1); }}>
+                      {[5, 10, 25, 50].map(n => <option key={n} value={n}>{n}</option>)}
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </main>
+          </div>
+
+          {/* MODALS */}
+          {detailFor && <DetailModal b={detailFor} onClose={() => setDetailFor(null)}/>}
+          {cancelFor && <CancelModal b={cancelFor} onClose={() => setCancelFor(null)} onConfirm={confirmCancel}/>}
+          {extendFor && <ExtendModal b={extendFor} onClose={() => setExtendFor(null)} onConfirm={confirmExtend}/>}
+          {rateFor   && <RateModal   b={rateFor}   onClose={() => setRateFor(null)}   onSubmit={submitRating}/>}
+
+          <ToastStack toasts={toasts}/>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+  </script>
+</body>
+</html>

@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Profile | Campus Bike Sharing</title>
+  <link rel="stylesheet" href="../../Login.css">
+  <link rel="stylesheet" href="student-shared.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel" data-presets="env,react" src="student-shared.js"></script>
+  <script type="text/babel" data-presets="env,react">
+    const { useEffect, useState } = React;
+    const PRICE_FMT = new Intl.NumberFormat("en-AU", { style: "currency", currency: "AUD" });
+    const Icon = window.StudentIcons;
+
+    function EditProfileModal({ initial, onClose, onSave }) {
+      const [fullName, setFullName] = useState(initial.full_name || "");
+      const [email, setEmail]       = useState(initial.email || "");
+      const [phone, setPhone]       = useState(initial.phone || "");
+      const [err, setErr] = useState("");
+      const [busy, setBusy] = useState(false);
+
+      const submit = async () => {
+        setErr("");
+        if (!fullName.trim() || fullName.trim().length < 2) return setErr("Please enter your full name (2+ chars).");
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return setErr("Please enter a valid email.");
+        if (phone && (phone.trim().length < 6 || phone.trim().length > 20)) return setErr("Phone should be 6–20 characters.");
+        setBusy(true);
+        try { await onSave({ fullName: fullName.trim(), email: email.trim(), phone: phone.trim() }); }
+        catch (e) { setErr(e.message || "Could not update."); }
+        finally { setBusy(false); }
+      };
+      return (
+        <div className="d-overlay" onClick={onClose}>
+          <div className="d-modal" onClick={e => e.stopPropagation()} data-testid="edit-profile-modal">
+            <div className="d-modal-head"><h3>Edit Profile</h3><p>Keep your account information up to date.</p></div>
+            <div className="d-modal-body">
+              <div className="s-form-row"><label>Full Name</label>
+                <input className="d-input" value={fullName} onChange={e => setFullName(e.target.value)} maxLength={100} data-testid="edit-fullname"/></div>
+              <div className="s-form-row" style={{marginTop:14}}><label>Email</label>
+                <input className="d-input" type="email" value={email} onChange={e => setEmail(e.target.value)} data-testid="edit-email"/></div>
+              <div className="s-form-row" style={{marginTop:14}}><label>Phone</label>
+                <input className="d-input" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+61 4xx xxx xxx" data-testid="edit-phone"/></div>
+              {err && <div className="err" style={{marginTop:12, color:"var(--d-red)", fontWeight:600, fontSize:13}}>{err}</div>}
+            </div>
+            <div className="d-modal-foot">
+              <button className="d-btn d-btn-secondary" onClick={onClose} disabled={busy} data-testid="edit-cancel">Cancel</button>
+              <button className="d-btn d-btn-primary" onClick={submit} disabled={busy} data-testid="edit-save">{busy ? "Saving…" : "Save Changes"}</button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function ChangePasswordModal({ onClose, onSave }) {
+      const [cur, setCur] = useState(""); const [nw, setNw] = useState(""); const [cf, setCf] = useState("");
+      const [err, setErr] = useState(""); const [busy, setBusy] = useState(false);
+      const submit = async () => {
+        setErr("");
+        if (!cur) return setErr("Current password is required.");
+        if (nw.length < 8) return setErr("New password must be at least 8 characters.");
+        if (nw !== cf) return setErr("Passwords do not match.");
+        setBusy(true);
+        try { await onSave({ currentPassword: cur, newPassword: nw }); }
+        catch (e) { setErr(e.message || "Could not change password."); }
+        finally { setBusy(false); }
+      };
+      return (
+        <div className="d-overlay" onClick={onClose}>
+          <div className="d-modal" onClick={e => e.stopPropagation()} data-testid="change-pwd-modal">
+            <div className="d-modal-head"><h3>Change Password</h3><p>Choose a strong password (8+ characters).</p></div>
+            <div className="d-modal-body">
+              <div className="s-form-row"><label>Current Password</label>
+                <input className="d-input" type="password" value={cur} onChange={e => setCur(e.target.value)} data-testid="pwd-current"/></div>
+              <div className="s-form-row" style={{marginTop:14}}><label>New Password</label>
+                <input className="d-input" type="password" value={nw} onChange={e => setNw(e.target.value)} data-testid="pwd-new"/></div>
+              <div className="s-form-row" style={{marginTop:14}}><label>Confirm New Password</label>
+                <input className="d-input" type="password" value={cf} onChange={e => setCf(e.target.value)} data-testid="pwd-confirm"/></div>
+              {err && <div style={{marginTop:12, color:"var(--d-red)", fontWeight:600, fontSize:13}}>{err}</div>}
+            </div>
+            <div className="d-modal-foot">
+              <button className="d-btn d-btn-secondary" onClick={onClose} disabled={busy} data-testid="pwd-cancel">Cancel</button>
+              <button className="d-btn d-btn-primary" onClick={submit} disabled={busy} data-testid="pwd-save">{busy ? "Updating…" : "Update Password"}</button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function App() {
+      const { user, pushToast, toasts, requireAuth, logout } = window.useStudentAuth();
+      const [data, setData] = useState(null);
+      const [err, setErr] = useState("");
+      const [showEdit, setShowEdit] = useState(false);
+      const [showPwd, setShowPwd] = useState(false);
+
+      useEffect(() => { if (!requireAuth()) return; load(); }, []);
+      const load = async () => {
+        const token = localStorage.getItem("cbs_token");
+        try {
+          const r = await fetch("/api/profile", { headers: { Authorization: "Bearer " + token } });
+          const d = await r.json();
+          if (!r.ok) throw new Error(d.error || "Failed to load profile");
+          setData(d); setErr("");
+        } catch (e) { setErr(e.message); }
+      };
+
+      const saveProfile = async (payload) => {
+        const token = localStorage.getItem("cbs_token");
+        const r = await fetch("/api/profile", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
+          body: JSON.stringify(payload),
+        });
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error || "Could not update");
+        // refresh cached user
+        try {
+          const cached = JSON.parse(localStorage.getItem("cbs_user") || "{}");
+          localStorage.setItem("cbs_user", JSON.stringify({ ...cached, ...d.user }));
+        } catch (_) {}
+        setShowEdit(false); pushToast("Profile updated", "Your changes have been saved."); load();
+      };
+      const savePassword = async (payload) => {
+        const token = localStorage.getItem("cbs_token");
+        const r = await fetch("/api/profile/change-password", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
+          body: JSON.stringify(payload),
+        });
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error || "Could not change password");
+        setShowPwd(false); pushToast("Password updated", "Use your new password next time you log in.");
+      };
+
+      const initials = (s) => (s || "").split(" ").map(p => p[0]).join("").slice(0,2).toUpperCase() || "U";
+
+      return (
+        <div className="d-shell">
+          <window.StudentTopbar active="profile" user={user} onLogout={logout} pushToast={pushToast}/>
+          <div className="d-main">
+            <window.StudentSidebar active="profile"/>
+            <main className="s-content">
+              <header className="s-page-head">
+                <div>
+                  <h1>My Profile</h1>
+                  <p>Manage your account, password and view your statistics.</p>
+                </div>
+              </header>
+
+              {err && <div className="s-error">{err}</div>}
+              {!data && !err && (
+                <div className="s-stats-grid"><div className="s-skeleton-row" style={{height:200, gridColumn:"1/-1"}}/></div>
+              )}
+
+              {data && (
+                <div className="s-profile-grid" data-testid="profile-grid">
+                  {/* LEFT */}
+                  <div className="d-card s-profile-card" data-testid="profile-summary">
+                    <div className="s-profile-avatar">{initials(data.user.full_name)}</div>
+                    <h2 data-testid="profile-name">{data.user.full_name}</h2>
+                    <div className="email" data-testid="profile-email">{data.user.email}</div>
+                    <span className="s-role-pill">{data.user.role}</span>
+                    <div className="s-profile-actions">
+                      <button className="d-btn d-btn-primary" onClick={() => setShowEdit(true)} data-testid="edit-profile-btn">
+                        <Icon.edit/>Edit Profile
+                      </button>
+                      <button className="d-btn d-btn-secondary" onClick={() => setShowPwd(true)} data-testid="change-pwd-btn">
+                        <Icon.lock/>Change Password
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* RIGHT */}
+                  <div style={{display:"flex", flexDirection:"column", gap:22}}>
+                    <div className="d-card">
+                      <div className="s-section-h"><h3>Account Information</h3></div>
+                      <div className="s-info-list">
+                        <div className="s-info-row"><span className="lhs"><span className="ico"><Icon.id/></span> Student ID</span><span className="val" data-testid="info-student-id">{data.user.student_id}</span></div>
+                        <div className="s-info-row"><span className="lhs"><span className="ico"><Icon.user2/></span> Full Name</span><span className="val">{data.user.full_name}</span></div>
+                        <div className="s-info-row"><span className="lhs"><span className="ico"><Icon.mail/></span> Email</span><span className="val">{data.user.email}</span></div>
+                        <div className="s-info-row"><span className="lhs"><span className="ico"><Icon.phone/></span> Phone</span><span className="val">{data.user.phone || "—"}</span></div>
+                        <div className="s-info-row"><span className="lhs"><span className="ico"><Icon.shield/></span> Role</span><span className="val" style={{textTransform:"capitalize"}}>{data.user.role}</span></div>
+                        <div className="s-info-row"><span className="lhs"><span className="ico"><Icon.check/></span> Status</span><span className="val">{data.user.is_active ? <span className="s-status s-status-ok">Active</span> : <span className="s-status s-status-bad">Disabled</span>}</span></div>
+                        <div className="s-info-row"><span className="lhs"><span className="ico"><Icon.calendar/></span> Member Since</span><span className="val">{new Date(data.user.created_at).toLocaleDateString("en-AU", { day:"numeric", month:"short", year:"numeric" })}</span></div>
+                      </div>
+                    </div>
+
+                    {/* Stats */}
+                    <div>
+                      <div style={{marginBottom:12, paddingLeft:4, fontSize:14, fontWeight:700, color:"var(--d-muted)", textTransform:"uppercase", letterSpacing:".5px"}}>Account Statistics</div>
+                      <div className="s-stats-grid">
+                        <div className="s-stat-card s-stat-green"><div className="s-stat-icon"><Icon.calendar/></div><div className="s-stat-body"><div className="s-stat-value" data-testid="stat-total-bookings">{data.stats.total_bookings}</div><div className="s-stat-label">Total Bookings</div></div></div>
+                        <div className="s-stat-card s-stat-blue"><div className="s-stat-icon"><Icon.bike s={20}/></div><div className="s-stat-body"><div className="s-stat-value" data-testid="stat-completed">{data.stats.completed_rides}</div><div className="s-stat-label">Completed Rides</div></div></div>
+                        <div className="s-stat-card s-stat-amber"><div className="s-stat-icon"><Icon.alert/></div><div className="s-stat-body"><div className="s-stat-value" data-testid="stat-active">{data.stats.active_bookings}</div><div className="s-stat-label">Active Bookings</div></div></div>
+                        <div className="s-stat-card s-stat-leaf"><div className="s-stat-icon"><Icon.wallet s={20}/></div><div className="s-stat-body"><div className="s-stat-value">{PRICE_FMT.format(data.stats.total_spent || 0)}</div><div className="s-stat-label">Total Spent</div></div></div>
+                      </div>
+                    </div>
+
+                    {/* Recent activity */}
+                    <div className="d-card">
+                      <div className="s-section-h"><h3>Recent Activity</h3>
+                        <a className="s-link-btn" href="Student_ride_history.html" data-testid="view-all-rides">View all</a>
+                      </div>
+                      {data.recent_activity.length === 0 ? (
+                        <div className="s-empty">
+                          <div className="s-empty-icon"><Icon.bike s={36}/></div>
+                          <h3>No activity yet</h3>
+                          <p>Book your first bike to see your activity here.</p>
+                        </div>
+                      ) : (
+                        <div className="s-table-wrap" style={{padding:"0 0 12px"}}>
+                          <table className="s-table">
+                            <thead><tr><th>Ride</th><th>Station</th><th>Date</th><th>Status</th></tr></thead>
+                            <tbody>
+                              {data.recent_activity.map(a => (
+                                <tr key={a.id} data-testid={`activity-row-${a.id}`}>
+                                  <td><strong>#{a.id}</strong><div className="s-muted">{a.bike_code}</div></td>
+                                  <td>{a.pickup_station}</td>
+                                  <td>{new Date(a.start_time).toLocaleDateString("en-AU", { day:"numeric", month:"short", year:"numeric" })}</td>
+                                  <td><span className={`s-status s-status-${a.status === "completed" ? "ok" : a.status === "cancelled" ? "bad" : "info"}`}>{a.status}</span></td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      )}
+                    </div>
+
+                    <button className="d-btn d-btn-secondary" style={{alignSelf:"flex-start"}} onClick={logout} data-testid="logout-btn">
+                      <Icon.logout/> Log Out
+                    </button>
+                  </div>
+                </div>
+              )}
+            </main>
+          </div>
+          {showEdit && data && <EditProfileModal initial={data.user} onClose={() => setShowEdit(false)} onSave={saveProfile}/>}
+          {showPwd && <ChangePasswordModal onClose={() => setShowPwd(false)} onSave={savePassword}/>}
+          <window.StudentToastStack toasts={toasts}/>
+        </div>
+      );
+    }
+
+    setTimeout(() => ReactDOM.createRoot(document.getElementById("root")).render(<App/>), 50);
+  </script>
+</body>
+</html>
