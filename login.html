@@ -23,21 +23,6 @@
     const { useState, useEffect } = React;
     const API_BASE = "/api";
 
-    // Demo-mode fallback so the form works even without a running backend.
-    const DEMO_USERS = {
-      "alice@university.edu":   { full_name: "Alice Johnson", role: "student", password: "Password123!" },
-      "bob@university.edu":     { full_name: "Bob Smith",     role: "student", password: "Password123!" },
-      "carol@university.edu":   { full_name: "Carol White",   role: "student", password: "Password123!" },
-      "david@university.edu":   { full_name: "David Lee",     role: "student", password: "Password123!" },
-      "admin@university.edu":   { full_name: "Admin User",    role: "admin",   password: "Password123!" },
-      "janet.l@university.edu": { full_name: "Janet Li",      role: "admin",   password: "Password123!" }
-    };
-    const tryDemoLogin = (em, pw) => {
-      const u = DEMO_USERS[(em || "").toLowerCase().trim()];
-      if (!u || u.password !== pw) return null;
-      return { id: "demo-" + em, full_name: u.full_name, email: em, role: u.role };
-    };
-
     function LoginPage() {
       const [email, setEmail] = useState("");
       const [password, setPassword] = useState("");
@@ -70,11 +55,22 @@
         setError("");
         // Land on the right dashboard for this user's role.
         setTimeout(function () {
+          var next = new URLSearchParams(window.location.search).get("next");
+          if (next && next.charAt(0) === "/" && !next.startsWith("//")) {
+            window.location.href = next;
+            return;
+          }
           var role = (userObj.role || "").toLowerCase();
           var dest;
-          if (role === "admin")      dest = "frontend/Admin/admin_dashboard.html";
-          else if (role === "staff") dest = "frontend/Staff/Staff_dashboard.html";
-          else                       dest = "frontend/Student/Student_dashboard.html";
+          // Admin keeps its own dashboard. Student and Staff both go to
+          // the shared User dashboard (served from frontend/Student/ for
+          // backward compatibility, also reachable at /frontend/User/).
+          if (role === "admin") {
+            dest = "frontend/Admin/Admin_dashboard.html";
+          } else {
+            // Student and Staff both go to the shared User dashboard.
+            dest = "frontend/User/User_dashboard.html";
+          }
           window.location.href = dest;
         }, 700);
       };
@@ -99,17 +95,9 @@
             completeLogin(data.user, data.token);
             return;
           }
-          // Server reachable but credentials rejected — try demo fallback so users aren't locked out
-          const demo = tryDemoLogin(email, password);
-          if (demo) { completeLogin(demo, "demo-token", "Logged in (demo mode)."); return; }
-          // Show a friendly error regardless of what the backend returned —
-          // backend "Server error" strings shouldn't leak to the user.
-          setError("Invalid email or password. Please try again.");
+          setError(data.error || "Invalid email or password. Please try again.");
         } catch (err) {
-          // Network error — backend not running. Try demo fallback.
-          const demo = tryDemoLogin(email, password);
-          if (demo) { completeLogin(demo, "demo-token", "Logged in (demo mode — backend not running)."); }
-          else { setError("Cannot reach the server. Try a demo account (e.g. alice@university.edu / Password123!) or start the backend."); }
+          setError("Cannot reach the server. Please start the backend and try again.");
         } finally {
           setLoading(false);
         }

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate" />
+  <title>Maintenance Management | Campus Bike Sharing Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.9/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="../../Login.css" />
+  <link rel="stylesheet" href="admin-dashboard.css" />
+  <link rel="stylesheet" href="admin-bookings.css" />
+  <link rel="stylesheet" href="admin-maintenance.css" />
+  <link rel="stylesheet" href="admin-shared.css" />
+</head>
+<body class="ad-auth-pending">
+  <div class="ad-shell">
+    <header class="ad-topbar">
+      <a class="ad-brand" href="./Admin_dashboard.html" aria-label="Campus Bike Sharing Admin Dashboard">
+        <span class="ad-brand-logo" aria-hidden="true"><svg viewBox="0 0 64 64" width="42" height="42" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="16" cy="44" r="12"></circle><circle cx="48" cy="44" r="12"></circle><path d="M16 44 L28 24 L42 24 L48 44"></path><path d="M28 24 L34 14 L42 14"></path><circle cx="32" cy="24" r="2" fill="currentColor"></circle></svg></span>
+        <span class="ad-brand-text">Campus <strong>Bike Sharing</strong></span>
+      </a>
+      <div class="ad-topbar-actions">
+        <div class="ad-admin-controls">
+          <button class="ad-control-btn" type="button" id="refresh-dashboard"><span data-icon="rotate"></span><span>Refresh</span></button>
+          <button class="ad-control-btn primary" type="button" id="export-report"><span data-icon="bar-chart"></span><span>Export Report</span></button>
+        </div>
+        <div class="ad-menu-wrap">
+          <button class="ad-bell" type="button" id="notification-button" aria-label="Notifications" aria-haspopup="true" aria-expanded="false"><span data-icon="bell"></span><span class="ad-bell-badge" id="notification-badge">0</span></button>
+          <div class="ad-dropdown ad-notification-menu" id="notification-menu" hidden><div class="ad-dropdown-head"><div><h3>Notifications</h3><span id="notification-unread-count">0 unread</span></div><button type="button" id="mark-notifications-read">Mark all as read</button></div><div class="ad-notification-list" id="notification-list"></div></div>
+        </div>
+        <div class="ad-menu-wrap">
+          <button class="ad-profile" type="button" id="profile-menu-button" aria-label="Admin profile menu" aria-haspopup="true" aria-expanded="false"><span class="ad-avatar" id="admin-avatar">AU</span><span class="ad-profile-copy"><strong id="admin-name">Admin User</strong><span>Administrator</span></span><span class="ad-profile-chev" data-icon="chevron-down"></span></button>
+          <div class="ad-dropdown ad-profile-menu" id="profile-menu" hidden><div class="ad-profile-menu-head"><span class="ad-avatar large" id="admin-avatar-menu">AU</span><div><strong id="admin-menu-name">Admin User</strong><span>Administrator</span></div></div><div class="ad-profile-menu-list"><button type="button" data-admin-menu-action="profile"><span data-icon="help-circle"></span>View Admin Profile</button><button type="button" data-admin-menu-action="settings"><span data-icon="settings"></span>Admin Settings</button></div><div class="ad-profile-menu-foot"><button type="button" id="admin-logout"><span data-icon="logout"></span>Logout</button></div></div>
+        </div>
+      </div>
+    </header>
+
+    <div class="ad-main">
+      <aside class="ad-sidebar" aria-label="Admin navigation">
+        <nav class="ad-nav">
+          <a class="ad-nav-item" href="./Admin_dashboard.html" data-page="Admin_dashboard.html"><span data-icon="layout-dashboard"></span>Dashboard</a>
+          <a class="ad-nav-item" href="./Admin_bookings.html" data-page="Admin_bookings.html"><span data-icon="calendar"></span>Bookings</a>
+          <a class="ad-nav-item" href="./Admin_payments.html" data-page="Admin_payments.html"><span data-icon="credit-card"></span>Payments</a>
+          <a class="ad-nav-item" href="./Admin_bikes.html" data-page="Admin_bikes.html"><span data-icon="bike"></span>Bikes</a>
+          <a class="ad-nav-item" href="./Admin_stations.html" data-page="Admin_stations.html"><span data-icon="map-pin"></span>Stations</a>
+          <a class="ad-nav-item active" href="./Admin_maintenance.html" data-page="Admin_maintenance.html"><span data-icon="wrench"></span>Maintenance</a>
+          <a class="ad-nav-item" href="./Admin_reports.html" data-page="Admin_reports.html"><span data-icon="bar-chart"></span>Reports</a>
+          <a class="ad-nav-item" href="./Admin_support.html" data-page="Admin_support.html"><span data-icon="help-circle"></span>Support Issues</a>
+          <a class="ad-nav-item" href="./Admin_ai.html" data-page="Admin_ai.html"><span data-icon="sparkles"></span>AI Assistant</a>
+          <a class="ad-nav-item" href="./Admin_settings.html" data-page="Admin_settings.html"><span data-icon="settings"></span>Settings</a>
+        </nav>
+        <a class="ad-help-card" href="./Admin_help.html" id="admin-help-button"><span class="ad-help-icon" data-icon="headphones"></span><span><strong>Help Center</strong><small>Admin guides and support</small></span><span data-icon="chevron-right"></span></a>
+      </aside>
+
+      <main class="ad-content">
+        <div class="mm-grid">
+          <section class="ad-page-head">
+            <div>
+              <h1>Maintenance Management</h1>
+              <p>Track bike repairs, station maintenance, damaged bikes, open work orders, technician tasks, and maintenance costs from one place.</p>
+            </div>
+            <div class="ab-head-actions">
+              <div class="ad-range-tabs" role="tablist" aria-label="Date range">
+                <button type="button" class="active" data-range="today">Today</button>
+                <button type="button" data-range="week">Week</button>
+                <button type="button" data-range="month">Month</button>
+                <button type="button" data-range="year">Year</button>
+              </div>
+              <button class="ab-btn-primary" type="button" id="add-maintenance-button"><span data-icon="wrench"></span>Add Maintenance Task</button>
+            </div>
+          </section>
+
+          <section class="ab-kpi-grid">
+            <article class="ab-kpi"><span class="ab-kpi-ico red"><span data-icon="alert"></span></span><div class="ab-kpi-body"><span class="ab-kpi-lbl">Open Maintenance Tasks</span><strong id="kpi-openTasks">--</strong><small id="trend-openTasks">Loading</small></div></article>
+            <article class="ab-kpi"><span class="ab-kpi-ico green"><span data-icon="bike"></span></span><div class="ab-kpi-body"><span class="ab-kpi-lbl">Bikes in Maintenance</span><strong id="kpi-bikesInMaintenance">--</strong><small id="trend-bikesInMaintenance">Loading</small></div></article>
+            <article class="ab-kpi"><span class="ab-kpi-ico blue"><span data-icon="map-pin"></span></span><div class="ab-kpi-body"><span class="ab-kpi-lbl">Station Issues</span><strong id="kpi-stationIssues">--</strong><small id="trend-stationIssues">Loading</small></div></article>
+            <article class="ab-kpi"><span class="ab-kpi-ico red"><span data-icon="alert"></span></span><div class="ab-kpi-body"><span class="ab-kpi-lbl">Urgent Repairs</span><strong id="kpi-urgentRepairs">--</strong><small id="trend-urgentRepairs">Loading</small></div></article>
+            <article class="ab-kpi"><span class="ab-kpi-ico green"><span data-icon="check"></span></span><div class="ab-kpi-body"><span class="ab-kpi-lbl">Completed Repairs</span><strong id="kpi-completedRepairs">--</strong><small id="trend-completedRepairs">Loading</small></div></article>
+            <article class="ab-kpi"><span class="ab-kpi-ico amber"><span data-icon="search"></span></span><div class="ab-kpi-body"><span class="ab-kpi-lbl">Pending Inspection</span><strong id="kpi-pendingInspection">--</strong><small id="trend-pendingInspection">Loading</small></div></article>
+            <article class="ab-kpi"><span class="ab-kpi-ico purple"><span data-icon="dollar"></span></span><div class="ab-kpi-body"><span class="ab-kpi-lbl">Maintenance Cost</span><strong id="kpi-maintenanceCost">--</strong><small id="trend-maintenanceCost">Loading</small></div></article>
+            <article class="ab-kpi"><span class="ab-kpi-ico blue"><span data-icon="clock"></span></span><div class="ab-kpi-body"><span class="ab-kpi-lbl">Average Repair Time</span><strong id="kpi-averageRepairTime">--</strong><small id="trend-averageRepairTime">Loading</small></div></article>
+          </section>
+
+          <section class="mm-chart-grid">
+            <article class="ad-card ab-chart-card">
+              <div class="ad-card-head"><h2>Maintenance Trend</h2><div class="ad-chart-select" id="maintenance-trend-label">Today</div></div>
+              <div class="ad-chart-legend"><span><i class="dot blue"></i>Open Tasks</span><span><i class="dot green"></i>Completed Repairs</span><span><i class="dot orange"></i>Maintenance Cost</span></div>
+              <div class="ad-chart-wrap"><canvas id="maintenance-trend-chart"></canvas></div>
+            </article>
+            <article class="ad-card ab-chart-card">
+              <div class="ad-card-head"><h2>Maintenance Status Breakdown</h2></div>
+              <div class="mm-donut-layout"><div class="ad-donut-wrap"><canvas id="maintenance-status-chart"></canvas></div><div class="mm-donut-legend" id="maintenance-status-legend"></div></div>
+            </article>
+          </section>
+
+          <section class="mm-ops-grid">
+            <article class="ad-card ab-rail-card"><div class="ad-card-head"><h2>Urgent Maintenance Alerts</h2><a class="ab-view-all" href="./Admin_reports.html">View all</a></div><div class="ab-list" id="maintenance-alerts-list"></div></article>
+            <article class="ad-card ab-rail-card"><div class="ad-card-head"><h2>Technician Tasks</h2><a class="ab-view-all" href="./Admin_settings.html#technicians">View all</a></div><div class="mm-tech-list" id="technician-tasks-list"></div></article>
+            <article class="ad-card ab-rail-card"><div class="ad-card-head"><h2>Recent Maintenance Activity</h2><a class="ab-view-all" href="./Admin_reports.html">View all</a></div><div class="ab-list" id="maintenance-activity-list"></div></article>
+          </section>
+
+          <section class="ad-card ab-table-card mm-table-card">
+            <div class="mm-filter-bar">
+              <label class="ab-search"><span data-icon="search"></span><input id="maintenance-search" type="search" placeholder="Search by bike ID, station, issue, technician, or task ID..." /></label>
+              <label class="ab-filter-field"><span>Status</span><select id="filter-status"><option value="all">All Statuses</option><option value="open">Open</option><option value="in_progress">In Progress</option><option value="waiting_parts">Waiting Parts</option><option value="pending_inspection">Pending Inspection</option><option value="completed">Completed</option><option value="urgent">Urgent</option></select></label>
+              <label class="ab-filter-field"><span>Priority</span><select id="filter-priority"><option value="all">All Priorities</option><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option><option value="urgent">Urgent</option></select></label>
+              <label class="ab-filter-field"><span>Type</span><select id="filter-type"><option value="all">All Types</option><option value="bike">Bike</option><option value="station">Station</option><option value="brake">Brake</option><option value="battery">Battery</option><option value="dock">Station Dock</option><option value="gps">GPS</option></select></label>
+              <label class="ab-filter-field"><span>Technician</span><select id="filter-technician"><option value="all">All</option></select></label>
+              <label class="ab-filter-field"><span>Date From</span><input id="filter-date-from" type="date" /></label>
+              <label class="ab-filter-field"><span>Date To</span><input id="filter-date-to" type="date" /></label>
+              <button class="ab-btn-secondary" type="button" id="reset-filters"><span data-icon="rotate"></span>Reset Filters</button>
+            </div>
+            <div class="ad-card-head mm-table-head"><h2>All Maintenance Tasks <span id="maintenance-total-count">(0)</span></h2><span class="ab-row-count" id="maintenance-row-count">Loading tasks...</span></div>
+            <div class="ab-table-wrap mm-table-wrap">
+              <table class="ab-table mm-table">
+                <colgroup><col class="mm-col-task" /><col class="mm-col-asset" /><col class="mm-col-type" /><col class="mm-col-issue" /><col class="mm-col-location" /><col class="mm-col-priority" /><col class="mm-col-status" /><col class="mm-col-tech" /><col class="mm-col-cost" /><col class="mm-col-date" /><col class="mm-col-actions" /></colgroup>
+                <thead><tr><th>Task ID</th><th>Asset</th><th>Type</th><th>Issue</th><th>Location</th><th>Priority</th><th>Status</th><th>Technician</th><th>Cost</th><th>Reported Date</th><th>Actions</th></tr></thead>
+                <tbody id="maintenance-table-body"><tr><td colspan="11" class="ab-table-empty">Loading maintenance tasks...</td></tr></tbody>
+              </table>
+            </div>
+            <div class="ab-pagination"><label class="mm-page-size">Rows per page: <select id="maintenance-page-size"><option>10</option><option>20</option><option>50</option></select></label><div class="ab-pages" id="maintenance-pagination"></div></div>
+          </section>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <aside class="ab-drawer mm-drawer" id="maintenance-drawer" hidden>
+    <div class="ab-drawer-overlay" data-close-drawer></div>
+    <section class="ab-drawer-panel" aria-label="Maintenance details">
+      <div class="ab-drawer-head"><div><span class="ab-status-badge" id="drawer-status">Status</span><h2>Maintenance Details</h2></div><button class="ab-drawer-close" type="button" id="close-maintenance-drawer" aria-label="Close maintenance details"><span data-icon="chevron-right"></span></button></div>
+      <div class="ab-drawer-body" id="maintenance-drawer-body"></div>
+      <div class="mm-drawer-actions">
+        <button class="ab-btn-primary" type="button" data-drawer-action="assign"><span data-icon="help-circle"></span>Assign Technician</button>
+        <button class="ab-btn-secondary blue" type="button" data-drawer-action="progress"><span data-icon="clock"></span>Mark In Progress</button>
+        <button class="ab-btn-secondary purple" type="button" data-drawer-action="cost"><span data-icon="dollar"></span>Add Repair Cost</button>
+        <button class="ab-btn-secondary green" type="button" data-drawer-action="complete"><span data-icon="check"></span>Mark Completed</button>
+        <button class="ab-btn-secondary" type="button" data-drawer-action="contact"><span data-icon="message"></span>Contact Student/Admin</button>
+        <button class="ab-btn-secondary" type="button" data-drawer-action="export"><span data-icon="bar-chart"></span>Export Maintenance Report</button>
+      </div>
+    </section>
+  </aside>
+
+  <div class="ab-modal" id="maintenance-modal" hidden>
+    <div class="ab-modal-overlay" data-close-modal></div>
+    <section class="ab-modal-panel" aria-label="Maintenance action">
+      <div class="ab-modal-head"><h2 id="maintenance-modal-title">Add Maintenance Task</h2><button class="ab-drawer-close" type="button" data-close-modal><span data-icon="chevron-right"></span></button></div>
+      <form id="maintenance-modal-form"><div class="ab-modal-body" id="maintenance-modal-body"></div><div class="ab-modal-foot"><button class="ab-btn-secondary" type="button" data-close-modal>Cancel</button><button class="ab-btn-primary" type="submit" id="maintenance-modal-submit">Save</button></div></form>
+    </section>
+  </div>
+
+  <div class="ad-toast" id="admin-toast" hidden role="status" aria-live="polite"></div>
+  <script src="admin-dashboard.js"></script>
+  <script src="admin-maintenance.js"></script>
+</body>
+</html>

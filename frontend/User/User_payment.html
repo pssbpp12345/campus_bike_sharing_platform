@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment | Campus Bike Sharing</title>
+  <link rel="stylesheet" href="../../Login.css">
+  <link rel="stylesheet" href="user-shared.css">
+  <link rel="stylesheet" href="user-premium.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    .pay-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(320px, .9fr);
+      gap: 22px;
+      align-items: start;
+      margin-top: 22px;
+    }
+    .pay-body { padding: 22px; }
+    .pay-method {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 16px;
+      border: 1px solid var(--d-border);
+      border-radius: 16px;
+      background: #fff;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, .05);
+    }
+    .pay-method .ico,
+    .pay-state .ico {
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      border-radius: 14px;
+      background: var(--d-green-soft);
+      color: var(--d-green-d);
+    }
+    .pay-method .ico { width: 44px; height: 44px; }
+    .pay-state .ico { width: 38px; height: 38px; }
+    .pay-method h4,
+    .pay-state h4 { margin: 0 0 4px; font-size: 16px; }
+    .pay-method p,
+    .pay-state p { margin: 0; color: var(--d-muted); line-height: 1.55; }
+    .pay-steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 18px;
+    }
+    .pay-step {
+      min-height: 92px;
+      padding: 14px;
+      border: 1px solid var(--d-border);
+      border-radius: 14px;
+      background: #fff;
+    }
+    .pay-step strong { display: block; margin-bottom: 5px; color: var(--d-ink); }
+    .pay-step span { color: var(--d-muted); font-size: 13px; line-height: 1.45; }
+    .pay-list { display: grid; gap: 13px; }
+    .pay-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      padding-bottom: 13px;
+      border-bottom: 1px solid var(--d-border);
+    }
+    .pay-row:last-child { border-bottom: 0; padding-bottom: 0; }
+    .pay-row .k {
+      color: var(--d-muted);
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    .pay-row .v {
+      text-align: right;
+      color: var(--d-ink);
+      font-weight: 800;
+      line-height: 1.35;
+    }
+    .pay-total {
+      margin-top: 18px;
+      padding: 18px;
+      border-radius: 16px;
+      border: 1px solid #bbf7d0;
+      background: linear-gradient(135deg, #ecfdf5 0%, #e0f2fe 100%);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+    }
+    .pay-total span { color: var(--d-muted); font-weight: 800; }
+    .pay-total strong { color: var(--d-ink); font-size: 28px; }
+    .pay-badges { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+    .pay-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      color: #15803d;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+    .pay-badge.blue { background: #eff6ff; border-color: #bfdbfe; color: #1d4ed8; }
+    .pay-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 18px; }
+    .pay-actions .d-btn { justify-content: center; }
+    .pay-state {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      margin-top: 16px;
+      padding: 16px;
+      border-radius: 16px;
+      border: 1px solid var(--d-border);
+      background: #fff;
+    }
+    .pay-state.success { border-color: #bbf7d0; background: #f0fdf4; }
+    .pay-state.error { border-color: #fecaca; background: #fef2f2; }
+    .pay-state.error .ico { background: #fee2e2; color: var(--d-red); }
+    @media (max-width: 920px) {
+      .pay-grid,
+      .pay-steps { grid-template-columns: 1fr; }
+      .pay-row { flex-direction: column; gap: 4px; }
+      .pay-row .v { text-align: left; }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel" data-presets="env,react" src="user-shared.js"></script>
+  <script type="text/babel" data-presets="env,react">
+    const { useEffect, useMemo, useState } = React;
+    const Icon = window.UserIcons;
+    const PENDING_KEY = "cbs_pending_booking";
+    const PAID_KEY = "cbs_paid_sessions";
+
+    function readJson(storage, key, fallback) {
+      try {
+        const raw = storage.getItem(key);
+        return raw ? JSON.parse(raw) : fallback;
+      } catch (_) {
+        return fallback;
+      }
+    }
+    function readPendingBooking() {
+      return readJson(sessionStorage, PENDING_KEY, null) || readJson(localStorage, PENDING_KEY, null);
+    }
+    function writePendingBooking(booking) {
+      try { sessionStorage.setItem(PENDING_KEY, JSON.stringify(booking)); } catch (_) {}
+      try { localStorage.setItem(PENDING_KEY, JSON.stringify(booking)); } catch (_) {}
+    }
+    function clearPendingBooking() {
+      try { sessionStorage.removeItem(PENDING_KEY); } catch (_) {}
+      try { localStorage.removeItem(PENDING_KEY); } catch (_) {}
+    }
+    function readPaidSessions() {
+      return readJson(localStorage, PAID_KEY, []);
+    }
+    function rememberPaidSession(sessionId) {
+      const paid = readPaidSessions();
+      if (!paid.includes(sessionId)) {
+        paid.push(sessionId);
+        try { localStorage.setItem(PAID_KEY, JSON.stringify(paid)); } catch (_) {}
+      }
+    }
+    function rememberBooking(record) {
+      const current = readJson(localStorage, "cbs_bookings", []);
+      const bookingId = record.booking_id || record.bookingDbId || null;
+      const next = [
+        record,
+        ...current.filter((b) => {
+          if (record.paymentSessionId && b.paymentSessionId === record.paymentSessionId) return false;
+          if (bookingId && (b.booking_id === bookingId || b.bookingDbId === bookingId)) return false;
+          return true;
+        }),
+      ];
+      try { localStorage.setItem("cbs_bookings", JSON.stringify(next)); } catch (_) {}
+    }
+    function money(value) {
+      return Number(value || 0).toLocaleString("en-AU", { style: "currency", currency: "AUD" });
+    }
+    function computePricing(booking) {
+      const duration = Number(booking?.duration || 0);
+      const publicPricing = window.cbsPublicSettings?.pricing || {};
+      const unlockFee = Number(booking?.unlockFee ?? publicPricing.unlockFee ?? 1);
+      const perMinuteFee = Number(booking?.perMinuteFee ?? publicPricing.perMinuteFee ?? 0.20);
+      const rideTimeCost = duration * perMinuteFee;
+      const total = unlockFee + rideTimeCost;
+      return { unlockFee, perMinuteFee, rideTimeCost, total };
+    }
+    function niceDate(iso) {
+      if (!iso) return "-";
+      return new Date(iso).toLocaleString("en-AU", {
+        weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit",
+      });
+    }
+    function addMinutes(iso, minutes) {
+      const d = new Date(iso);
+      return new Date(d.getTime() + Number(minutes || 0) * 60000).toISOString();
+    }
+    function normalizeBooking(b) {
+      if (!b) return null;
+      const duration = Number(b.duration || b.duration_minutes || 0);
+      const start = b.start || b.start_time;
+      const end = b.end || b.end_time || (start ? addMinutes(start, duration) : null);
+      const bikeId = b.bikeId || b.bike_id || null;
+      const bikeCode = b.bikeCode || b.bike_code || "";
+      if (!b.stationId || !b.stationName || !bikeId || !bikeCode || !start || !end || !duration) return null;
+      const bookingType = b.bookingType || b.booking_type || "scheduled";
+      return {
+        bookingType: bookingType === "ride_now" ? "ride_now" : "scheduled",
+        stationId: b.stationId,
+        stationName: b.stationName,
+        bikeId,
+        bikeCode,
+        bikeModel: b.bikeModel || b.bike_model || b.type || b.bike_type || "Standard bike",
+        start,
+        end,
+        duration,
+        type: b.type || b.bikeModel || b.bike_model || b.bike_type || "Standard bike",
+        pricingMode: b.pricingMode || b.pricing_mode || "pay_as_you_go",
+        unlockFee: Number(b.unlockFee ?? b.unlock_fee ?? 1),
+        perMinuteFee: Number(b.perMinuteFee ?? b.per_minute_fee ?? 0.20),
+        totalCost: Number(b.totalCost || b.total_cost || b.cost || b.fee_amount || computePricing({ ...b, duration }).total),
+        cost: Number(b.cost || b.totalCost || b.total_cost || b.fee_amount || computePricing({ ...b, duration }).total),
+        createdAt: b.createdAt || Date.now(),
+        paymentStatus: b.paymentStatus || "pending",
+        paymentSessionId: b.paymentSessionId || null,
+        source: b.source || "payment",
+      };
+    }
+
+    function StatusBox({ state, title, text }) {
+      const icon = state === "success" ? <Icon.check/> : state === "error" ? <Icon.alert/> : <Icon.info/>;
+      return (
+        <div className={"pay-state " + (state || "")} data-testid="payment-status">
+          <div className="ico">{icon}</div>
+          <div>
+            <h4>{title}</h4>
+            {text && <p>{text}</p>}
+          </div>
+        </div>
+      );
+    }
+
+    function App() {
+      const { user, requireAuth, logout, pushToast, toasts, refreshUser } = window.useUserAuth();
+      const [booking, setBooking] = useState(() => normalizeBooking(readPendingBooking()));
+      const [busy, setBusy] = useState(false);
+      const [status, setStatus] = useState("idle");
+      const [message, setMessage] = useState("");
+      const pricing = useMemo(() => booking ? computePricing(booking) : null, [booking]);
+      const total = useMemo(() => money(pricing?.total || booking?.cost || 0), [pricing, booking]);
+
+      useEffect(() => {
+        if (!requireAuth()) return;
+        refreshUser && refreshUser();
+      }, []);
+
+      useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const payment = params.get("payment");
+        const sessionId = params.get("session_id");
+        if (payment === "cancelled") {
+          setStatus("error");
+          setMessage("Payment was cancelled. No booking was created.");
+          window.history.replaceState(null, "", window.location.pathname);
+          return;
+        }
+        if (payment === "success" && sessionId) completePaidSession(sessionId);
+      }, []);
+
+      const goDashboard = () => { window.location.href = "User_dashboard.html"; };
+      const goBookings = () => { window.location.href = "User_my_bookings.html"; };
+
+      async function startPayment() {
+        if (!requireAuth()) return;
+        if (!booking) {
+          setStatus("error");
+          setMessage("No pending booking was found. Please choose a bike again from the dashboard.");
+          return;
+        }
+        setBusy(true);
+        setStatus("idle");
+        setMessage("");
+        try {
+          const pricedBooking = {
+            ...booking,
+            pricingMode: "pay_as_you_go",
+            unlockFee: pricing?.unlockFee ?? 1,
+            perMinuteFee: pricing?.perMinuteFee ?? 0.20,
+            totalCost: pricing?.total ?? booking.cost,
+            cost: pricing?.total ?? booking.cost,
+          };
+          writePendingBooking(pricedBooking);
+          const data = await window.cbsApi("/api/payments/create-checkout-session", {
+            method: "POST",
+            body: JSON.stringify({ booking: pricedBooking }),
+          });
+          if (!data || !data.url) throw new Error("Could not start the payment session.");
+          const nextBooking = { ...pricedBooking, paymentSessionId: data.id || null };
+          setBooking(nextBooking);
+          writePendingBooking(nextBooking);
+          window.location.href = data.url;
+        } catch (err) {
+          setStatus("error");
+          setMessage(err.message || "Could not start payment.");
+          pushToast("Payment unavailable", err.message || "Could not start payment.", "error");
+        } finally {
+          setBusy(false);
+        }
+      }
+
+      async function completePaidSession(sessionId) {
+        if (!requireAuth()) return;
+        setBusy(true);
+        setStatus("processing");
+        setMessage("Verifying payment and creating your booking...");
+        try {
+          if (readPaidSessions().includes(sessionId)) {
+            setStatus("success");
+            setMessage("This payment was already confirmed. Opening My Bookings...");
+            setTimeout(goBookings, 700);
+            return;
+          }
+          let paymentData;
+          try {
+            paymentData = await window.cbsApi(`/api/payments/session/${encodeURIComponent(sessionId)}`);
+          } catch (err) {
+            if (String(sessionId).startsWith("cbs_") && booking) {
+              paymentData = { paid: true, booking, mode: "simulated-local" };
+            } else {
+              throw err;
+            }
+          }
+          if (!paymentData.paid || !paymentData.booking) {
+            throw new Error(paymentData.error || "Payment was not confirmed.");
+          }
+          const paidBooking = normalizeBooking(paymentData.booking);
+          if (!paidBooking) throw new Error("Payment returned incomplete booking details.");
+          setBooking(paidBooking);
+          const saved = await window.cbsApi("/api/bookings/create-from-payment", {
+            method: "POST",
+            body: JSON.stringify({ booking: paidBooking, sessionId }),
+          });
+          const bookingId = saved && saved.bookingId ? Number(saved.bookingId) : null;
+          rememberBooking({
+            ...paidBooking,
+            id: bookingId ? "BK-" + String(bookingId).padStart(7, "0") : "bk_" + Date.now(),
+            booking_id: bookingId,
+            bookingDbId: bookingId,
+            createdAt: Date.now(),
+            paymentSessionId: sessionId,
+            paymentStatus: "paid",
+          });
+          rememberPaidSession(sessionId);
+          clearPendingBooking();
+          setStatus("success");
+          setMessage("Payment confirmed. Your booking is ready in My Bookings.");
+          pushToast("Booking confirmed", "Opening My Bookings now.");
+          window.history.replaceState(null, "", window.location.pathname);
+          setTimeout(goBookings, 900);
+        } catch (err) {
+          setStatus("error");
+          setMessage(err.message || "Payment was received, but the booking could not be confirmed.");
+          pushToast("Booking confirmation failed", err.message || "Please try again.", "error");
+          window.history.replaceState(null, "", window.location.pathname);
+        } finally {
+          setBusy(false);
+        }
+      }
+
+      return (
+        <div className="cbs-shell">
+          <window.UserTopbar active="bookings" user={user} onLogout={logout} pushToast={pushToast}/>
+          <div className="cbs-main">
+            <window.UserSidebar active="bookings"/>
+            <main className="cbs-content">
+              <div className="s-page-head">
+                <h1>Payment</h1>
+                <p>Review the booking, confirm payment, then the booking and notification are saved.</p>
+              </div>
+              <div className="pay-grid">
+                <section className="cbs-card">
+                  <div className="cbs-card-h"><h3>Secure Checkout</h3></div>
+                  <div className="pay-body">
+                    <div className="pay-method">
+                      <div className="ico"><Icon.card/></div>
+                      <div>
+                        <h4>Card payment</h4>
+                        <p>Stripe Checkout is used when configured. Without a Stripe key, the project uses a clean simulated payment so local demos still create real bookings.</p>
+                      </div>
+                    </div>
+                    <div className="pay-steps">
+                      <div className="pay-step"><strong>1. Review</strong><span>Confirm station, time and duration.</span></div>
+                      <div className="pay-step"><strong>2. Pay</strong><span>Complete Stripe or simulated payment.</span></div>
+                      <div className="pay-step"><strong>3. Book</strong><span>Booking, payment and notification are saved after payment succeeds.</span></div>
+                    </div>
+                    {status === "processing" && <StatusBox title="Processing payment" text={message}/>}
+                    {status === "success" && <StatusBox state="success" title="Booking confirmed" text={message}/>}
+                    {status === "error" && <StatusBox state="error" title="Payment needs attention" text={message}/>}
+                    <div className="pay-actions">
+                      <button className="d-btn d-btn-primary" onClick={startPayment} disabled={busy || !booking} data-testid="confirm-payment">
+                        <Icon.card s={18}/>{busy ? "Processing..." : "Confirm payment"}
+                      </button>
+                      <button className="d-btn d-btn-secondary" onClick={goDashboard} disabled={busy}>Back to dashboard</button>
+                      <button className="d-btn d-btn-secondary" onClick={goBookings} disabled={busy}>My Bookings</button>
+                    </div>
+                  </div>
+                </section>
+                <aside className="cbs-card">
+                  <div className="cbs-card-h"><h3>Booking Summary</h3></div>
+                  <div className="pay-body">
+                    {booking ? (
+                      <>
+                        <div className="pay-badges">
+                          <span className="pay-badge blue">{booking.bookingType === "ride_now" ? "Ride Now" : "Reserved for Later"}</span>
+                          <span className="pay-badge">Pay-As-You-Go</span>
+                        </div>
+                        <div className="pay-list" data-testid="payment-summary">
+                          <div className="pay-row"><span className="k">Booking type</span><span className="v">{booking.bookingType === "ride_now" ? "Ride Now" : "Reserve for Later"}</span></div>
+                          <div className="pay-row"><span className="k">Station</span><span className="v">{booking.stationName}</span></div>
+                          <div className="pay-row"><span className="k">Bike code</span><span className="v">{booking.bikeCode || "Selected bike"}</span></div>
+                          <div className="pay-row"><span className="k">Bike type</span><span className="v">{booking.bikeModel || booking.type}</span></div>
+                          <div className="pay-row"><span className="k">Pick-up</span><span className="v">{niceDate(booking.start)}</span></div>
+                          <div className="pay-row"><span className="k">Return by</span><span className="v">{niceDate(booking.end)}</span></div>
+                          <div className="pay-row"><span className="k">Duration</span><span className="v">{booking.duration} min</span></div>
+                          <div className="pay-row"><span className="k">Pricing mode</span><span className="v">Pay as you go</span></div>
+                          <div className="pay-row"><span className="k">Unlock fee</span><span className="v">{money(pricing.unlockFee)}</span></div>
+                          <div className="pay-row"><span className="k">Per-minute rate</span><span className="v">{money(pricing.perMinuteFee)} / min</span></div>
+                          <div className="pay-row"><span className="k">Ride time cost</span><span className="v">{booking.duration} x {money(pricing.perMinuteFee)} = {money(pricing.rideTimeCost)}</span></div>
+                        </div>
+                        <div className="pay-total"><span>Total</span><strong>{total}</strong></div>
+                      </>
+                    ) : (
+                      <div className="s-empty" data-testid="payment-empty">
+                        <div className="s-empty-icon"><Icon.alert/></div>
+                        <h3>No pending booking</h3>
+                        <p>Choose a station and time from the dashboard before paying.</p>
+                        <button className="d-btn d-btn-primary" onClick={goDashboard}>Book a bike</button>
+                      </div>
+                    )}
+                  </div>
+                </aside>
+              </div>
+            </main>
+          </div>
+          <window.UserToastStack toasts={toasts}/>
+        </div>
+      );
+    }
+
+    window.cbsLoadPublicSettings?.().finally(() => {
+      ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+    });
+  </script>
+</body>
+</html>

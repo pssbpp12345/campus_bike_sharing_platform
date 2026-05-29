@@ -1,0 +1,176 @@
+/* ──────────────────────────────────────────────────────────
+   Admin Payments page styles. Builds on admin-dashboard.css
+   and admin-bookings.css for shared shell/cards/buttons.
+   ────────────────────────────────────────────────────────── */
+
+.ap-grid { display: flex; flex-direction: column; gap: 22px; }
+.ap-head-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+
+/* KPI grid - 4x2 like bookings */
+.ap-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+/* Two-column main area (charts/table | right rail) */
+.ap-cols {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 20px;
+  align-items: start;
+}
+.ap-main-col { display: flex; flex-direction: column; gap: 22px; min-width: 0; }
+.ap-rail     { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+
+/* Charts row */
+.ap-charts {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+  gap: 18px;
+}
+.ap-charts .ab-chart-card .ad-chart-wrap { height: 260px; }
+
+/* Right rail cards */
+.ap-rail-card { min-height: 220px; display: flex; flex-direction: column; }
+.ap-rail-card .ad-card-head { padding: 16px 18px 6px; }
+.ap-rail-card .ab-list { padding: 6px 18px 18px; }
+
+/* Payment Insights compact list */
+.ap-insights { padding: 6px 18px 18px; display: flex; flex-direction: column; gap: 8px; }
+.ap-insight-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 14px;
+  background: #F8FAFC;
+  border: 1px solid #F1F5F9;
+  border-radius: 12px;
+}
+.ap-insight-row .ico {
+  width: 36px; height: 36px; border-radius: 12px;
+  background: #DCFCE7; color: #15803D;
+  display: inline-flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.ap-insight-row .ico.blue   { background: #DBEAFE; color: #1D4ED8; }
+.ap-insight-row .ico.purple { background: #EDE9FE; color: #6D28D9; }
+.ap-insight-row .ico.amber  { background: #FEF3C7; color: #B45309; }
+.ap-insight-row .body { flex: 1; min-width: 0; line-height: 1.45; }
+.ap-insight-row .body strong { display: block; font-size: 13px; font-weight: 700; color: #0F172A; }
+.ap-insight-row .body span { color: #64748B; font-size: 12.5px; }
+.ap-insight-row .val {
+  font-family: "Plus Jakarta Sans", "Inter", sans-serif;
+  font-weight: 800; font-size: 14px; color: #0F172A; white-space: nowrap;
+}
+
+.ap-refund-requests { padding: 6px 18px 18px; display: flex; flex-direction: column; gap: 8px; }
+.ap-refund-item {
+  border: 1px solid #E2E8F0;
+  background: #FFFFFF;
+  border-radius: 12px;
+  padding: 10px;
+  display: grid;
+  gap: 8px;
+}
+.ap-refund-item.pending_review { border-color: #FDBA74; background: #FFF7ED; }
+.ap-refund-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; min-width: 0; }
+.ap-refund-top strong {
+  display: block;
+  color: #0F172A;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ap-refund-top span { display: block; color: #64748B; font-size: 12px; margin-top: 2px; }
+.ap-refund-amount { color: #C2410C; font-size: 13px; font-weight: 800; white-space: nowrap; }
+.ap-refund-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.ap-refund-actions button {
+  border: 1px solid #D1FAE5;
+  background: #F0FDF4;
+  color: #15803D;
+  border-radius: 9px;
+  padding: 6px 8px;
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.ap-refund-actions button.reject { border-color: #FECACA; background: #FEF2F2; color: #B91C1C; }
+
+/* Quick Actions grid */
+.ap-quick-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  padding: 6px 18px 18px;
+}
+.ap-quick-btn {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 12px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  font: inherit; font-weight: 700; font-size: 12.5px;
+  color: #0F172A;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color .12s ease, transform .12s ease, box-shadow .12s ease;
+}
+.ap-quick-btn:hover { transform: translateY(-1px); border-color: #BBF7D0; box-shadow: 0 8px 18px rgba(15,23,42,.06); }
+.ap-quick-btn .ico {
+  width: 32px; height: 32px; border-radius: 10px;
+  display: inline-flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.ap-quick-btn .ico.green  { background: #DCFCE7; color: #15803D; }
+.ap-quick-btn .ico.blue   { background: #DBEAFE; color: #1D4ED8; }
+.ap-quick-btn .ico.red    { background: #FEE2E2; color: #B91C1C; }
+.ap-quick-btn .ico.purple { background: #EDE9FE; color: #6D28D9; }
+
+/* Filter bar layout for payments page (different columns than bookings) */
+.ap-filter-bar {
+  grid-template-columns: minmax(220px, 2fr) repeat(5, minmax(120px, 1fr)) auto;
+}
+
+/* Table: payments has narrower amount/date columns */
+.ap-table tbody td.num {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  color: #0F172A;
+}
+.ap-table tbody td .ref {
+  display: inline-block; max-width: 130px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  vertical-align: middle;
+  color: #475569; font-family: ui-monospace, SFMono-Regular, monospace; font-size: 12.5px;
+}
+
+/* Payment method pill */
+.ap-method {
+  display: inline-flex; align-items: center;
+  padding: 3px 9px;
+  background: #F1F5F9;
+  color: #475569;
+  border: 1px solid #E2E8F0;
+  border-radius: 999px;
+  font-size: 11.5px; font-weight: 700;
+}
+
+/* Refunded/waived badge tones — keep consistent with bookings */
+.ab-badge.refunded { background: #EDE9FE; color: #6D28D9; border-color: #DDD6FE; }
+.ab-badge.waived   { background: #DBEAFE; color: #1D4ED8; border-color: #BFDBFE; }
+
+/* Responsive */
+@media (max-width: 1280px) {
+  .ap-kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ap-charts   { grid-template-columns: 1fr; }
+  .ap-cols     { grid-template-columns: 1fr; }
+  .ap-rail     { order: 2; }
+}
+@media (max-width: 900px) {
+  .ap-filter-bar { grid-template-columns: 1fr 1fr; }
+  .ap-table { min-width: 1100px; }
+  .ap-quick-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+  .ap-kpi-grid { grid-template-columns: 1fr; }
+  .ap-filter-bar { grid-template-columns: 1fr; }
+}

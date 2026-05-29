@@ -1,0 +1,1881 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Bookings | Campus Bike Sharing</title>
+  <link rel="stylesheet" href="../../Login.css" />
+  <link rel="stylesheet" href="user-shared.css" />
+  <link rel="stylesheet" href="user-premium.css" />
+
+  <!-- Inter for body, Plus Jakarta Sans for headings -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- React + Babel (in-browser JSX) -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    /* ─── Page header ─────────────────────────────────────────── */
+    .mb-page-head {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      gap: 18px; flex-wrap: wrap;
+    }
+    .mb-page-head h1 {
+      font-size: 30px; font-weight: 800; letter-spacing: -.5px;
+      color: #0F172A; margin: 0;
+    }
+    .mb-page-head p { margin: 4px 0 0; color: #64748B; font-size: 14px; }
+    .mb-book-another {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 11px 18px;
+      background: #FFFFFF;
+      color: #15803D;
+      border: 2px solid #22C55E;
+      border-radius: 14px;
+      font-weight: 800; font-size: 14px;
+      text-decoration: none; cursor: pointer;
+      transition: background .18s ease-out, color .18s ease-out, transform .18s ease-out, box-shadow .18s ease-out;
+    }
+    .mb-book-another:hover {
+      background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%);
+      color: #FFFFFF;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 22px rgba(34,197,94,.30);
+    }
+
+    /* ─── Stats row ──────────────────────────────────────────── */
+    .mb-stats {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 16px;
+    }
+    .mb-stat {
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 18px;
+      padding: 18px 18px 16px;
+      display: flex; align-items: center; gap: 14px;
+      cursor: pointer; text-decoration: none; color: inherit;
+      transition: transform .2s ease-out, border-color .2s ease-out, box-shadow .2s ease-out;
+    }
+    .mb-stat:hover {
+      transform: translateY(-3px);
+      border-color: #BBF7D0;
+      box-shadow: 0 14px 30px rgba(34,197,94,.10);
+    }
+    .mb-stat-ico {
+      width: 52px; height: 52px;
+      border-radius: 16px; flex-shrink: 0;
+      display: inline-flex; align-items: center; justify-content: center;
+    }
+    .mb-stat-ico.green { background: #F0FDF4; color: #15803D; }
+    .mb-stat-ico.blue  { background: #DBEAFE; color: #1D4ED8; }
+    .mb-stat-ico.check { background: #F0FDF4; color: #15803D; }
+    .mb-stat-ico.red   { background: #FEE2E2; color: #B91C1C; }
+    .mb-stat-ico.amber { background: #FEF3C7; color: #92400E; }
+    .mb-stat-body { min-width: 0; }
+    .mb-stat-lbl  { font-size: 13px; color: #64748B; font-weight: 600; }
+    .mb-stat-val  {
+      font-family: "Plus Jakarta Sans", "Inter", sans-serif;
+      font-size: 28px; font-weight: 800; color: #0F172A;
+      letter-spacing: -.6px; line-height: 1.05;
+      margin: 2px 0 2px;
+    }
+    .mb-stat-sub  { font-size: 12px; color: #94A3B8; }
+
+    /* ─── 2-column row: Active + Upcoming ────────────────────── */
+    .mb-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1.55fr) minmax(320px, 1fr);
+      gap: 18px;
+      align-items: start;
+      overflow: visible;
+    }
+
+    /* ─── Active Ride card ───────────────────────────────────── */
+    .mb-active {
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 22px;
+      padding: 18px 20px 16px;
+      display: flex; flex-direction: column; gap: 16px;
+      position: relative;
+      overflow: visible;
+    }
+    .mb-active-head {
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .mb-active-head h3 {
+      display: inline-flex; align-items: center; gap: 10px;
+      font-size: 17px; font-weight: 700; color: #0F172A; margin: 0;
+    }
+    .mb-pulse {
+      width: 9px; height: 9px; border-radius: 50%; background: #22C55E;
+      box-shadow: 0 0 0 4px rgba(34,197,94,.18);
+      animation: mbPulse 1.8s ease-in-out infinite;
+    }
+    @keyframes mbPulse {
+      0%,100% { transform: scale(1); }
+      50%     { transform: scale(1.18); }
+    }
+    .mb-tag-active {
+      padding: 4px 10px; border-radius: 999px;
+      background: #DCFCE7; color: #15803D;
+      font-size: 11px; font-weight: 800; letter-spacing: .06em;
+      border: 1px solid #BBF7D0;
+    }
+
+    .mb-active-body {
+      display: grid;
+      grid-template-columns: 200px minmax(0, 1fr) 220px;
+      gap: 18px;
+      align-items: stretch;
+    }
+    .mb-bike-illus {
+      background: radial-gradient(circle at 50% 50%, #F0FDF4 0%, #ECFDF5 60%, #FFFFFF 100%);
+      border: 1px solid #BBF7D0;
+      border-radius: 18px;
+      display: flex; align-items: center; justify-content: center;
+      min-height: 200px;
+      overflow: hidden;
+    }
+    .mb-bike-illus img { max-width: 92%; height: auto; display: block; }
+
+    .mb-active-info { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+    .mb-bike-name {
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    }
+    .mb-bike-name h4 {
+      margin: 0; font-size: 19px; font-weight: 700; color: #0F172A; letter-spacing: -.2px;
+    }
+    .mb-route {
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+      font-size: 14px; color: #0F172A; font-weight: 600;
+    }
+    .mb-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .mb-dot.start { background: #22C55E; box-shadow: 0 0 0 3px rgba(34,197,94,.15); }
+    .mb-dot.end   { background: #38BDF8; box-shadow: 0 0 0 3px rgba(56,189,248,.15); }
+    .mb-dotline {
+      flex: 0 0 28px; height: 0; border-top: 2px dotted #94A3B8;
+    }
+
+    /* Start / End times */
+    .mb-times {
+      display: flex; justify-content: space-between; gap: 12px;
+      font-size: 12px;
+    }
+    .mb-times .lbl { color: #64748B; font-weight: 600; }
+    .mb-times .val { color: #0F172A; font-weight: 700; font-size: 15px; margin-top: 2px; }
+
+    /* Progress bar */
+    .mb-progress {
+      height: 8px; background: #F1F5F9; border-radius: 999px;
+      overflow: hidden; position: relative;
+    }
+    .mb-progress > div {
+      height: 100%;
+      background: linear-gradient(90deg, #22C55E, #16A34A);
+      border-radius: 999px;
+      transition: width .6s ease-out;
+    }
+    .mb-progress-meta {
+      display: flex; justify-content: space-between;
+      font-size: 12px; color: #64748B;
+      margin-top: 4px;
+    }
+    .mb-progress-meta .right { color: #15803D; font-weight: 700; }
+    .mb-payg-status {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 10px;
+      padding: 10px 12px;
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      border-radius: 12px;
+      color: #475569;
+      font-size: 12.5px;
+      line-height: 1.35;
+    }
+    .mb-payg-status strong {
+      color: #15803D;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    /* Mini map */
+    .mb-map-wrap {
+      position: relative;
+      background: linear-gradient(135deg, #F0FDF4, #ECFDF5);
+      border: 1px solid #BBF7D0;
+      border-radius: 18px;
+      overflow: hidden;
+      display: flex; flex-direction: column;
+      min-height: 200px;
+    }
+    .mb-map-canvas { flex: 1; min-height: 160px; }
+    .mb-map-status {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 2;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      max-width: calc(100% - 20px);
+      padding: 6px 9px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.92);
+      border: 1px solid rgba(187,247,208,.9);
+      color: #15803D;
+      box-shadow: 0 8px 18px rgba(15,23,42,.08);
+      font-size: 11.5px;
+      font-weight: 800;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      pointer-events: none;
+    }
+    .mb-map-status::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #22C55E;
+      box-shadow: 0 0 0 4px rgba(34,197,94,.16);
+      flex-shrink: 0;
+    }
+    .mb-map-fallback {
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 6px;
+      background: linear-gradient(135deg, #F0FDF4, #ECFDF5);
+      color: #15803D; font-size: 12px; text-align: center; padding: 16px;
+      flex: 1;
+    }
+    .mb-map-fallback strong { color: #0F172A; }
+    .mb-map-cta {
+      display: inline-flex; align-items: center; justify-content: center;
+      gap: 8px;
+      margin: 8px;
+      padding: 9px 12px;
+      background: #FFFFFF; color: #15803D;
+      border: 1px solid #BBF7D0;
+      border-radius: 12px;
+      font-weight: 700; font-size: 13px;
+      cursor: pointer;
+      transition: background .15s ease-out, transform .15s ease-out, box-shadow .15s ease-out;
+    }
+    .mb-map-cta:hover { background: #F0FDF4; transform: translateY(-1px); box-shadow: 0 6px 14px rgba(34,197,94,.18); }
+
+    /* PAYG live cost panel inside the active ride card */
+    .mb-payg-live {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+      padding: 12px 14px;
+      background: linear-gradient(135deg, #ECFDF5 0%, #F0FDF4 100%);
+      border: 1px solid #BBF7D0;
+      border-radius: 14px;
+    }
+    .mb-payg-live > div { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .mb-payg-live .lbl {
+      font-size: 11px; font-weight: 800; letter-spacing: .06em;
+      text-transform: uppercase; color: #15803D;
+    }
+    .mb-payg-live .val {
+      font-family: "Plus Jakarta Sans", "Inter", sans-serif;
+      font-weight: 700; font-size: 17px; color: #0F172A; letter-spacing: -.2px;
+      font-variant-numeric: tabular-nums;
+    }
+    .mb-payg-live .val.cost { color: #15803D; }
+    .mb-payg-live .val.small { font-size: 12.5px; font-weight: 600; color: #475569; }
+    @media (max-width: 720px) {
+      .mb-payg-live { grid-template-columns: 1fr; }
+    }
+
+    /* Action buttons */
+    .mb-active-foot {
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+      padding-top: 14px; border-top: 1px solid #F1F5F9;
+      position: relative;
+      z-index: 40;
+    }
+    .mb-end-ride {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 11px 22px;
+      background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%);
+      color: #FFFFFF;
+      border: none; border-radius: 12px;
+      font-weight: 800; font-size: 14px;
+      cursor: pointer;
+      box-shadow: 0 8px 22px rgba(34,197,94,.30);
+      transition: transform .15s ease-out, box-shadow .15s ease-out;
+    }
+    .mb-end-ride:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(34,197,94,.40); }
+    .mb-end-ride:disabled { background: #94A3B8; cursor: not-allowed; box-shadow: none; transform: none; }
+    .mb-more-wrap { position: relative; z-index: 60; }
+    .mb-more {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 10px 14px;
+      background: #FFFFFF; color: #0F172A;
+      border: 1px solid #E2E8F0;
+      border-radius: 12px;
+      font-weight: 700; font-size: 13px;
+      cursor: pointer;
+      transition: border-color .15s ease-out, background .15s ease-out;
+    }
+    .mb-more:hover { border-color: #BBF7D0; background: #F0FDF4; }
+    .mb-more-menu {
+      position: absolute; left: 0; bottom: calc(100% + 8px);
+      min-width: 188px;
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 12px;
+      box-shadow: 0 18px 44px rgba(15,23,42,.16);
+      padding: 6px;
+      z-index: 1000;
+      animation: mbMenuIn .15s ease-out;
+    }
+    @keyframes mbMenuIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .mb-more-menu button {
+      display: flex; align-items: center; gap: 8px; width: 100%;
+      background: transparent; border: none; cursor: pointer;
+      padding: 9px 10px; border-radius: 8px;
+      font-size: 13.5px; color: #0F172A; font-weight: 600;
+      text-align: left; font-family: inherit;
+    }
+    .mb-more-menu button:hover { background: #F0FDF4; color: #15803D; }
+    .mb-report {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 10px 14px;
+      background: transparent;
+      color: #64748B;
+      border: 1px dashed #CBD5E1;
+      border-radius: 12px;
+      font-weight: 700; font-size: 13px;
+      cursor: pointer;
+      transition: border-color .15s ease-out, color .15s ease-out, background .15s ease-out;
+      text-decoration: none;
+    }
+    .mb-report:hover { border-color: #BBF7D0; color: #15803D; background: #F0FDF4; }
+
+    /* Empty active */
+    .mb-active-empty {
+      text-align: center;
+      padding: 40px 22px;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+    }
+    .mb-active-empty-ico {
+      width: 78px; height: 78px;
+      border-radius: 50%;
+      background: #FFFFFF;
+      color: #22C55E;
+      display: inline-flex; align-items: center; justify-content: center;
+      margin-bottom: 6px;
+      box-shadow: 0 8px 22px rgba(34,197,94,.18), inset 0 0 0 1px #BBF7D0;
+      animation: mbBob 4s ease-in-out infinite;
+    }
+    @keyframes mbBob {
+      0%,100% { transform: translateY(0); }
+      50%     { transform: translateY(-5px); }
+    }
+    .mb-active-empty h4 { margin: 0; font-size: 18px; font-weight: 800; color: #0F172A; }
+    .mb-active-empty p { margin: 0; max-width: 380px; color: #64748B; font-size: 13.5px; line-height: 1.55; }
+
+    /* ─── Upcoming card ──────────────────────────────────────── */
+    .mb-up {
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 22px;
+      padding: 18px 18px;
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .mb-up-head {
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .mb-up-head h3 { margin: 0; font-size: 17px; font-weight: 700; color: #0F172A; }
+    .mb-up-view-all {
+      background: transparent; border: none; cursor: pointer;
+      color: #38BDF8; font-weight: 800; font-size: 13.5px;
+      text-decoration: none;
+    }
+    .mb-up-view-all:hover { color: #0EA5E9; text-decoration: underline; }
+
+    .mb-up-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-height: 560px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+    .mb-up-card {
+      position: relative;
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-left: 4px solid #F59E0B;
+      border-radius: 14px;
+      padding: 14px 14px 14px 16px;
+      display: flex; gap: 12px; align-items: center;
+      transition: transform .18s ease-out, box-shadow .18s ease-out, border-color .18s ease-out;
+    }
+    .mb-up-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 22px rgba(15,23,42,.06);
+      border-color: #FCD34D;
+    }
+    .mb-up-thumb {
+      flex-shrink: 0; width: 52px; height: 52px;
+      border-radius: 50%;
+      background: #F0FDF4; color: #15803D;
+      border: 1px solid #BBF7D0;
+      display: inline-flex; align-items: center; justify-content: center;
+    }
+    .mb-up-body { flex: 1; min-width: 0; }
+    .mb-up-title {
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+      margin-bottom: 4px;
+    }
+    .mb-up-title strong { font-size: 14px; color: #0F172A; font-weight: 700; }
+    .mb-up-pill {
+      padding: 3px 9px; border-radius: 999px;
+      background: #FEF3C7; color: #92400E;
+      font-size: 10.5px; font-weight: 900; letter-spacing: .06em;
+      border: 1px solid #FDE68A;
+    }
+    .mb-up-route { font-size: 13px; color: #475569; }
+    .mb-up-route .stop { color: #0F172A; font-weight: 600; }
+    .mb-up-meta { font-size: 12.5px; color: #64748B; margin-top: 4px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .mb-up-meta .dot { color: #CBD5E1; }
+    .mb-up-cancel {
+      padding: 8px 14px; border-radius: 10px;
+      background: #FFFFFF; color: #DC2626;
+      border: 1px solid #FECACA;
+      font-size: 13px; font-weight: 700; cursor: pointer;
+      transition: background .15s ease-out, border-color .15s ease-out;
+    }
+    .mb-up-cancel:hover { background: #FEF2F2; border-color: #EF4444; }
+
+    .mb-up-view-details {
+      align-self: center;
+      padding: 8px 16px;
+      background: transparent; color: #15803D;
+      border: none; cursor: pointer;
+      font-weight: 800; font-size: 13.5px;
+    }
+    .mb-up-view-details:hover { text-decoration: underline; }
+    .mb-up-more {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: #F8FAFC;
+      border: 1px dashed #CBD5E1;
+      color: #15803D;
+      font-size: 13px;
+      font-weight: 700;
+      text-decoration: none;
+    }
+    .mb-up-more:hover { background: #F0FDF4; border-color: #BBF7D0; }
+
+    .mb-up-empty {
+      text-align: center;
+      padding: 28px 16px;
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+    }
+    .mb-up-empty-ico {
+      width: 56px; height: 56px; border-radius: 50%;
+      background: #F0FDF4; color: #15803D;
+      border: 1px solid #BBF7D0;
+      display: inline-flex; align-items: center; justify-content: center;
+      margin-bottom: 6px;
+    }
+    .mb-up-empty h4 { margin: 0; color: #0F172A; font-size: 15px; font-weight: 800; }
+    .mb-up-empty p { margin: 0; color: #64748B; font-size: 13px; }
+
+    /* ─── Quick actions ─────────────────────────────────────── */
+    .mb-quick {
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 22px;
+      padding: 18px 20px;
+    }
+    .mb-quick h3 { margin: 0 0 14px; font-size: 17px; font-weight: 800; color: #0F172A; }
+    .mb-quick-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .mb-quick-card {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px;
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 16px;
+      text-decoration: none; color: inherit;
+      transition: transform .2s ease-out, border-color .2s ease-out, box-shadow .2s ease-out;
+    }
+    .mb-quick-card:hover {
+      transform: translateY(-2px);
+      border-color: #BBF7D0;
+      box-shadow: 0 12px 24px rgba(34,197,94,.10);
+    }
+    .mb-quick-ico {
+      width: 44px; height: 44px; border-radius: 14px;
+      display: inline-flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .mb-quick-ico.green { background: #F0FDF4; color: #15803D; border: 1px solid #BBF7D0; }
+    .mb-quick-ico.amber { background: #FEF3C7; color: #92400E; }
+    .mb-quick-ico.blue  { background: #DBEAFE; color: #1D4ED8; }
+    .mb-quick-ico.mint  { background: #F0FDF4; color: #15803D; border: 1px solid #BBF7D0; }
+    .mb-quick-body { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 2px; }
+    .mb-quick-body strong { color: #0F172A; font-size: 14px; font-weight: 800; }
+    .mb-quick-body span { color: #64748B; font-size: 12.5px; }
+    .mb-quick-card > svg.chev { color: #94A3B8; flex-shrink: 0; }
+    .mb-quick-card:hover > svg.chev { color: #22C55E; }
+
+    /* ─── Route Map Modal ────────────────────────────────────── */
+    .mb-route-overlay {
+      position: fixed; inset: 0;
+      background: rgba(15, 23, 42, .55);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+      z-index: 1000;
+      animation: mbOverlayIn .2s ease-out;
+    }
+    @keyframes mbOverlayIn { from { opacity: 0; } to { opacity: 1; } }
+    .mb-route-modal {
+      background: #FFFFFF;
+      border-radius: 22px;
+      width: 100%; max-width: 900px;
+      max-height: 90vh;
+      overflow: hidden;
+      display: flex; flex-direction: column;
+      box-shadow: 0 30px 80px rgba(15,23,42,.25), 0 0 0 1px rgba(34,197,94,.10);
+      animation: mbModalIn .25s cubic-bezier(.18,.89,.32,1.28);
+    }
+    @keyframes mbModalIn {
+      from { opacity: 0; transform: scale(.94); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+    .mb-route-head {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px;
+      padding: 18px 22px;
+      background: linear-gradient(135deg, #DCFCE7 0%, #F0FDF4 100%);
+      border-bottom: 1px solid #BBF7D0;
+    }
+    .mb-route-head h3 {
+      margin: 0; font-size: 18px; font-weight: 800; color: #0F172A; letter-spacing: -.3px;
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .mb-route-sub { font-size: 13px; color: #15803D; margin-top: 4px; }
+    .mb-route-close {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      background: rgba(255,255,255,.7); color: #15803D;
+      border: 1px solid rgba(34,197,94,.25);
+      cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center;
+    }
+    .mb-route-close:hover { background: #FFFFFF; }
+    .mb-route-body { flex: 1; min-height: 0; position: relative; background: #F8FAFC; }
+    .mb-route-canvas { width: 100%; height: 460px; }
+    .mb-route-info {
+      display: flex; gap: 16px; flex-wrap: wrap;
+      padding: 14px 22px;
+      border-top: 1px solid #E2E8F0;
+      background: #FFFFFF;
+    }
+    .mb-route-info-item { display: flex; flex-direction: column; gap: 2px; }
+    .mb-route-info-item .lbl { font-size: 11px; color: #94A3B8; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; }
+    .mb-route-info-item .val { font-size: 14px; color: #0F172A; font-weight: 700; }
+    .mb-route-info-item .val.green { color: #15803D; }
+    .mb-route-foot {
+      padding: 12px 22px 18px;
+      display: flex; justify-content: flex-end; gap: 10px;
+    }
+    .mb-route-loading {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 10px;
+      background: #F8FAFC;
+      color: #64748B; font-size: 13px;
+    }
+    .mb-spin {
+      width: 28px; height: 28px;
+      border: 3px solid rgba(34,197,94,.2);
+      border-top-color: #22C55E;
+      border-radius: 50%;
+      animation: mbSpin 1s linear infinite;
+    }
+    @keyframes mbSpin { to { transform: rotate(360deg); } }
+
+    /* Booking detail modal */
+    .mb-detail-modal {
+      background: #FFFFFF;
+      border-radius: 22px;
+      width: 100%; max-width: 560px;
+      box-shadow: 0 30px 80px rgba(15,23,42,.20), 0 0 0 1px rgba(34,197,94,.10);
+      overflow: hidden;
+      animation: mbModalIn .25s cubic-bezier(.18,.89,.32,1.28);
+    }
+    .mb-detail-rows { padding: 4px 22px 18px; display: flex; flex-direction: column; gap: 4px; }
+    .mb-detail-row {
+      display: flex; justify-content: space-between; gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid #F1F5F9;
+      font-size: 13.5px;
+    }
+    .mb-detail-row:last-child { border-bottom: 0; }
+    .mb-detail-row .k { color: #64748B; font-weight: 600; }
+    .mb-detail-row .v { color: #0F172A; font-weight: 800; text-align: right; }
+
+    /* Skeleton */
+    .mb-skel {
+      background: linear-gradient(90deg, #F1F5F9, #E2E8F0, #F1F5F9);
+      background-size: 200% 100%;
+      animation: mbShim 1.3s ease-in-out infinite;
+      border-radius: 14px;
+    }
+    @keyframes mbShim {
+      from { background-position: 200% 0; }
+      to   { background-position: -200% 0; }
+    }
+
+    /* Responsive */
+    @media (max-width: 1180px) {
+      .mb-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .mb-row { grid-template-columns: 1fr; }
+      .mb-quick-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 900px) {
+      .mb-active-body { grid-template-columns: 1fr; }
+      .mb-bike-illus, .mb-map-wrap { min-height: 180px; }
+      .mb-bike-illus img { max-width: 60%; }
+    }
+    @media (max-width: 640px) {
+      .mb-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .mb-quick-grid { grid-template-columns: 1fr; }
+      .mb-route-canvas { height: 340px; }
+      .mb-up-card { flex-wrap: wrap; }
+      .mb-up-card .mb-up-view-details { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- Shared topbar/sidebar/components -->
+  <script type="text/babel" data-presets="env,react" src="user-shared.js"></script>
+
+  <script type="text/babel" data-presets="env,react">
+    const { useEffect, useMemo, useRef, useState, useCallback } = React;
+    const Icon = window.UserIcons;
+
+    /* ────────────── Helpers ────────────── */
+    const PRICE_FMT = new Intl.NumberFormat("en-AU", { style: "currency", currency: "AUD" });
+    // PAYG rates — kept in sync with backend env vars BOOKING_UNLOCK_FEE_CENTS / BOOKING_PER_MINUTE_CENTS.
+    let PAYG_UNLOCK_FEE = 1.00;
+    let PAYG_PER_MINUTE = 0.20;
+    function applyPublicPricing(settings) {
+      const pricing = settings && settings.pricing;
+      if (!pricing) return;
+      PAYG_UNLOCK_FEE = Number(pricing.unlockFee ?? PAYG_UNLOCK_FEE);
+      PAYG_PER_MINUTE = Number(pricing.perMinuteFee ?? PAYG_PER_MINUTE);
+    }
+    const fmtMoney = (n) => PRICE_FMT.format(Number(n) || 0);
+    const fmtMinSec = (totalSec) => {
+      const s = Math.max(0, Math.floor(totalSec));
+      const h = Math.floor(s / 3600);
+      const m = Math.floor((s % 3600) / 60);
+      const sec = s % 60;
+      return h > 0
+        ? `${h}:${String(m).padStart(2,"0")}:${String(sec).padStart(2,"0")}`
+        : `${String(m).padStart(2,"0")}:${String(sec).padStart(2,"0")}`;
+    };
+    const fmtDate = (s) => s ? new Date(s).toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "numeric" }) : "—";
+    const fmtTime = (s) => s ? new Date(s).toLocaleTimeString("en-AU", { hour: "2-digit", minute: "2-digit" }) : "—";
+    const fmtDateTime = (s) => s ? new Date(s).toLocaleString("en-AU", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) : "—";
+    const bookingTypeLabel = (v) => v === "ride_now" ? "Ride Now" : "Reserved for Later";
+    const pricingLabel = (v) => {
+      const value = String(v || "").toLowerCase();
+      if (value === "fixed_duration" || value === "fixed" || value === "reserve_fixed") return "Fixed Duration";
+      if (value === "pay_as_you_go" || value === "reserve_payg") return "Pay-As-You-Go";
+      return v || "Pay-As-You-Go";
+    };
+    const hasFixedRideWindow = (ride) => {
+      if (!ride) return false;
+      const bookingType = String(ride.bookingType || "").toLowerCase();
+      const duration = Number(ride.durationMinutes || 0);
+      const endMs = ride.endTime ? new Date(ride.endTime).getTime() : NaN;
+      return bookingType !== "ride_now" && duration > 0 && Number.isFinite(endMs);
+    };
+    const isPayAsYouGoRide = (ride) => !hasFixedRideWindow(ride);
+    const coordsValid = (point) => point && point.lat != null && point.lng != null && Number.isFinite(Number(point.lat)) && Number.isFinite(Number(point.lng));
+    const sameCoords = (a, b) => coordsValid(a) && coordsValid(b)
+      && Math.abs(Number(a.lat) - Number(b.lat)) < 0.00001
+      && Math.abs(Number(a.lng) - Number(b.lng)) < 0.00001;
+    const stringSeed = (value) => String(value || "")
+      .split("")
+      .reduce((sum, ch) => sum + ch.charCodeAt(0), 0);
+    const getRideDestination = (ride, pickup, hasFixedWindow) => {
+      if (!ride || !pickup) return null;
+      const destination = {
+        name: ride.destinationStationName || "",
+        lat: ride.destinationLat,
+        lng: ride.destinationLng,
+      };
+      if (!coordsValid(destination)) return null;
+      const destinationName = String(destination.name || "").trim();
+      const pickupName = String(pickup.name || "").trim();
+      const backendFallbackToPickup = sameCoords(pickup, destination) && (!destinationName || destinationName === pickupName);
+      if (!hasFixedWindow && backendFallbackToPickup) return null;
+      if (!hasFixedWindow && sameCoords(pickup, destination)) return null;
+      if (hasFixedWindow && backendFallbackToPickup) return null;
+      return { ...destination, name: destinationName || "Destination station" };
+    };
+    const getRideCurrentPoint = (pickup, destination, ride, elapsedMs) => {
+      if (!coordsValid(pickup)) return null;
+      const start = { lat: Number(pickup.lat), lng: Number(pickup.lng) };
+      const hasDestination = coordsValid(destination) && !sameCoords(start, destination);
+      const seed = stringSeed((ride && (ride.bookingId || ride.bikeCode)) || pickup.name);
+      const seconds = Math.max(0, Math.floor((elapsedMs || 0) / 1000));
+      const angle = ((seconds / 14) + seed) % (Math.PI * 2);
+      const meterLat = 1 / 111320;
+      const meterLng = 1 / (111320 * Math.max(0.25, Math.cos(start.lat * Math.PI / 180)));
+      if (hasDestination) {
+        const end = { lat: Number(destination.lat), lng: Number(destination.lng) };
+        const routeCycle = (seconds % 2700) / 2700;
+        const t = Math.min(0.88, 0.12 + routeCycle * 0.72);
+        const offsetM = 16 + (seed % 18);
+        return {
+          lat: start.lat + (end.lat - start.lat) * t + Math.sin(angle) * offsetM * meterLat,
+          lng: start.lng + (end.lng - start.lng) * t + Math.cos(angle) * offsetM * meterLng,
+        };
+      }
+      const radiusM = 75 + (seed % 85);
+      return {
+        lat: start.lat + Math.sin(angle) * radiusM * meterLat,
+        lng: start.lng + Math.cos(angle) * radiusM * meterLng,
+      };
+    };
+
+    function minsAgo(iso) {
+      if (!iso) return 0;
+      return Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 60000));
+    }
+    function minsUntil(iso) {
+      if (!iso) return 0;
+      return Math.max(0, Math.floor((new Date(iso).getTime() - Date.now()) / 60000));
+    }
+
+    /* ────────────── Google Maps loader ────────────── */
+    let __gMapsPromise = null;
+    function loadGoogleMaps() {
+      if (__gMapsPromise) return __gMapsPromise;
+      __gMapsPromise = new Promise((resolve, reject) => {
+        if (window.google && window.google.maps) return resolve(window.google.maps);
+        const existing = document.querySelector('script[src*="maps.googleapis.com/maps/api/js"]');
+        if (existing) {
+          existing.addEventListener("load", () => {
+            if (window.google && window.google.maps) resolve(window.google.maps);
+            else reject(new Error("Map preview unavailable right now."));
+          }, { once: true });
+          existing.addEventListener("error", () => reject(new Error("Map preview unavailable right now.")), { once: true });
+          return;
+        }
+        fetch("/api/config/google-maps-key")
+          .then(r => r.ok ? r.json() : { key: "" })
+          .then(({ key }) => {
+            const finalKey = key || "";
+            if (!finalKey) return reject(new Error("Map preview unavailable right now."));
+            const s = document.createElement("script");
+            window.__initMyBookingsGmaps = () => {
+              window.__gmapsReady = true;
+              if (window.google && window.google.maps) resolve(window.google.maps);
+              else reject(new Error("Map preview unavailable right now."));
+            };
+            s.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(finalKey)}&callback=__initMyBookingsGmaps&libraries=places&loading=async`;
+            s.async = true; s.defer = true;
+            s.onerror = () => reject(new Error("Map preview unavailable right now."));
+            document.head.appendChild(s);
+          })
+          .catch(() => reject(new Error("Map preview unavailable right now.")));
+      });
+      return __gMapsPromise;
+    }
+
+    const markerPoint = (point) => {
+      if (!point) return null;
+      if (typeof point.lat === "function" && typeof point.lng === "function") {
+        return { lat: point.lat(), lng: point.lng() };
+      }
+      if (point.lat != null && point.lng != null) {
+        return { lat: Number(point.lat), lng: Number(point.lng) };
+      }
+      return null;
+    };
+    function animateMapMarker(marker, from, to, duration = 1200) {
+      if (!marker || !to || !Number.isFinite(Number(to.lat)) || !Number.isFinite(Number(to.lng))) return;
+      const start = markerPoint(from || marker.getPosition()) || markerPoint(to);
+      const end = markerPoint(to);
+      if (!start || !end || !window.requestAnimationFrame) {
+        marker.setPosition(end);
+        return;
+      }
+      const startedAt = performance.now();
+      const step = (now) => {
+        const t = Math.min(1, (now - startedAt) / duration);
+        const eased = t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+        marker.setPosition({
+          lat: start.lat + (end.lat - start.lat) * eased,
+          lng: start.lng + (end.lng - start.lng) * eased,
+        });
+        if (t < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    }
+    const elapsedForRide = (ride) => {
+      const started = ride && ride.startTime ? new Date(ride.startTime).getTime() : Date.now();
+      return Math.max(0, Date.now() - started);
+    };
+
+    /* ────────────── Tiny inline map preview ────────────── */
+    function MiniMap({ pickup, destination, ride, hasFixedWindow }) {
+      const elRef = useRef(null);
+      const [state, setState] = useState({ status: "loading", msg: "" });
+      if (!destination) destination = { name: "Ride is currently in progress", lat: null, lng: null };
+      useEffect(() => {
+        let cancelled = false;
+        let timer = null;
+        if (!pickup || pickup.lat == null || pickup.lng == null) {
+          setState({ status: "missing", msg: "" });
+          return () => {};
+        }
+        loadGoogleMaps()
+          .then(maps => {
+            if (cancelled || !elRef.current) return;
+            const center = { lat: Number(pickup.lat), lng: Number(pickup.lng) };
+            const map = new maps.Map(elRef.current, {
+              center, zoom: 15,
+              disableDefaultUI: true,
+              mapTypeControl: false, streetViewControl: false,
+              fullscreenControl: false, zoomControl: false,
+              gestureHandling: "none", clickableIcons: false,
+            });
+            setTimeout(() => maps.event.trigger(map, "resize"), 120);
+            const bounds = new maps.LatLngBounds();
+            bounds.extend(center);
+            new maps.Marker({
+              position: center,
+              map,
+              label: { text: "A", color: "#fff", fontWeight: "700" },
+              title: pickup.name || "Start station",
+              icon: {
+                path: maps.SymbolPath.CIRCLE,
+                scale: 11,
+                fillColor: "#16A34A",
+                fillOpacity: 1,
+                strokeColor: "#FFFFFF",
+                strokeWeight: 2,
+              },
+            });
+            const currentPoint = getRideCurrentPoint(pickup, destination, ride, elapsedForRide(ride));
+            let currentMarker = null;
+            if (currentPoint) {
+              bounds.extend(currentPoint);
+              currentMarker = new maps.Marker({
+                position: currentPoint,
+                map,
+                title: "Current ride location",
+                icon: {
+                  path: maps.SymbolPath.CIRCLE,
+                  scale: 9,
+                  fillColor: "#3B82F6",
+                  fillOpacity: 1,
+                  strokeColor: "#FFFFFF",
+                  strokeWeight: 2,
+                },
+              });
+            }
+            if (destination && destination.lat != null && destination.lng != null) {
+              const end = { lat: Number(destination.lat), lng: Number(destination.lng) };
+              bounds.extend(end);
+              new maps.Marker({
+                position: end,
+                map,
+                label: { text: "B", color: "#fff", fontWeight: "700" },
+                title: destination.name || "Destination",
+                icon: {
+                  path: maps.SymbolPath.CIRCLE,
+                  scale: 11,
+                  fillColor: "#0EA5E9",
+                  fillOpacity: 1,
+                  strokeColor: "#FFFFFF",
+                  strokeWeight: 2,
+                },
+              });
+              const line = new maps.Polyline({
+                path: [center, end],
+                geodesic: true,
+                strokeColor: "#22C55E",
+                strokeOpacity: .9,
+                strokeWeight: 3,
+              });
+              line.setMap(map);
+            }
+            if (coordsValid(destination) || currentPoint) map.fitBounds(bounds, 34);
+            if (currentMarker) {
+              timer = setInterval(() => {
+                const next = getRideCurrentPoint(pickup, destination, ride, elapsedForRide(ride));
+                animateMapMarker(currentMarker, currentMarker.getPosition(), next, 1300);
+              }, 2500);
+            }
+            setState({ status: "ready" });
+          })
+          .catch(err => {
+            if (!cancelled) setState({ status: "error", msg: err.message || "Map preview unavailable right now." });
+          });
+        return () => {
+          cancelled = true;
+          if (timer) clearInterval(timer);
+        };
+      }, [pickup && pickup.lat, pickup && pickup.lng, destination && destination.lat, destination && destination.lng, ride && ride.bookingId]);
+
+      return (
+        <React.Fragment>
+          <div className="mb-map-status">{hasFixedWindow ? "Live route preview" : "Live ride tracking"}</div>
+          <div ref={elRef} id={`mb-mini-map-${ride && ride.bookingId ? ride.bookingId : "active"}`} className="mb-map-canvas"/>
+          {state.status !== "ready" && (
+        <div className="mb-map-fallback">
+          <Icon.map s={28}/>
+          {state.status === "missing"
+            ? <div>Map unavailable for this ride.</div>
+            : <div>{state.msg || "Loading map…"}</div>}
+          {pickup && (
+            <div><strong>{pickup.name}</strong> → <strong>{destination.name}</strong></div>
+          )}
+        </div>
+          )}
+        </React.Fragment>
+      );
+    }
+
+    /* ────────────── Route Map Modal (large) ────────────── */
+    function RouteMapModal({ pickup, destination, ride, elapsedMs, hasFixedWindow, onClose }) {
+      const mapEl = useRef(null);
+      const [state, setState] = useState({ status: "loading", msg: "" });
+      const [info, setInfo] = useState(null); // { distance, duration }
+      if (!destination) destination = { name: hasFixedWindow ? "Destination not set" : "Ride in progress", lat: null, lng: null };
+      useEffect(() => {
+        const onKey = (e) => { if (e.key === "Escape") onClose(); };
+        document.addEventListener("keydown", onKey);
+        return () => document.removeEventListener("keydown", onKey);
+      }, [onClose]);
+
+      useEffect(() => {
+        let cancelled = false;
+        let timer = null;
+        if (!pickup || pickup.lat == null || pickup.lng == null) {
+          setState({ status: "error", msg: "Pickup coordinates missing." });
+          return () => {};
+        }
+        loadGoogleMaps()
+          .then(maps => {
+            if (cancelled || !mapEl.current) return;
+            const center = { lat: Number(pickup.lat), lng: Number(pickup.lng) };
+            const map = new maps.Map(mapEl.current, {
+              center, zoom: 15,
+              mapTypeControl: false, streetViewControl: false,
+              fullscreenControl: false,
+            });
+            setTimeout(() => maps.event.trigger(map, "resize"), 120);
+            const modalBounds = new maps.LatLngBounds();
+            modalBounds.extend(center);
+            new maps.Marker({ position: center, map, label: { text: "A", color: "#fff", fontWeight: "700" }, title: pickup.name });
+            const currentPoint = getRideCurrentPoint(pickup, destination, ride, elapsedMs);
+            let currentMarker = null;
+            if (currentPoint) {
+              modalBounds.extend(currentPoint);
+              currentMarker = new maps.Marker({
+                position: currentPoint,
+                map,
+                title: "Current ride location",
+                icon: {
+                  path: maps.SymbolPath.CIRCLE,
+                  scale: 9,
+                  fillColor: "#3B82F6",
+                  fillOpacity: 1,
+                  strokeColor: "#FFFFFF",
+                  strokeWeight: 2,
+                },
+              });
+            }
+            const hasDestination = destination && destination.lat != null && destination.lng != null;
+            if (hasDestination) {
+              const end = { lat: Number(destination.lat), lng: Number(destination.lng) };
+              new maps.Marker({ position: end, map, label: { text: "B", color: "#fff", fontWeight: "700" }, title: destination.name });
+              // Try DirectionsService for a proper route
+              try {
+                const ds = new maps.DirectionsService();
+                const dr = new maps.DirectionsRenderer({
+                  map, suppressMarkers: true,
+                  polylineOptions: { strokeColor: "#22C55E", strokeWeight: 5, strokeOpacity: .9 },
+                });
+                ds.route({
+                  origin: center,
+                  destination: end,
+                  travelMode: maps.TravelMode.BICYCLING,
+                }, (result, status) => {
+                  if (status === "OK" && result) {
+                    dr.setDirections(result);
+                    const leg = result.routes[0] && result.routes[0].legs[0];
+                    if (leg) setInfo({
+                      distance: leg.distance && leg.distance.text,
+                      duration: leg.duration && leg.duration.text,
+                    });
+                  } else {
+                    // Fallback: straight line
+                    const line = new maps.Polyline({
+                      path: [center, end],
+                      strokeColor: "#22C55E",
+                      strokeWeight: 4,
+                      strokeOpacity: .9,
+                    });
+                    line.setMap(map);
+                    const bounds = new maps.LatLngBounds();
+                    bounds.extend(center); bounds.extend(end);
+                    map.fitBounds(bounds, 50);
+                  }
+                });
+              } catch (_) {
+                const line = new maps.Polyline({ path: [center, end], strokeColor: "#22C55E", strokeWeight: 4, strokeOpacity: .9 });
+                line.setMap(map);
+              }
+              const bounds = new maps.LatLngBounds();
+              bounds.extend(center); bounds.extend(end);
+              map.fitBounds(bounds, 50);
+            } else if (currentPoint) {
+              map.fitBounds(modalBounds, 70);
+            }
+            if (currentMarker) {
+              timer = setInterval(() => {
+                const next = getRideCurrentPoint(pickup, destination, ride, elapsedForRide(ride));
+                animateMapMarker(currentMarker, currentMarker.getPosition(), next, 1300);
+              }, 2500);
+            }
+            setState({ status: "ready" });
+          })
+          .catch(err => {
+            if (!cancelled) setState({ status: "error", msg: err.message || "Map preview unavailable right now." });
+          });
+        return () => {
+          cancelled = true;
+          if (timer) clearInterval(timer);
+        };
+      }, [pickup && pickup.lat, pickup && pickup.lng, destination && destination.lat, destination && destination.lng]);
+
+      const gmapsLink = pickup && destination && pickup.lat != null && destination.lat != null
+        ? `https://www.google.com/maps/dir/?api=1&origin=${pickup.lat},${pickup.lng}&destination=${destination.lat},${destination.lng}&travelmode=bicycling`
+        : null;
+
+      return (
+        <div className="mb-route-overlay" onClick={onClose} data-testid="route-overlay">
+          <div className="mb-route-modal" onClick={e => e.stopPropagation()}>
+            <div className="mb-route-head">
+              <div>
+                <h3><Icon.map s={20}/> Route preview</h3>
+                <div className="mb-route-sub">
+                  {pickup && pickup.name} → {destination && destination.name ? destination.name : "—"}
+                </div>
+              </div>
+              <button className="mb-route-close" onClick={onClose} aria-label="Close" data-testid="route-close">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+              </button>
+            </div>
+            <div className="mb-route-body">
+              <div ref={mapEl} id={`mb-route-map-${ride && ride.bookingId ? ride.bookingId : "active"}`} className="mb-route-canvas"/>
+              {state.status === "loading" && (
+                <div className="mb-route-loading">
+                  <div className="mb-spin"/>
+                  <div>Loading map…</div>
+                </div>
+              )}
+              {state.status === "error" && (
+                <div className="mb-route-loading">
+                  <Icon.alert s={28}/>
+                  <div>{state.msg || "Could not load the map."}</div>
+                  <div style={{color:"#64748B"}}>Route: <strong>{pickup && pickup.name}</strong> → <strong>{destination && destination.name}</strong></div>
+                </div>
+              )}
+            </div>
+            {state.status === "ready" && (
+              <div className="mb-route-info">
+                <div className="mb-route-info-item">
+                  <span className="lbl">Pick-up</span>
+                  <span className="val">{pickup.name}</span>
+                </div>
+                <div className="mb-route-info-item">
+                  <span className="lbl">Drop-off</span>
+                  <span className="val">{destination && destination.name ? destination.name : "—"}</span>
+                </div>
+                {info && info.distance && (
+                  <div className="mb-route-info-item">
+                    <span className="lbl">Distance</span>
+                    <span className="val green">{info.distance}</span>
+                  </div>
+                )}
+                {info && info.duration && (
+                  <div className="mb-route-info-item">
+                    <span className="lbl">Est. Time</span>
+                    <span className="val green">{info.duration}</span>
+                  </div>
+                )}
+              </div>
+            )}
+            <div className="mb-route-foot">
+              {gmapsLink && (
+                <a className="d-btn d-btn-secondary" href={gmapsLink} target="_blank" rel="noopener noreferrer">Open in Google Maps</a>
+              )}
+              <button className="d-btn d-btn-primary" onClick={onClose}>Close</button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    /* ────────────── Booking detail modal ────────────── */
+    function DetailModal({ booking, onClose }) {
+      useEffect(() => {
+        const onKey = (e) => { if (e.key === "Escape") onClose(); };
+        document.addEventListener("keydown", onKey);
+        return () => document.removeEventListener("keydown", onKey);
+      }, [onClose]);
+      if (!booking) return null;
+      return (
+        <div className="mb-route-overlay" onClick={onClose}>
+          <div className="mb-detail-modal" onClick={e => e.stopPropagation()} data-testid="detail-modal">
+            <div className="mb-route-head">
+              <div>
+                <h3><Icon.calendar/> Booking #{booking.bookingId}</h3>
+                <div className="mb-route-sub">{booking.bikeCode} · {booking.bikeType}</div>
+              </div>
+              <button className="mb-route-close" onClick={onClose} aria-label="Close">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+              </button>
+            </div>
+            <div className="mb-detail-rows">
+              <div className="mb-detail-row"><span className="k">Status</span><span className="v" style={{textTransform:"capitalize"}}>{booking.status}</span></div>
+              <div className="mb-detail-row"><span className="k">Booking type</span><span className="v">{bookingTypeLabel(booking.bookingType)}</span></div>
+              <div className="mb-detail-row"><span className="k">Pricing</span><span className="v">{pricingLabel(booking.pricingMode)}</span></div>
+              <div className="mb-detail-row"><span className="k">Pick-up</span><span className="v">{booking.pickupStationName}</span></div>
+              <div className="mb-detail-row"><span className="k">Drop-off</span><span className="v">{booking.destinationStationName || "—"}</span></div>
+              <div className="mb-detail-row"><span className="k">Start</span><span className="v">{fmtDateTime(booking.startTime)}</span></div>
+              <div className="mb-detail-row"><span className="k">End</span><span className="v">{fmtDateTime(booking.endTime)}</span></div>
+              <div className="mb-detail-row"><span className="k">Duration</span><span className="v">{booking.durationMinutes ? booking.durationMinutes + " min" : "—"}</span></div>
+              <div className="mb-detail-row"><span className="k">Amount</span><span className="v">{PRICE_FMT.format(Number(booking.amount) || 0)}</span></div>
+              <div className="mb-detail-row"><span className="k">Payment</span><span className="v" style={{textTransform:"capitalize"}}>{booking.paymentStatus}</span></div>
+            </div>
+            <div className="mb-route-foot">
+              <button className="d-btn d-btn-secondary" onClick={onClose}>Close</button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    /* ────────────── Cancel confirmation modal ────────────── */
+    function CancelModal({ booking, busy, onClose, onConfirm }) {
+      if (!booking) return null;
+      return (
+        <div className="mb-route-overlay" onClick={onClose}>
+          <div className="mb-detail-modal" onClick={e => e.stopPropagation()} data-testid="cancel-modal">
+            <div className="mb-route-head">
+              <div>
+                <h3><Icon.alert/> Cancel booking?</h3>
+                <div className="mb-route-sub">Booking #{booking.bookingId} · {booking.bikeCode}</div>
+              </div>
+              <button className="mb-route-close" onClick={onClose} aria-label="Close">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+              </button>
+            </div>
+            <div className="mb-detail-rows">
+              <p style={{margin:"6px 0", color:"#475569", fontSize:14, lineHeight:1.55}}>
+                Are you sure you want to cancel this booking? This action can't be undone.
+              </p>
+              <div className="mb-detail-row"><span className="k">Pick-up</span><span className="v">{booking.pickupStationName}</span></div>
+              <div className="mb-detail-row"><span className="k">When</span><span className="v">{fmtDate(booking.startTime)} · {fmtTime(booking.startTime)}</span></div>
+            </div>
+            <div className="mb-route-foot">
+              <button className="d-btn d-btn-secondary" onClick={onClose} disabled={busy}>Keep booking</button>
+              <button className="d-btn" style={{background:"#EF4444", color:"#fff"}} onClick={() => onConfirm(booking)} disabled={busy} data-testid="confirm-cancel">
+                {busy ? "Cancelling…" : "Yes, cancel"}
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    /* ────────────── End Ride confirmation modal ────────────── */
+    function EndRideModal({ ride, busy, onClose, onConfirm }) {
+      if (!ride) return null;
+      // Live cost preview based on the running timer so the student knows what
+      // they're about to be charged before confirming.
+      const [now, setNow] = useState(Date.now());
+      useEffect(() => {
+        const t = setInterval(() => setNow(Date.now()), 1000);
+        return () => clearInterval(t);
+      }, []);
+      const startMs = new Date(ride.startTime).getTime();
+      const mins = Math.max(1, Math.ceil((now - startMs) / 60000));
+      const total = PAYG_UNLOCK_FEE + mins * PAYG_PER_MINUTE;
+      return (
+        <div className="mb-route-overlay" onClick={busy ? null : onClose}>
+          <div className="mb-detail-modal" onClick={e => e.stopPropagation()} data-testid="end-ride-modal">
+            <div className="mb-route-head">
+              <div>
+                <h3><Icon.check/> End this ride?</h3>
+                <div className="mb-route-sub">Booking #{ride.bookingId} · {ride.bikeCode}</div>
+              </div>
+              <button className="mb-route-close" onClick={onClose} aria-label="Close" disabled={busy}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+              </button>
+            </div>
+            <div className="mb-detail-rows">
+              <p style={{margin:"6px 0 12px", color:"#475569", fontSize:14, lineHeight:1.55}}>
+                Are you sure you want to end this ride? You'll be taken to Stripe to pay the final amount.
+              </p>
+              <div className="mb-detail-row"><span className="k">Pick-up</span><span className="v">{ride.pickupStationName}</span></div>
+              <div className="mb-detail-row"><span className="k">Duration so far</span><span className="v">{mins} min</span></div>
+              <div className="mb-detail-row"><span className="k">Unlock fee (paid)</span><span className="v">{fmtMoney(PAYG_UNLOCK_FEE)}</span></div>
+              <div className="mb-detail-row"><span className="k">Per-minute rate</span><span className="v">{fmtMoney(PAYG_PER_MINUTE)} / min</span></div>
+              <div className="mb-detail-row" style={{borderTop:"1px solid #E2E8F0", paddingTop:8, marginTop:4}}>
+                <span className="k" style={{fontWeight:800,color:"#0F172A"}}>Pay now (final)</span>
+                <span className="v" style={{fontSize:17, color:"#15803D"}}>{fmtMoney(total)}</span>
+              </div>
+            </div>
+            <div className="mb-route-foot">
+              <button className="d-btn d-btn-secondary" onClick={onClose} disabled={busy}>Cancel</button>
+              <button className="d-btn d-btn-primary" onClick={() => onConfirm(ride)} disabled={busy} data-testid="confirm-end-ride">
+                {busy ? "Opening Stripe…" : "Yes, end ride"}
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    /* ────────────── Summary stats (5 cards) ────────────── */
+    function SummaryStats({ summary, loading, onJumpActive }) {
+      const items = [
+        { key: "upcoming",  lbl: "Upcoming",   val: summary && summary.upcomingCount,       sub: ((summary && summary.upcomingCount) === 1 ? "Booking" : "Bookings"), tone: "green", icon: <Icon.calendar/>, href: null,
+          onClick: () => {} },
+        { key: "active",    lbl: "Active Ride", val: summary && summary.activeRideCount,    sub: (summary && summary.activeRideCount > 0 ? "In Progress" : "None right now"), tone: "blue",  icon: <Icon.bike s={22}/>, href: null,
+          onClick: onJumpActive },
+        { key: "completed", lbl: "Completed",  val: summary && summary.completedRideCount,  sub: "Rides",   tone: "check", icon: <Icon.check s={22}/>, href: "User_ride_history.html" },
+        { key: "cancelled", lbl: "Cancelled",  val: summary && summary.cancelledCount,      sub: ((summary && summary.cancelledCount) === 1 ? "Booking" : "Bookings"), tone: "red",   icon: <Icon.alert s={22}/>, href: "User_ride_history.html?status=cancelled" },
+        { key: "spent",     lbl: "Total Spent", val: summary && PRICE_FMT.format(Number(summary.totalSpentThisMonth) || 0), sub: "This Month", tone: "amber", icon: <Icon.wallet/>, href: "User_ride_history.html" },
+      ];
+      if (loading || !summary) {
+        return (
+          <div className="mb-stats">
+            {[1,2,3,4,5].map(i => <div key={i} className="mb-skel" style={{height: 96}}/>)}
+          </div>
+        );
+      }
+      return (
+        <div className="mb-stats">
+          {items.map(it => {
+            const Tag = it.href ? "a" : "button";
+            const props = it.href ? { href: it.href } : { type: "button", onClick: it.onClick || (() => {}) };
+            return (
+              <Tag key={it.key} className="mb-stat" data-testid={`stat-${it.key}`} {...props}>
+                <div className={"mb-stat-ico " + it.tone}>{it.icon}</div>
+                <div className="mb-stat-body">
+                  <div className="mb-stat-lbl">{it.lbl}</div>
+                  <div className="mb-stat-val">{it.val != null ? it.val : "—"}</div>
+                  <div className="mb-stat-sub">{it.sub}</div>
+                </div>
+              </Tag>
+            );
+          })}
+        </div>
+      );
+    }
+
+    /* ────────────── Active Ride card ────────────── */
+    function ActiveRideCard({ ride, loading, onEnd, onViewRoute, onViewDetails, onReport, pushToast }) {
+      const [moreOpen, setMoreOpen] = useState(false);
+      const moreRef = useRef(null);
+      const [now, setNow] = useState(Date.now());
+      useEffect(() => {
+        if (!ride) return;
+        const t = setInterval(() => setNow(Date.now()), 1000);
+        return () => clearInterval(t);
+      }, [ride]);
+      useEffect(() => {
+        if (!moreOpen) return;
+        const close = (e) => { if (moreRef.current && !moreRef.current.contains(e.target)) setMoreOpen(false); };
+        document.addEventListener("mousedown", close);
+        return () => document.removeEventListener("mousedown", close);
+      }, [moreOpen]);
+
+      if (loading) {
+        return <div className="mb-active"><div className="mb-skel" style={{height: 360}}/></div>;
+      }
+      if (!ride) {
+        return (
+          <div className="mb-active" data-testid="active-empty">
+            <div className="mb-active-head">
+              <h3><span style={{width:9,height:9,borderRadius:50,background:"#CBD5E1",display:"inline-block"}}/> Current Active Ride</h3>
+              <span style={{background:"#F1F5F9",color:"#64748B",border:"1px solid #E2E8F0",padding:"4px 11px",borderRadius:999,fontSize:11,fontWeight:800,letterSpacing:".06em"}}>IDLE</span>
+            </div>
+            <div className="mb-active-empty">
+              <div className="mb-active-empty-ico"><Icon.bike s={34}/></div>
+              <h4>No ride in progress</h4>
+              <p>You're not on a ride right now. Browse stations on the dashboard to book your next ride.</p>
+              <a className="d-btn d-btn-primary" href="User_dashboard.html" style={{marginTop:6}}>
+                <Icon.bike s={16}/> Book a ride
+              </a>
+            </div>
+          </div>
+        );
+      }
+
+      const startMs = new Date(ride.startTime).getTime();
+      const hasFixedWindow = hasFixedRideWindow(ride);
+      const isPaygRide = isPayAsYouGoRide(ride);
+      const endMs = hasFixedWindow ? new Date(ride.endTime).getTime() : null;
+      const total = hasFixedWindow ? Math.max(1, endMs - startMs) : 1;
+      const elapsed = Math.max(0, now - startMs);
+      const pct = hasFixedWindow ? Math.min(100, Math.round((elapsed / total) * 100)) : 0;
+      const remainingMs = hasFixedWindow ? Math.max(0, endMs - now) : 0;
+      const elapsedMin = Math.floor(elapsed / 60000);
+      const remainingMin = Math.floor(remainingMs / 60000);
+      const elapsedSec = Math.max(0, Math.floor(elapsed / 1000));
+      const estimatedTotal = PAYG_UNLOCK_FEE + Math.max(1, Math.ceil(elapsed / 60000)) * PAYG_PER_MINUTE;
+
+      const pickup = {
+        name: ride.pickupStationName,
+        lat:  ride.pickupLat,
+        lng:  ride.pickupLng,
+      };
+      const destination = getRideDestination(ride, pickup, hasFixedWindow);
+      const routeEndLabel = destination && destination.name ? destination.name : (hasFixedWindow ? "Destination not set" : "Ride in progress");
+
+      const isPaid = (ride.paymentStatus || "").toLowerCase() === "paid";
+
+      return (
+        <div className="mb-active" data-testid="active-card">
+          <div className="mb-active-head">
+            <h3><span className="mb-pulse"/> Current Active Ride</h3>
+            <span className="mb-tag-active">ACTIVE</span>
+          </div>
+
+          <div className="mb-active-body">
+            {/* Bike illustration */}
+            <div className="mb-bike-illus">
+              <img src="../../image/bike.svg" alt="Bike" onError={(e) => { e.target.style.display = "none"; }}/>
+            </div>
+
+            {/* Info */}
+            <div className="mb-active-info">
+              <div className="mb-bike-name">
+                <h4>Bike #{ride.bikeCode}</h4>
+              </div>
+              <div className="mb-route">
+                <span className="mb-dot start"/>
+                <span>{pickup.name}</span>
+                <span className="mb-dotline"/>
+                <span className="mb-dot end"/>
+                <span>{routeEndLabel}</span>
+              </div>
+              <div className="mb-times">
+                <div>
+                  <div className="lbl">Start</div>
+                  <div className="val">{fmtTime(ride.startTime)}</div>
+                </div>
+                <div style={{textAlign:"right"}}>
+                  <div className="lbl">End</div>
+                  <div className="val">{hasFixedWindow ? fmtTime(ride.endTime) : "No fixed end time"}</div>
+                </div>
+              </div>
+              {hasFixedWindow ? (
+                <div>
+                  <div className="mb-progress"><div style={{width: pct + "%"}}/></div>
+                  <div className="mb-progress-meta">
+                    <span>Ride started {elapsedMin} mins ago</span>
+                    <span className="right">{remainingMin} mins remaining</span>
+                  </div>
+                </div>
+              ) : (
+                <div className="mb-payg-status">
+                  <span>Ride in progress with no fixed return time.</span>
+                  <strong>Pay-As-You-Go</strong>
+                </div>
+              )}
+              {/* Pay-As-You-Go live cost — only on My Bookings, never on dashboard. */}
+              {isPaygRide ? (
+              <div className="mb-payg-live" data-testid="payg-live">
+                <div>
+                  <span className="lbl">Elapsed</span>
+                  <span className="val">{fmtMinSec(elapsedSec)}</span>
+                </div>
+                <div>
+                  <span className="lbl">Estimated total</span>
+                  <span className="val cost">{fmtMoney(estimatedTotal)}</span>
+                </div>
+                <div>
+                  <span className="lbl">Rate</span>
+                  <span className="val small">{fmtMoney(PAYG_UNLOCK_FEE)} unlock + {fmtMoney(PAYG_PER_MINUTE)}/min</span>
+                </div>
+              </div>
+              ) : (
+              <div className="mb-payg-live" data-testid="fixed-ride-live">
+                <div>
+                  <span className="lbl">Duration</span>
+                  <span className="val">{ride.durationMinutes || Math.max(1, Math.round(total / 60000))} min</span>
+                </div>
+                <div>
+                  <span className="lbl">Remaining</span>
+                  <span className="val cost">{remainingMin} min</span>
+                </div>
+                <div>
+                  <span className="lbl">Booking</span>
+                  <span className="val small">Fixed duration</span>
+                </div>
+              </div>
+              )}
+              <div style={{display:"flex",gap:18,flexWrap:"wrap",fontSize:12.5,color:"#64748B"}}>
+                <span>Payment <strong style={{color:isPaid?"#15803D":"#92400E",marginLeft:6}}>● {isPaid?"Paid":(ride.paymentStatus||"Pending")}</strong></span>
+                <span>{bookingTypeLabel(ride.bookingType)} <strong style={{color:"#15803D",marginLeft:6}}>{pricingLabel(ride.pricingMode)}</strong></span>
+                <span>Ride ID <strong style={{color:"#0F172A",marginLeft:6,fontFamily:"ui-monospace, SFMono-Regular, monospace"}}>#RID-{new Date(ride.startTime).getFullYear()}-{String(ride.bookingId).padStart(3, "0")}</strong></span>
+              </div>
+            </div>
+
+            {/* Mini map preview */}
+            <div className="mb-map-wrap">
+              <MiniMap pickup={pickup} destination={destination} ride={ride} elapsedMs={elapsed} hasFixedWindow={hasFixedWindow}/>
+              <button className="mb-map-cta" onClick={() => onViewRoute({ pickup, destination, ride, elapsedMs: elapsed, hasFixedWindow })} data-testid="view-route-cta">
+                <Icon.map s={16}/> View Route Map
+              </button>
+            </div>
+          </div>
+
+          {/* Footer actions */}
+          <div className="mb-active-foot">
+            <button className="mb-end-ride" onClick={() => onEnd(ride)} data-testid="end-ride">
+              <Icon.check/> End Ride
+            </button>
+            <div className="mb-more-wrap" ref={moreRef}>
+              <button className="mb-more" onClick={() => setMoreOpen(v => !v)} data-testid="more-options">
+                ⋮ More options
+              </button>
+              {moreOpen && (
+                <div className="mb-more-menu" data-testid="more-menu">
+                  <button onClick={() => { setMoreOpen(false); onViewDetails(ride); }}>
+                    <Icon.info/> View Details
+                  </button>
+                  <button onClick={() => { setMoreOpen(false); pushToast("Coming soon", "Extending live rides is on its way."); }}>
+                    <Icon.calendar/> Extend Ride
+                  </button>
+                  <button onClick={() => { setMoreOpen(false); pushToast("Payment", `Status: ${ride.paymentStatus || "pending"}`); }}>
+                    <Icon.wallet/> View Payment
+                  </button>
+                </div>
+              )}
+            </div>
+            <button className="mb-report" onClick={() => onReport(ride)} data-testid="report-issue">
+              <Icon.alert s={16}/> Report Issue
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    /* ────────────── Upcoming card ────────────── */
+    function UpcomingCard({ items, loading, onCancel, onViewDetails, onStart }) {
+      if (loading) {
+        return (
+          <div className="mb-up">
+            <div className="mb-up-head"><h3>Upcoming Bookings</h3></div>
+            <div className="mb-skel" style={{height: 90}}/>
+            <div className="mb-skel" style={{height: 90}}/>
+          </div>
+        );
+      }
+      const sortedItems = Array.isArray(items)
+        ? [...items].sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())
+        : [];
+      const previewItems = sortedItems.slice(0, 3);
+      const hiddenCount = Math.max(0, sortedItems.length - previewItems.length);
+      return (
+        <div className="mb-up" data-testid="upcoming-card">
+          <div className="mb-up-head">
+            <h3>Upcoming Bookings</h3>
+            {items && items.length > 0 && (
+              <a className="mb-up-view-all" href="User_ride_history.html?tab=upcoming" data-testid="view-all-upcoming">View All</a>
+            )}
+          </div>
+          {(!sortedItems || sortedItems.length === 0) ? (
+            <div className="mb-up-empty">
+              <div className="mb-up-empty-ico"><Icon.calendar/></div>
+              <h4>No upcoming bookings</h4>
+              <p>Book a bike to see your upcoming rides here.</p>
+              <a href="User_dashboard.html" className="d-btn d-btn-primary" style={{marginTop: 6}}>
+                <Icon.bike s={16}/> Book a Bike
+              </a>
+            </div>
+          ) : (
+            <div className="mb-up-list">
+              {previewItems.map(b => {
+                const ready = b.canStart || b.readyToStart || b.displayStatus === "ready_to_start";
+                const cls = "mb-up-card" + (ready ? " mb-up-ready" : "");
+                return (
+                <div key={b.bookingId} className={cls} data-testid={`up-card-${b.bookingId}`}
+                     style={ready ? {borderColor:"#86EFAC", background:"linear-gradient(180deg,#F0FDF4 0%,#FFFFFF 100%)"} : null}>
+                  <div className="mb-up-thumb"><Icon.bike s={22}/></div>
+                  <div className="mb-up-body">
+                    <div className="mb-up-title">
+                      <strong>Bike #{b.bikeCode}</strong>
+                      <span className="mb-up-pill" style={ready ? {background:"#16A34A", color:"#FFFFFF"} : null}>
+                        {ready ? "READY TO START" : "UPCOMING"}
+                      </span>
+                    </div>
+                    <div className="mb-up-route">
+                      <span className="stop">{b.pickupStationName}</span>
+                      <span style={{color:"#22C55E",fontWeight:800,margin:"0 4px"}}>→</span>
+                      <span className="stop">{b.destinationStationName || b.pickupStationName}</span>
+                    </div>
+                    <div className="mb-up-meta">
+                      <Icon.calendar/>
+                      <span>{fmtDate(b.startTime)}</span>
+                      <span className="dot">·</span>
+                      <Icon.clock s={13}/>
+                      <span>{fmtTime(b.startTime)}</span>
+                      <span className="dot">·</span>
+                      <span>{bookingTypeLabel(b.bookingType)}</span>
+                      <span className="dot">·</span>
+                      <span>{pricingLabel(b.pricingMode)}</span>
+                    </div>
+                    {ready && b.minutesUntilExpiry != null && (
+                      <div style={{marginTop:8, fontSize:12.5, color:"#15803D", fontWeight:500}}>
+                        Start within <strong>{b.minutesUntilExpiry} min</strong> or this booking will be cancelled.
+                      </div>
+                    )}
+                    <div style={{marginTop:10, display:"flex", gap:8, flexWrap:"wrap"}}>
+                      {ready && onStart && (
+                        <button className="mb-up-view-details"
+                                style={{background:"#16A34A", color:"#FFFFFF", borderColor:"transparent"}}
+                                onClick={() => onStart(b)} data-testid={`up-start-${b.bookingId}`}>
+                          Start Ride
+                        </button>
+                      )}
+                      <button className="mb-up-view-details" onClick={() => onViewDetails(b)} data-testid={`up-details-${b.bookingId}`}>View Details</button>
+                    </div>
+                  </div>
+                  <button className="mb-up-cancel" onClick={() => onCancel(b)} data-testid={`up-cancel-${b.bookingId}`}>
+                    Cancel
+                  </button>
+                </div>
+              );
+              })}
+              {hiddenCount > 0 && (
+                <a className="mb-up-more" href="User_ride_history.html?tab=upcoming">
+                  View {hiddenCount} more upcoming booking{hiddenCount === 1 ? "" : "s"}
+                </a>
+              )}
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    /* ────────────── Quick actions ────────────── */
+    function QuickActions({ pushToast }) {
+      return (
+        <div className="mb-quick">
+          <h3>Quick Actions</h3>
+          <div className="mb-quick-grid">
+            <a className="mb-quick-card" href="User_dashboard.html" data-testid="qa-find">
+              <div className="mb-quick-ico green"><Icon.pin/></div>
+              <div className="mb-quick-body"><strong>Find a Bike</strong><span>Near your location</span></div>
+              <svg className="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </a>
+            <button className="mb-quick-card" onClick={() => pushToast("Coming soon", "Saved Stations will be ready in the next release.")} data-testid="qa-saved">
+              <div className="mb-quick-ico amber"><Icon.alert s={20}/></div>
+              <div className="mb-quick-body"><strong>Saved Stations</strong><span>Quick access to favourites</span></div>
+              <svg className="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+            <a className="mb-quick-card" href="User_ride_history.html" data-testid="qa-history">
+              <div className="mb-quick-ico blue"><Icon.clock s={20}/></div>
+              <div className="mb-quick-body"><strong>Ride History</strong><span>View past rides</span></div>
+              <svg className="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </a>
+            <a className="mb-quick-card" href="User_need_help.html" data-testid="qa-help">
+              <div className="mb-quick-ico mint"><Icon.help/></div>
+              <div className="mb-quick-body"><strong>Need Help</strong><span>Support and FAQs</span></div>
+              <svg className="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </a>
+          </div>
+        </div>
+      );
+    }
+
+    /* ────────────── Page ────────────── */
+    function App() {
+      const { user, requireAuth, logout, pushToast, toasts } = window.useUserAuth();
+
+      const [summary, setSummary] = useState(null);
+      const [active,  setActive]  = useState(null);
+      const [upcoming, setUpcoming] = useState([]);
+      const [loadingSummary, setLoadingSummary] = useState(true);
+      const [loadingActive,  setLoadingActive]  = useState(true);
+      const [loadingUpcoming, setLoadingUpcoming] = useState(true);
+
+      const [routeFor, setRouteFor]   = useState(null);  // { pickup, destination }
+      const [detailFor, setDetailFor] = useState(null);
+      const [cancelFor, setCancelFor] = useState(null);
+      const [cancelBusy, setCancelBusy] = useState(false);
+      const [endFor, setEndFor]       = useState(null);  // ride being ended
+      const [endBusy, setEndBusy]     = useState(false);
+
+      useEffect(() => {
+        if (!requireAuth()) return;
+        loadAll();
+      }, []);
+
+      // Handle Stripe round-trips for ride start ($1) and ride end (final).
+      // Success URLs for both flows land here.
+      useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const payment = params.get("payment");
+        const sessionId = params.get("session_id");
+        const flow = params.get("flow") || "";
+        if (payment === "cancelled") {
+          pushToast("Payment cancelled", flow === "end_ride"
+            ? "Your ride is still active."
+            : "No booking was created.", "warning");
+          window.history.replaceState(null, "", window.location.pathname);
+          return;
+        }
+        if (payment !== "success" || !sessionId) return;
+        let paid = [];
+        try { paid = JSON.parse(localStorage.getItem("cbs_paid_sessions") || "[]"); } catch (_) {}
+        if (paid.includes(sessionId)) { window.history.replaceState(null, "", window.location.pathname); return; }
+        (async () => {
+          try {
+            if (flow === "start_ride") {
+              const out = await window.cbsApi("/api/bookings/ride-now/start-complete", {
+                method: "POST", body: JSON.stringify({ sessionId }),
+              });
+              pushToast("Ride started", `Unlock paid. Bike ${out && out.bike && out.bike.bike_code || ""} is yours.`);
+            } else if (flow === "end_ride") {
+              const out = await window.cbsApi("/api/bookings/ride-now/complete", {
+                method: "POST", body: JSON.stringify({ sessionId }),
+              });
+              pushToast("Ride ended successfully", `$${Number(out && out.amount || 0).toFixed(2)} was paid for a ${out && out.duration || 0} min ride.`);
+            }
+            paid.push(sessionId);
+            try { localStorage.setItem("cbs_paid_sessions", JSON.stringify(paid)); } catch (_) {}
+            loadAll && loadAll();
+          } catch (e) {
+            pushToast(flow === "end_ride" ? "Could not finalise ride" : "Could not start ride", e.message || "Try again in a moment.", "error");
+          } finally {
+            window.history.replaceState(null, "", window.location.pathname);
+          }
+        })();
+      }, []); // eslint-disable-line
+
+      const loadSummary = useCallback(async () => {
+        setLoadingSummary(true);
+        try { setSummary(await window.cbsApi("/api/user/bookings/summary")); }
+        catch (e) { pushToast("Couldn't load stats", e.message || "Please try again.", "error"); }
+        finally { setLoadingSummary(false); }
+      }, [pushToast]);
+
+      const loadActive = useCallback(async () => {
+        setLoadingActive(true);
+        try {
+          const d = await window.cbsApi("/api/user/bookings/active");
+          setActive(d.activeRide || null);
+        } catch (e) { pushToast("Couldn't load active ride", e.message || "Please try again.", "error"); }
+        finally { setLoadingActive(false); }
+      }, [pushToast]);
+
+      const loadUpcoming = useCallback(async () => {
+        setLoadingUpcoming(true);
+        try {
+          const d = await window.cbsApi("/api/user/bookings/upcoming");
+          setUpcoming(d.upcoming || []);
+        } catch (e) { pushToast("Couldn't load upcoming bookings", e.message || "Please try again.", "error"); }
+        finally { setLoadingUpcoming(false); }
+      }, [pushToast]);
+
+      const loadAll = useCallback(() => {
+        loadSummary(); loadActive(); loadUpcoming();
+      }, [loadSummary, loadActive, loadUpcoming]);
+
+      /* End ride — show confirmation modal first, then redirect to Stripe
+         to charge the final amount. The /api/bookings/ride-now/complete
+         endpoint marks the booking completed only after Stripe confirms.   */
+      const onEnd = (ride) => {
+        if (!ride || !ride.bookingId) return;
+        setEndFor(ride);
+      };
+      const confirmEnd = async (ride) => {
+        if (!ride || !ride.bookingId) return;
+        setEndBusy(true);
+        try {
+          // Saved card on file → charge off-session, no Stripe redirect.
+          // Falls back to /api/payments/charge-payg-final for older clients.
+          const data = await window.cbsApi("/api/bookings/end-ride", {
+            method: "POST",
+            body: JSON.stringify({ bookingId: ride.bookingId }),
+          });
+          if (data && data.url) {
+            window.location.href = data.url;
+            return;
+          }
+          setEndFor(null);
+          const amt = Number((data && (data.totalAmount ?? data.amount)) || 0);
+          const mins = Number((data && data.duration) || 0);
+          pushToast(
+            "Ride ended successfully",
+            `Charged $${amt.toFixed(2)} to your saved ${data && data.card ? `${data.card.brand} ending ${data.card.last4}` : "card"} for a ${mins} min ride.`
+          );
+          loadAll();
+          setEndBusy(false);
+        } catch (e) {
+          pushToast("Could not end ride", e.message || "Please try again.", "error");
+          setEndBusy(false);
+        }
+      };
+
+      /* Manual start for a "ready_to_start" upcoming booking */
+      const onStartRide = async (booking) => {
+        if (!booking || !booking.bookingId) return;
+        try {
+          await window.cbsApi(`/api/bookings/${booking.bookingId}/start`, {
+            method: "POST",
+            body: JSON.stringify({}),
+          });
+          pushToast("Ride started", `Bike ${booking.bikeCode} is now active.`, "success");
+          loadAll();
+        } catch (e) {
+          // Surface the blocking booking id when the backend returns one
+          // so we can spot stale active rides that the UI isn't showing.
+          const blocking = e && e.body && e.body.activeBooking;
+          const detail = blocking
+            ? ` (Blocked by booking #${blocking.bookingId}, bike ${blocking.bikeId})`
+            : "";
+          pushToast("Could not start ride", (e.message || "Please try again.") + detail, "error");
+          // Refresh so any stale 'active' row the backend just cleared is reflected
+          loadAll();
+        }
+      };
+
+      /* Cancel */
+      const onCancel = (booking) => setCancelFor(booking);
+      const confirmCancel = async (booking) => {
+        if (!booking || !booking.bookingId) return;
+        setCancelBusy(true);
+        try {
+          await window.cbsApi(`/api/user/bookings/${booking.bookingId}/cancel`, { method: "POST", body: JSON.stringify({}) });
+          setCancelFor(null);
+          pushToast("Booking cancelled", `Booking #${booking.bookingId} has been cancelled.`);
+          loadAll();
+        } catch (e) {
+          pushToast("Could not cancel", e.message || "Please try again.", "error");
+        } finally {
+          setCancelBusy(false);
+        }
+      };
+
+      /* Report issue → Need Help page */
+      const onReport = (ride) => {
+        const id = ride && ride.bookingId ? `?bookingId=${ride.bookingId}` : "";
+        window.location.href = "User_need_help.html" + id;
+      };
+
+      const onJumpActive = () => {
+        const el = document.querySelector("[data-testid='active-card']") || document.querySelector("[data-testid='active-empty']");
+        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+      };
+
+      return (
+        <div className="cbs-shell">
+          <window.UserTopbar active="bookings" user={user} onLogout={logout} pushToast={pushToast}/>
+          <div className="cbs-main">
+            <window.UserSidebar active="bookings"/>
+            <main className="cbs-content">
+              {/* Page head */}
+              <div className="mb-page-head">
+                <div>
+                  <h1>My Bookings</h1>
+                  <p>Manage your rides and bookings</p>
+                </div>
+                <a href="User_dashboard.html" className="mb-book-another" data-testid="book-another">
+                  <Icon.bike s={16}/> Book Another Bike
+                </a>
+              </div>
+
+              {/* Stats */}
+              <SummaryStats summary={summary} loading={loadingSummary} onJumpActive={onJumpActive}/>
+
+              {/* Active + Upcoming */}
+              <div className="mb-row">
+                <ActiveRideCard
+                  ride={active}
+                  loading={loadingActive}
+                  onEnd={onEnd}
+                  onViewRoute={setRouteFor}
+                  onViewDetails={setDetailFor}
+                  onReport={onReport}
+                  pushToast={pushToast}
+                />
+                <UpcomingCard
+                  items={upcoming}
+                  loading={loadingUpcoming}
+                  onCancel={onCancel}
+                  onStart={onStartRide}
+                  onViewDetails={setDetailFor}
+                />
+              </div>
+
+              {/* Quick actions */}
+              <QuickActions pushToast={pushToast}/>
+            </main>
+          </div>
+
+          {routeFor && <RouteMapModal pickup={routeFor.pickup} destination={routeFor.destination} ride={routeFor.ride} elapsedMs={routeFor.elapsedMs} hasFixedWindow={routeFor.hasFixedWindow} onClose={() => setRouteFor(null)}/>}
+          {detailFor && <DetailModal booking={detailFor} onClose={() => setDetailFor(null)}/>}
+          {cancelFor && <CancelModal booking={cancelFor} busy={cancelBusy} onClose={() => setCancelFor(null)} onConfirm={confirmCancel}/>}
+          {endFor && <EndRideModal ride={endFor} busy={endBusy} onClose={() => { if (!endBusy) setEndFor(null); }} onConfirm={confirmEnd}/>}
+
+          <window.UserToastStack toasts={toasts}/>
+        </div>
+      );
+    }
+
+    window.cbsLoadPublicSettings?.().then(applyPublicPricing).finally(() => {
+      setTimeout(() => ReactDOM.createRoot(document.getElementById("root")).render(<App/>), 30);
+    });
+  </script>
+</body>
+</html>

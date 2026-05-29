@@ -3,11 +3,12 @@
 // ──────────────────────────────────────────────────────────────
 
 const express = require("express");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const db = require("../db");
 const mailer = require("../utils/mailer");
 const { welcomeEmail, passwordChangedEmail, otpEmail } = require("../utils/emailTemplates");
+const settingsService = require("../services/settingsService");
 
 // Public base URL used in email links — falls back to localhost in dev.
 function publicBaseUrl(req) {
@@ -23,6 +24,14 @@ const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "7d";
 const BCRYPT_ROUNDS = 12;
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function isStrongPassword(password) {
+  return /[a-z]/.test(password)
+    && /[A-Z]/.test(password)
+    && /\d/.test(password)
+    && /[^A-Za-z0-9]/.test(password)
+    && password.length >= 8;
+}
 
 // ─── Lazy bootstrap: ensure password_resets table exists ────────
 // Runs once at module load so the forgot-password flow works even
@@ -85,6 +94,9 @@ function publicUser(row) {
     full_name: row.full_name,
     email: row.email,
     role: row.role,
+    phone: row.phone || null,
+    avatar_url: row.avatar_url || null,
+    student_id: row.id ? `STU-${String(row.id).padStart(6, "0")}` : null,
   };
 }
 
@@ -127,15 +139,22 @@ function describeDbError(err, action) {
 router.post("/register", async (req, res) => {
   try {
     const { fullName, email, password } = req.body || {};
+    const publicSettings = await settingsService.getPublicSettings();
 
     if (!fullName || !email || !password) {
       return res.status(400).json({ error: "fullName, email and password are required." });
+    }
+    if (!publicSettings.allowNewRegistrations) {
+      return res.status(403).json({ error: "New registrations are currently disabled by admin." });
     }
     if (!EMAIL_RE.test(email)) {
       return res.status(400).json({ error: "Please provide a valid email address." });
     }
     if (password.length < 8) {
       return res.status(400).json({ error: "Password must be at least 8 characters long." });
+    }
+    if ((await settingsService.getGroupedSettings()).security?.require_strong_password !== false && !isStrongPassword(password)) {
+      return res.status(400).json({ error: "Password must include uppercase, lowercase, number, and symbol characters." });
     }
 
     const existing = await db.query("SELECT id FROM users WHERE email = $1", [email.toLowerCase()]);
@@ -148,7 +167,7 @@ router.post("/register", async (req, res) => {
     const insert = await db.query(
       `INSERT INTO users (full_name, email, password_hash, role)
        VALUES ($1, $2, $3, 'student')  -- New users always start as 'student'; admin can promote later
-       RETURNING id, full_name, email, role`,
+       RETURNING id, full_name, email, role, phone, avatar_url`,
       [fullName.trim(), email.toLowerCase().trim(), password_hash]
     );
 
@@ -193,7 +212,7 @@ router.post("/login", async (req, res) => {
     }
 
     const result = await db.query(
-      `SELECT id, full_name, email, password_hash, role, is_active
+      `SELECT id, full_name, email, password_hash, role, is_active, phone, avatar_url
          FROM users
         WHERE email = $1`,
       [email.toLowerCase().trim()]
@@ -217,10 +236,16 @@ router.post("/login", async (req, res) => {
       ok = false;
     }
     if (!ok) {
+      if ((row.role || "").toLowerCase() === "admin") {
+        settingsService.logAdminLogin(req, row, "failed").catch(() => {});
+      }
       return res.status(401).json({ error: "Invalid email or password." });
     }
 
     const token = signTokenFor(row);
+    if ((row.role || "").toLowerCase() === "admin") {
+      settingsService.logAdminLogin(req, row, "success").catch(() => {});
+    }
     return res.json({ user: publicUser(row), token });
   } catch (err) {
     console.error("[POST /api/auth/login]", err);
@@ -238,7 +263,7 @@ router.get("/me", async (req, res) => {
 
     const payload = jwt.verify(token, JWT_SECRET);
     const result = await db.query(
-      "SELECT id, full_name, email, role, is_active FROM users WHERE id = $1",
+      "SELECT id, full_name, email, role, is_active, phone, avatar_url FROM users WHERE id = $1",
       [payload.sub]
     );
     if (result.rowCount === 0 || !result.rows[0].is_active) {

@@ -321,6 +321,29 @@
       var totop = document.getElementById("cbs-home-totop");
       var nav = document.querySelector(".cbs-nav");
 
+      fetch("/api/settings/public", { cache: "no-store" })
+        .then(function (res) { return res.ok ? res.json() : null; })
+        .then(function (settings) {
+          if (!settings) return;
+          var pricing = settings.pricing || {};
+          var unlock = Number(pricing.unlockFee || 1);
+          var perMinute = Number(pricing.perMinuteFee || 0.2);
+          var tenMin = unlock + perMinute * 10;
+          var currency = settings.currency === "AUD" || settings.currency === "USD" ? "$" : (settings.currency || "AUD") + " ";
+          var logoText = document.querySelector(".cbs-logo-text");
+          if (logoText) logoText.textContent = settings.platformName || "Campus Bike Sharing";
+          var heroPrice = document.querySelector(".cbs-home-hero-sub strong");
+          if (heroPrice) heroPrice.textContent = currency + unlock.toFixed(2) + " to unlock + " + currency + perMinute.toFixed(2) + " per minute";
+          var heroSub = document.querySelector(".cbs-home-hero-sub");
+          if (heroSub) heroSub.innerHTML = heroSub.innerHTML.replace(/a typical 10-minute ride costs just [^.<]+/i, "a typical 10-minute ride costs just " + currency + tenMin.toFixed(2));
+          if (settings.maintenanceMode || settings.allowNewRegistrations === false) {
+            document.querySelectorAll('a[href="register.html"]').forEach(function (link) {
+              link.title = settings.maintenanceMode ? "Platform maintenance mode is enabled." : "New registrations are currently disabled by admin.";
+            });
+          }
+        })
+        .catch(function () {});
+
       function onScroll() {
         var h = document.documentElement.scrollHeight - window.innerHeight;
         var sc = window.scrollY || window.pageYOffset;

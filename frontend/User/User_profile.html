@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Profile | Campus Bike Sharing</title>
+  <link rel="stylesheet" href="../../Login.css">
+  <link rel="stylesheet" href="user-shared.css">
+  <link rel="stylesheet" href="user-premium.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://js.stripe.com/v3/"></script>
+
+  <style>
+    /* Profile page — premium UI matching the reference screenshot */
+
+    /* Page header */
+    .pf-head h1 {
+      font-size: 32px; font-weight: 800; letter-spacing: -.5px;
+      color: #0F172A; margin: 0;
+      position: relative; display: inline-block; padding-bottom: 8px;
+    }
+    .pf-head h1::after {
+      content: ""; position: absolute; left: 0; bottom: 0;
+      width: 50px; height: 4px; background: #22C55E; border-radius: 999px;
+    }
+    .pf-head p { margin: 10px 0 0; color: #64748B; font-size: 14px; }
+
+    /* Top layout: profile card + account info */
+    .pf-top {
+      display: grid;
+      grid-template-columns: 360px minmax(0, 1fr);
+      gap: 22px;
+      align-items: start;
+    }
+    @media (max-width: 1100px) { .pf-top { grid-template-columns: 1fr; } }
+
+    /* LEFT — Profile card */
+    .pf-card {
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 22px;
+      padding: 28px 24px;
+      box-shadow: 0 4px 16px rgba(15,23,42,.04);
+      text-align: center;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      animation: pfFadeIn .4s ease-out both;
+    }
+    @keyframes pfFadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Avatar wrap with soft green glow */
+    .pf-avatar-wrap {
+      position: relative;
+      margin: 8px auto 4px;
+      display: inline-block;
+    }
+    .pf-avatar-wrap::before {
+      content: "";
+      position: absolute; inset: -14px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(34,197,94,.30) 0%, rgba(34,197,94,0) 70%);
+      filter: blur(6px);
+      z-index: 0;
+      animation: pfGlow 4s ease-in-out infinite;
+    }
+    @keyframes pfGlow {
+      0%, 100% { opacity: .7; transform: scale(1); }
+      50%      { opacity: 1;  transform: scale(1.05); }
+    }
+    .pf-avatar-wrap .cbs-avatar {
+      width: 150px !important; height: 150px !important;
+      font-size: 50px !important;
+      border-radius: 50% !important;
+      box-shadow:
+        0 0 0 5px #FFFFFF,
+        0 0 0 7px #BBF7D0,
+        0 12px 28px rgba(34,197,94,.30) !important;
+      position: relative; z-index: 1;
+    }
+    .pf-avatar-wrap .cbs-avatar-img {
+      padding: 0 !important;
+      box-shadow:
+        0 0 0 5px #FFFFFF,
+        0 0 0 7px #BBF7D0,
+        0 12px 28px rgba(34,197,94,.30) !important;
+    }
+    .pf-avatar-wrap .cbs-avatar-img img { border-radius: 50% !important; }
+    .pf-avatar-edit {
+      position: absolute;
+      right: 8px; bottom: 8px;
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%);
+      color: #FFFFFF;
+      border: 3px solid #FFFFFF;
+      display: inline-flex; align-items: center; justify-content: center;
+      cursor: pointer; z-index: 2;
+      box-shadow: 0 6px 14px rgba(34,197,94,.35);
+      transition: transform .15s cubic-bezier(.18,.89,.32,1.28), box-shadow .15s ease-out;
+    }
+    .pf-avatar-edit:hover { transform: scale(1.1); box-shadow: 0 10px 22px rgba(34,197,94,.45); }
+    .pf-avatar-edit svg { width: 16px; height: 16px; }
+
+    .pf-name {
+      margin: 12px 0 0;
+      font-size: 22px; font-weight: 800; color: #0F172A; letter-spacing: -.3px;
+    }
+    .pf-email { color: #64748B; font-size: 13.5px; word-break: break-word; }
+    .pf-pills { display: flex; gap: 8px; margin: 6px 0 8px; }
+    .pf-pill {
+      padding: 5px 14px; border-radius: 999px;
+      font-size: 11px; font-weight: 800; letter-spacing: .06em;
+      text-transform: uppercase;
+      background: #DCFCE7; color: #15803D;
+      border: 1px solid #BBF7D0;
+    }
+    .pf-pill.active-pill {
+      background: linear-gradient(135deg, #DCFCE7, #BBF7D0);
+    }
+
+    .pf-divider {
+      width: 100%; height: 1px;
+      background: #F1F5F9;
+      margin: 10px 0;
+    }
+    .pf-id-card {
+      display: flex; align-items: center; gap: 12px;
+      width: 100%;
+      padding: 12px 14px;
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      border-radius: 14px;
+      transition: background .18s ease-out, border-color .18s ease-out;
+    }
+    .pf-id-card:hover {
+      background: #F0FDF4;
+      border-color: #BBF7D0;
+    }
+    .pf-id-card .ico {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: #DBEAFE; color: #1D4ED8;
+      display: inline-flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .pf-id-card .body { text-align: left; flex: 1; }
+    .pf-id-card .lbl { font-size: 11px; color: #64748B; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+    .pf-id-card .val { font-size: 15px; font-weight: 800; color: #0F172A; font-family: ui-monospace, SFMono-Regular, monospace; }
+
+    .pf-actions {
+      display: flex; flex-direction: column; gap: 10px;
+      width: 100%; margin-top: 4px;
+    }
+    .pf-btn {
+      width: 100%;
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-size: 14px; font-weight: 700;
+      cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      font-family: inherit;
+      transition: transform .15s ease-out, box-shadow .15s ease-out, background .15s ease-out, border-color .15s ease-out;
+    }
+    .pf-btn.primary {
+      background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%);
+      color: #FFFFFF;
+      border: none;
+      box-shadow: 0 8px 22px rgba(34,197,94,.30);
+    }
+    .pf-btn.primary:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(34,197,94,.40); }
+    .pf-btn.secondary {
+      background: #FFFFFF;
+      color: #0F172A;
+      border: 1px solid #E2E8F0;
+    }
+    .pf-btn.secondary:hover { border-color: #BBF7D0; background: #F0FDF4; }
+    .pf-btn.danger-outline {
+      background: #FFFFFF;
+      color: #B91C1C;
+      border: 1px solid #FECACA;
+    }
+    .pf-btn.danger-outline:hover { background: #FEF2F2; border-color: #EF4444; }
+
+    /* RIGHT — Account Information section card */
+    .pf-section {
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 22px;
+      padding: 26px;
+      box-shadow: 0 4px 16px rgba(15,23,42,.04);
+      animation: pfFadeIn .4s ease-out both;
+      animation-delay: 60ms;
+    }
+    .pf-section-head {
+      margin-bottom: 18px;
+    }
+    .pf-section-head h2 {
+      margin: 0; font-size: 20px; font-weight: 800; color: #0F172A;
+      letter-spacing: -.3px;
+      position: relative; padding-bottom: 8px; display: inline-block;
+    }
+    .pf-section-head h2::after {
+      content: ""; position: absolute; left: 0; bottom: 0;
+      width: 36px; height: 3px; background: #22C55E; border-radius: 999px;
+    }
+
+    .pf-info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .pf-info-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 16px;
+      background: #F8FAFC;
+      border: 1px solid #F1F5F9;
+      border-radius: 14px;
+      transition: background .18s ease-out, border-color .18s ease-out, transform .18s ease-out;
+    }
+    .pf-info-row:hover {
+      background: #F0FDF4;
+      border-color: #BBF7D0;
+      transform: translateY(-1px);
+    }
+    .pf-info-row.full-row { grid-column: 1 / -1; }
+    .pf-info-row .ico {
+      width: 40px; height: 40px; border-radius: 12px;
+      display: inline-flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .pf-info-row .ico.mint   { background: #DCFCE7; color: #15803D; }
+    .pf-info-row .ico.violet { background: #EDE9FE; color: #6D28D9; }
+    .pf-info-row .ico.amber  { background: #FEF3C7; color: #92400E; }
+    .pf-info-row .ico.blue   { background: #DBEAFE; color: #1D4ED8; }
+    .pf-info-row .ico.sky    { background: #E0F2FE; color: #0369A1; }
+    .pf-info-row .body { min-width: 0; flex: 1; }
+    .pf-info-row .lbl {
+      font-size: 12px; color: #64748B; font-weight: 700;
+    }
+    .pf-info-row .val {
+      font-size: 15px; font-weight: 800; color: #0F172A; margin-top: 2px;
+      word-break: break-word;
+    }
+    .pf-info-row .val-pill {
+      display: inline-flex; padding: 4px 10px; border-radius: 999px;
+      background: #DCFCE7; color: #15803D;
+      border: 1px solid #BBF7D0;
+      font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase;
+      margin-top: 2px;
+    }
+    @media (max-width: 720px) { .pf-info-grid { grid-template-columns: 1fr; } }
+
+    /* Stats row — 5 cards */
+    .pf-stats {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 22px;
+    }
+    .pf-stat {
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 18px;
+      padding: 16px 14px;
+      display: flex; align-items: center; gap: 10px;
+      min-width: 0;
+      overflow: hidden;
+      box-shadow: 0 4px 16px rgba(15,23,42,.04);
+      transition: transform .22s cubic-bezier(.18,.89,.32,1.28), box-shadow .22s ease-out, border-color .22s ease-out;
+      animation: pfFadeIn .4s ease-out both;
+    }
+    .pf-stat:nth-child(1) { animation-delay: 80ms; }
+    .pf-stat:nth-child(2) { animation-delay: 130ms; }
+    .pf-stat:nth-child(3) { animation-delay: 180ms; }
+    .pf-stat:nth-child(4) { animation-delay: 230ms; }
+    .pf-stat:nth-child(5) { animation-delay: 280ms; }
+    .pf-stat:hover {
+      transform: translateY(-3px);
+      border-color: #BBF7D0;
+      box-shadow: 0 14px 30px rgba(34,197,94,.10);
+    }
+    .pf-stat-ico {
+      width: 42px; height: 42px; border-radius: 14px;
+      display: inline-flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .pf-stat-ico.green  { background: #DCFCE7; color: #15803D; }
+    .pf-stat-ico.blue   { background: #DBEAFE; color: #1D4ED8; }
+    .pf-stat-ico.amber  { background: #FEF3C7; color: #92400E; }
+    .pf-stat-ico.violet { background: #EDE9FE; color: #6D28D9; }
+    .pf-stat-ico.leaf   { background: #ECFCCB; color: #3F6212; }
+    .pf-stat-body {
+      min-width: 0;
+      flex: 1 1 auto;
+      width: 100%;
+      overflow: hidden;
+    }
+    .pf-stat-val {
+      font-family: "Plus Jakarta Sans", "Inter", sans-serif;
+      font-size: clamp(17px, 1.35vw, 24px); font-weight: 800; color: #0F172A; letter-spacing: -.25px;
+      line-height: 1.05;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .pf-stat-lbl,
+    .pf-stat-sub {
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .pf-stat-lbl { font-size: 12.5px; color: #64748B; font-weight: 700; margin-top: 2px; }
+    .pf-stat-sub { font-size: 11px; color: #94A3B8; margin-top: 1px; }
+
+    @media (max-width: 1280px) { .pf-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+    @media (max-width: 720px)  { .pf-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 480px)  { .pf-stats { grid-template-columns: 1fr; } }
+
+    /* Recent Activity */
+    .pf-recent {
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 22px;
+      padding: 24px 26px;
+      margin-top: 22px;
+      box-shadow: 0 4px 16px rgba(15,23,42,.04);
+      animation: pfFadeIn .4s ease-out both;
+      animation-delay: 320ms;
+    }
+    .pf-recent-head {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .pf-recent-head h2 {
+      margin: 0; font-size: 20px; font-weight: 800; color: #0F172A;
+      letter-spacing: -.3px;
+      position: relative; padding-bottom: 8px; display: inline-block;
+    }
+    .pf-recent-head h2::after {
+      content: ""; position: absolute; left: 0; bottom: 0;
+      width: 36px; height: 3px; background: #22C55E; border-radius: 999px;
+    }
+    .pf-recent-link {
+      color: #15803D; font-weight: 700; font-size: 13.5px;
+      text-decoration: none; display: inline-flex; align-items: center; gap: 4px;
+      transition: gap .15s ease-out;
+    }
+    .pf-recent-link:hover { gap: 8px; }
+
+    .pf-recent-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .pf-act-card {
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 14px;
+      padding: 16px;
+      display: flex; align-items: center; gap: 12px;
+      transition: transform .22s ease-out, box-shadow .22s ease-out, border-color .22s ease-out;
+    }
+    .pf-act-card:hover {
+      transform: translateY(-2px);
+      border-color: #BBF7D0;
+      box-shadow: 0 10px 22px rgba(34,197,94,.08);
+    }
+    .pf-act-thumb {
+      width: 44px; height: 44px; border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .pf-act-thumb.completed { background: #DCFCE7; color: #15803D; }
+    .pf-act-thumb.upcoming  { background: #DBEAFE; color: #1D4ED8; }
+    .pf-act-thumb.active    { background: #DBEAFE; color: #1D4ED8; }
+    .pf-act-thumb.cancelled { background: #FEE2E2; color: #B91C1C; }
+    .pf-act-thumb.expired   { background: #F1F5F9; color: #64748B; }
+    .pf-act-body { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 2px; }
+    .pf-act-bike { font-weight: 800; color: #0F172A; font-size: 13.5px; }
+    .pf-act-station { font-size: 12.5px; color: #64748B; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .pf-act-date {
+      font-size: 11.5px; color: #94A3B8;
+      display: inline-flex; align-items: center; gap: 4px; margin-top: 2px;
+    }
+    .pf-act-pill {
+      padding: 4px 10px; border-radius: 999px;
+      font-size: 10px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase;
+      flex-shrink: 0;
+    }
+    .pf-act-pill.completed { background: #DCFCE7; color: #15803D; border: 1px solid #BBF7D0; }
+    .pf-act-pill.upcoming  { background: #DBEAFE; color: #1D4ED8; border: 1px solid #BFDBFE; }
+    .pf-act-pill.active    { background: #DBEAFE; color: #1D4ED8; border: 1px solid #BFDBFE; }
+    .pf-act-pill.cancelled { background: #FEE2E2; color: #B91C1C; border: 1px solid #FECACA; }
+    .pf-act-pill.expired   { background: #F1F5F9; color: #64748B; border: 1px solid #E2E8F0; }
+
+    .pf-recent-empty {
+      text-align: center;
+      padding: 36px 16px;
+      color: #64748B;
+    }
+    .pf-recent-empty-ico {
+      width: 64px; height: 64px; border-radius: 50%; margin: 0 auto 12px;
+      background: linear-gradient(135deg, #F0FDF4, #ECFDF5);
+      color: #15803D;
+      display: inline-flex; align-items: center; justify-content: center;
+    }
+    .pf-recent-empty h4 { margin: 0 0 4px; font-size: 15px; font-weight: 800; color: #0F172A; }
+
+    @media (max-width: 1180px) { .pf-recent-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 640px)  { .pf-recent-grid { grid-template-columns: 1fr; } }
+
+    /* Payment methods */
+    .pf-payment {
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 22px;
+      padding: 24px 26px;
+      margin-top: 22px;
+      box-shadow: 0 4px 16px rgba(15,23,42,.04);
+      animation: pfFadeIn .4s ease-out both;
+      animation-delay: 300ms;
+    }
+    .pf-payment-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .pf-payment-head h2 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 800;
+      color: #0F172A;
+      letter-spacing: -.3px;
+    }
+    .pf-payment-head p {
+      margin: 5px 0 0;
+      color: #64748B;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+    .pf-card-list {
+      display: grid;
+      gap: 10px;
+    }
+    .pf-card-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px;
+      border: 1px solid #E2E8F0;
+      border-radius: 16px;
+      background: #F8FAFC;
+      min-width: 0;
+    }
+    .pf-card-row.default-card {
+      background: #F0FDF4;
+      border-color: #BBF7D0;
+    }
+    .pf-card-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 13px;
+      background: #DCFCE7;
+      color: #15803D;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .pf-card-body {
+      min-width: 0;
+      flex: 1;
+    }
+    .pf-card-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: #0F172A;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+    .pf-card-sub {
+      margin-top: 2px;
+      font-size: 12px;
+      color: #64748B;
+    }
+    .pf-card-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    .pf-mini-btn {
+      border: 1px solid #E2E8F0;
+      background: #FFFFFF;
+      color: #0F172A;
+      border-radius: 10px;
+      padding: 8px 10px;
+      font: inherit;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background .16s ease, border-color .16s ease, transform .16s ease;
+    }
+    .pf-mini-btn:hover { transform: translateY(-1px); border-color: #BBF7D0; background: #F0FDF4; }
+    .pf-mini-btn.danger { color: #B91C1C; border-color: #FECACA; }
+    .pf-mini-btn.danger:hover { background: #FEF2F2; border-color: #EF4444; }
+    .pf-empty-card {
+      padding: 18px;
+      border: 1px dashed #CBD5E1;
+      border-radius: 16px;
+      color: #64748B;
+      background: #F8FAFC;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+    .pf-secure-note {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin-top: 12px;
+      color: #64748B;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+    .pf-stripe-box {
+      min-height: 130px;
+      padding: 12px;
+      border: 1px solid #E2E8F0;
+      border-radius: 14px;
+      background: #FFFFFF;
+    }
+    .pf-modal-error {
+      margin-top: 12px;
+      color: #B91C1C;
+      background: #FEF2F2;
+      border: 1px solid #FECACA;
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    @media (max-width: 680px) {
+      .pf-payment-head,
+      .pf-card-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .pf-card-actions { justify-content: flex-start; }
+    }
+
+    /* Skeleton */
+    .pf-skel {
+      background: linear-gradient(90deg, #F1F5F9, #E2E8F0, #F1F5F9);
+      background-size: 200% 100%;
+      animation: pfShim 1.3s ease-in-out infinite;
+      border-radius: 14px;
+    }
+    @keyframes pfShim { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel" data-presets="env,react" src="user-shared.js"></script>
+  <script type="text/babel" data-presets="env,react">
+    const { useEffect, useRef, useState } = React;
+    const PRICE_FMT = new Intl.NumberFormat("en-AU", { style: "currency", currency: "AUD" });
+    const Icon = window.UserIcons;
+
+    /* ────── Edit profile modal ────── */
+    function EditProfileModal({ initial, onClose, onSave }) {
+      const [fullName, setFullName] = useState(initial.full_name || "");
+      const [email, setEmail]       = useState(initial.email || "");
+      const [phone, setPhone]       = useState(initial.phone || "");
+      const [err, setErr] = useState("");
+      const [busy, setBusy] = useState(false);
+      useEffect(() => {
+        const onKey = (e) => { if (e.key === "Escape") onClose(); };
+        document.addEventListener("keydown", onKey);
+        return () => document.removeEventListener("keydown", onKey);
+      }, [onClose]);
+      const submit = async () => {
+        setErr("");
+        if (!fullName.trim() || fullName.trim().length < 2) return setErr("Please enter your full name (2+ chars).");
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return setErr("Please enter a valid email.");
+        if (phone && (phone.trim().length < 6 || phone.trim().length > 20)) return setErr("Phone should be 6–20 characters.");
+        setBusy(true);
+        try { await onSave({ fullName: fullName.trim(), email: email.trim(), phone: phone.trim() }); }
+        catch (e) { setErr(e.message || "Could not update."); }
+        finally { setBusy(false); }
+      };
+      return (
+        <div className="d-overlay" onClick={onClose}>
+          <div className="d-modal" onClick={e => e.stopPropagation()} data-testid="edit-profile-modal">
+            <div className="d-modal-head"><h3>Edit Profile</h3><p>Keep your account information up to date.</p></div>
+            <div className="d-modal-body">
+              <div className="s-form-row"><label>Full Name</label>
+                <input className="d-input" value={fullName} onChange={e => setFullName(e.target.value)} maxLength={100} data-testid="edit-fullname"/></div>
+              <div className="s-form-row" style={{marginTop:14}}><label>Email</label>
+                <input className="d-input" type="email" value={email} onChange={e => setEmail(e.target.value)} data-testid="edit-email"/></div>
+              <div className="s-form-row" style={{marginTop:14}}><label>Phone</label>
+                <input className="d-input" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+61 4xx xxx xxx" data-testid="edit-phone"/></div>
+              {err && <div className="err" style={{marginTop:12, color:"var(--d-red)", fontWeight:600, fontSize:13}}>{err}</div>}
+            </div>
+            <div className="d-modal-foot">
+              <button className="d-btn d-btn-secondary" onClick={onClose} disabled={busy} data-testid="edit-cancel">Cancel</button>
+              <button className="d-btn d-btn-primary" onClick={submit} disabled={busy} data-testid="edit-save">{busy ? "Saving…" : "Save Changes"}</button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    /* ────── Change password modal ────── */
+    function ChangePasswordModal({ onClose, onSave }) {
+      const [cur, setCur] = useState(""); const [nw, setNw] = useState(""); const [cf, setCf] = useState("");
+      const [err, setErr] = useState(""); const [busy, setBusy] = useState(false);
+      useEffect(() => {
+        const onKey = (e) => { if (e.key === "Escape") onClose(); };
+        document.addEventListener("keydown", onKey);
+        return () => document.removeEventListener("keydown", onKey);
+      }, [onClose]);
+      const submit = async () => {
+        setErr("");
+        if (!cur) return setErr("Current password is required.");
+        if (nw.length < 8) return setErr("New password must be at least 8 characters.");
+        if (nw !== cf) return setErr("Passwords do not match.");
+        setBusy(true);
+        try { await onSave({ currentPassword: cur, newPassword: nw }); }
+        catch (e) { setErr(e.message || "Could not change password."); }
+        finally { setBusy(false); }
+      };
+      return (
+        <div className="d-overlay" onClick={onClose}>
+          <div className="d-modal" onClick={e => e.stopPropagation()} data-testid="change-pwd-modal">
+            <div className="d-modal-head"><h3>Change Password</h3><p>Choose a strong password (8+ characters).</p></div>
+            <div className="d-modal-body">
+              <div className="s-form-row"><label>Current Password</label>
+                <input className="d-input" type="password" value={cur} onChange={e => setCur(e.target.value)} data-testid="pwd-current"/></div>
+              <div className="s-form-row" style={{marginTop:14}}><label>New Password</label>
+                <input className="d-input" type="password" value={nw} onChange={e => setNw(e.target.value)} data-testid="pwd-new"/></div>
+              <div className="s-form-row" style={{marginTop:14}}><label>Confirm New Password</label>
+                <input className="d-input" type="password" value={cf} onChange={e => setCf(e.target.value)} data-testid="pwd-confirm"/></div>
+              {err && <div style={{marginTop:12, color:"var(--d-red)", fontWeight:600, fontSize:13}}>{err}</div>}
+            </div>
+            <div className="d-modal-foot">
+              <button className="d-btn d-btn-secondary" onClick={onClose} disabled={busy} data-testid="pwd-cancel">Cancel</button>
+              <button className="d-btn d-btn-primary" onClick={submit} disabled={busy} data-testid="pwd-save">{busy ? "Updating…" : "Update Password"}</button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Redirects the student to a Stripe Checkout setup-mode session so they
+    // can save a card without us needing a publishable key on the front-end.
+    // After Stripe redirects them back with ?card=saved&session_id=..., the
+    // profile page calls /api/payments/confirm-card-setup to persist the card.
+    async function startAddCardCheckout(pushToast) {
+      try {
+        const data = await window.cbsApi("/api/payments/create-card-setup-session", {
+          method: "POST",
+          body: JSON.stringify({}),
+        });
+        if (!data || !data.url) {
+          throw new Error("Could not start the secure card setup.");
+        }
+        window.location.href = data.url;
+      } catch (e) {
+        pushToast("Could not add card", e.message || "Please try again.", "error");
+      }
+    }
+
+    function App() {
+      const { user, pushToast, toasts, requireAuth, logout } = window.useUserAuth();
+      const [data, setData] = useState(null);
+      const [err, setErr] = useState("");
+      const [showEdit, setShowEdit] = useState(false);
+      const [showPwd, setShowPwd] = useState(false);
+      const [paymentMethods, setPaymentMethods] = useState([]);
+      const [cardsLoading, setCardsLoading] = useState(false);
+      const [cardBusyId, setCardBusyId] = useState("");
+      const [addingCard, setAddingCard] = useState(false);
+
+      useEffect(() => { if (!requireAuth()) return; load(); loadPaymentMethods(); }, []);
+
+      // Stripe-Checkout return handler for the Add Card flow. When the
+      // student finishes saving a card on Stripe, they are sent back to
+      // this page with ?card=saved&session_id=cs_... We confirm the
+      // setup session server-side which stores the card and lets us refresh
+      // the list immediately. ?card=cancelled just clears the URL.
+      useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const card = params.get("card");
+        const sessionId = params.get("session_id");
+        if (card === "cancelled") {
+          pushToast("Card setup cancelled", "Your card was not saved.");
+          window.history.replaceState(null, "", window.location.pathname);
+          return;
+        }
+        if (card !== "saved" || !sessionId) return;
+        let cancelled = false;
+        (async () => {
+          try {
+            await window.cbsApi("/api/payments/confirm-card-setup", {
+              method: "POST",
+              body: JSON.stringify({ sessionId }),
+            });
+            if (cancelled) return;
+            pushToast("Card saved", "Your card is saved securely with Stripe.");
+            loadPaymentMethods();
+          } catch (e) {
+            if (!cancelled) pushToast("Card not saved", e.message || "Please try again.", "error");
+          } finally {
+            window.history.replaceState(null, "", window.location.pathname);
+          }
+        })();
+        return () => { cancelled = true; };
+      }, []);
+      const load = async () => {
+        try {
+          const d = await window.cbsApi("/api/profile");
+          setData(d); setErr("");
+          // Sync cached cbs_user so topbar avatar/name reflect server state
+          if (d && d.user) {
+            try {
+              const cached = JSON.parse(localStorage.getItem("cbs_user") || "{}");
+              const merged = { ...cached, ...d.user };
+              localStorage.setItem("cbs_user", JSON.stringify(merged));
+              window.dispatchEvent(new CustomEvent("cbs:user-updated", { detail: merged }));
+            } catch (_) {}
+          }
+        } catch (e) { setErr(e.message); }
+      };
+
+      const loadPaymentMethods = async () => {
+        setCardsLoading(true);
+        try {
+          const d = await window.cbsApi("/api/payments/payment-methods");
+          setPaymentMethods(Array.isArray(d && d.paymentMethods) ? d.paymentMethods : []);
+        } catch (e) {
+          setPaymentMethods([]);
+          pushToast("Could not load cards", e.message || "Saved cards are unavailable right now.", "error");
+        } finally {
+          setCardsLoading(false);
+        }
+      };
+
+      const saveProfile = async (payload) => {
+        const d = await window.cbsApi("/api/profile", {
+          method: "PATCH",
+          body: JSON.stringify(payload),
+        });
+        let mergedUser = null;
+        try {
+          const cached = JSON.parse(localStorage.getItem("cbs_user") || "{}");
+          mergedUser = { ...cached, ...d.user };
+          localStorage.setItem("cbs_user", JSON.stringify(mergedUser));
+        } catch (_) {}
+        try { window.dispatchEvent(new CustomEvent("cbs:user-updated", { detail: mergedUser })); } catch (_) {}
+        setShowEdit(false); pushToast("Profile updated", "Your changes have been saved."); load();
+      };
+      const savePassword = async (payload) => {
+        await window.cbsApi("/api/profile/change-password", {
+          method: "POST",
+          body: JSON.stringify(payload),
+        });
+        setShowPwd(false); pushToast("Password updated", "Use your new password next time you log in.");
+      };
+
+      const uploadAvatar = async (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        const fd = new FormData();
+        fd.append("avatar", file);
+        try {
+          const d = await window.cbsApi("/api/profile/avatar", { method: "POST", body: fd });
+          let updatedUser = null;
+          try {
+            const cached = JSON.parse(localStorage.getItem("cbs_user") || "{}");
+            updatedUser = { ...cached, avatar_url: d.avatar_url };
+            localStorage.setItem("cbs_user", JSON.stringify(updatedUser));
+          } catch (_) {}
+          try { window.dispatchEvent(new CustomEvent("cbs:user-updated", { detail: updatedUser })); } catch (_) {}
+          pushToast("Profile picture updated", "Looking sharp!"); load();
+        } catch (err) {
+          pushToast("Upload failed", err.message, "error");
+        }
+        e.target.value = "";
+      };
+
+      const setDefaultCard = async (card) => {
+        if (!card || cardBusyId) return;
+        setCardBusyId(`default-${card.id}`);
+        try {
+          await window.cbsApi(`/api/payments/payment-methods/${card.id}/default`, {
+            method: "PATCH",
+            body: JSON.stringify({}),
+          });
+          pushToast("Default card updated", `${card.brand || "Card"} ending ${card.last4 || ""} will be used for Pay-As-You-Go rides.`);
+          loadPaymentMethods();
+        } catch (e) {
+          pushToast("Could not update card", e.message || "Please try again.", "error");
+        } finally {
+          setCardBusyId("");
+        }
+      };
+
+      const removeCard = async (card) => {
+        if (!card || cardBusyId) return;
+        setCardBusyId(`remove-${card.id}`);
+        try {
+          await window.cbsApi(`/api/payments/payment-methods/${card.id}`, {
+            method: "DELETE",
+          });
+          pushToast("Card removed", `${card.brand || "Card"} ending ${card.last4 || ""} was removed.`);
+          loadPaymentMethods();
+        } catch (e) {
+          pushToast("Could not remove card", e.message || "Please try again.", "error");
+        } finally {
+          setCardBusyId("");
+        }
+      };
+
+      const u = data && data.user;
+      const stats = (data && data.stats) || {};
+      const recent = (data && data.recent_activity) || [];
+      const isActive = u ? !!u.is_active : true;
+
+      return (
+        <div className="cbs-shell">
+          <window.UserTopbar active="profile" user={user} onLogout={logout} pushToast={pushToast}/>
+          <div className="cbs-main">
+            <window.UserSidebar active="profile"/>
+            <main className="cbs-content">
+              <header className="pf-head">
+                <h1>My Profile</h1>
+                <p>Manage your account, password and view your statistics.</p>
+              </header>
+
+              {err && <div className="s-error">{err}</div>}
+
+              {!data && !err && (
+                <>
+                  <div className="pf-top">
+                    <div className="pf-skel" style={{height: 540}}/>
+                    <div className="pf-skel" style={{height: 360}}/>
+                  </div>
+                </>
+              )}
+
+              {data && (
+                <>
+                  {/* Top row: profile card + account info */}
+                  <div className="pf-top">
+                    {/* LEFT — profile card */}
+                    <div className="pf-card" data-testid="profile-card">
+                      <div className="pf-avatar-wrap">
+                        <window.CbsAvatar user={u} size={150}/>
+                        <label className="pf-avatar-edit" title="Change profile picture" data-testid="avatar-upload-label">
+                          <Icon.camera s={14}/>
+                          <input type="file" accept="image/*" style={{display:"none"}} onChange={uploadAvatar} data-testid="avatar-upload-input"/>
+                        </label>
+                      </div>
+                      <h2 className="pf-name" data-testid="profile-name">{u.full_name}</h2>
+                      <div className="pf-email" data-testid="profile-email">{u.email}</div>
+                      <div className="pf-pills">
+                        <span className="pf-pill">{(u.role || "student").toUpperCase()}</span>
+                        <span className={"pf-pill" + (isActive ? " active-pill" : "")} style={!isActive ? {background:"#FEE2E2", color:"#B91C1C", borderColor:"#FECACA"} : null}>
+                          {isActive ? "ACTIVE" : "DISABLED"}
+                        </span>
+                      </div>
+                      <div className="pf-divider"/>
+                      <div className="pf-id-card">
+                        <div className="ico"><Icon.id/></div>
+                        <div className="body">
+                          <div className="lbl">User ID</div>
+                          <div className="val" data-testid="left-student-id">{u.student_id}</div>
+                        </div>
+                      </div>
+                      <div className="pf-actions">
+                        <button className="pf-btn primary" onClick={() => setShowEdit(true)} data-testid="edit-profile-btn">
+                          <Icon.edit/> Edit Profile
+                        </button>
+                        <button className="pf-btn secondary" onClick={() => setShowPwd(true)} data-testid="change-pwd-btn">
+                          <Icon.lock/> Change Password
+                        </button>
+                        <button className="pf-btn secondary" onClick={logout} data-testid="logout-btn">
+                          <Icon.logout/> Log Out
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* RIGHT — Account Information */}
+                    <div>
+                      <div className="pf-section" data-testid="account-info">
+                        <div className="pf-section-head">
+                          <h2>Account Information</h2>
+                        </div>
+                        <div className="pf-info-grid">
+                          <div className="pf-info-row">
+                            <div className="ico blue"><Icon.id/></div>
+                            <div className="body">
+                              <div className="lbl">User ID</div>
+                              <div className="val" data-testid="info-student-id">{u.student_id}</div>
+                            </div>
+                          </div>
+                          <div className="pf-info-row">
+                            <div className="ico mint"><Icon.user2/></div>
+                            <div className="body">
+                              <div className="lbl">Full Name</div>
+                              <div className="val">{u.full_name}</div>
+                            </div>
+                          </div>
+                          <div className="pf-info-row">
+                            <div className="ico violet"><Icon.mail/></div>
+                            <div className="body">
+                              <div className="lbl">Email</div>
+                              <div className="val">{u.email}</div>
+                            </div>
+                          </div>
+                          <div className="pf-info-row">
+                            <div className="ico amber"><Icon.phone/></div>
+                            <div className="body">
+                              <div className="lbl">Phone</div>
+                              <div className="val">{u.phone || "—"}</div>
+                            </div>
+                          </div>
+                          <div className="pf-info-row">
+                            <div className="ico sky"><Icon.shield/></div>
+                            <div className="body">
+                              <div className="lbl">Role</div>
+                              <div className="val" style={{textTransform:"capitalize"}}>{u.role || "student"}</div>
+                            </div>
+                          </div>
+                          <div className="pf-info-row">
+                            <div className="ico mint"><Icon.check/></div>
+                            <div className="body">
+                              <div className="lbl">Status</div>
+                              <span className="val-pill" style={!isActive ? {background:"#FEE2E2", color:"#B91C1C", borderColor:"#FECACA"} : null}>{isActive ? "Active" : "Disabled"}</span>
+                            </div>
+                          </div>
+                          <div className="pf-info-row full-row">
+                            <div className="ico violet"><Icon.calendar/></div>
+                            <div className="body">
+                              <div className="lbl">Member Since</div>
+                              <div className="val">{new Date(u.created_at).toLocaleDateString("en-AU", { day:"numeric", month:"short", year:"numeric" })}</div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Stats row */}
+                      <div className="pf-stats" data-testid="stats-grid">
+                        <div className="pf-stat">
+                          <div className="pf-stat-ico green"><Icon.calendar s={20}/></div>
+                          <div className="pf-stat-body">
+                            <div className="pf-stat-val" title={String(stats.total_bookings || 0)} data-testid="stat-total-bookings">{stats.total_bookings || 0}</div>
+                            <div className="pf-stat-lbl">Total Bookings</div>
+                            <div className="pf-stat-sub">Across all rides</div>
+                          </div>
+                        </div>
+                        <div className="pf-stat">
+                          <div className="pf-stat-ico blue"><Icon.bike s={20}/></div>
+                          <div className="pf-stat-body">
+                            <div className="pf-stat-val" title={String(stats.completed_rides || 0)} data-testid="stat-completed">{stats.completed_rides || 0}</div>
+                            <div className="pf-stat-lbl">Completed Rides</div>
+                            <div className="pf-stat-sub">Across all rides</div>
+                          </div>
+                        </div>
+                        <div className="pf-stat">
+                          <div className="pf-stat-ico amber"><Icon.alert s={20}/></div>
+                          <div className="pf-stat-body">
+                            <div className="pf-stat-val" title={String(stats.active_bookings || 0)} data-testid="stat-active">{stats.active_bookings || 0}</div>
+                            <div className="pf-stat-lbl">Active Bookings</div>
+                            <div className="pf-stat-sub">This semester</div>
+                          </div>
+                        </div>
+                        <div className="pf-stat">
+                          <div className="pf-stat-ico violet"><Icon.wallet s={20}/></div>
+                          <div className="pf-stat-body">
+                            <div className="pf-stat-val" title={PRICE_FMT.format(stats.total_spent || 0)} data-testid="stat-spent">{PRICE_FMT.format(stats.total_spent || 0)}</div>
+                            <div className="pf-stat-lbl">Total Spent</div>
+                            <div className="pf-stat-sub">This semester</div>
+                          </div>
+                        </div>
+                        <div className="pf-stat">
+                          <div className="pf-stat-ico leaf"><Icon.leaf s={20}/></div>
+                          <div className="pf-stat-body">
+                            <div className="pf-stat-val" title={`${(Number(stats.co2_saved_kg) || 0).toFixed(2)} kg`} data-testid="stat-co2">{(Number(stats.co2_saved_kg) || 0).toFixed(2)} kg</div>
+                            <div className="pf-stat-lbl">CO₂ Saved</div>
+                            <div className="pf-stat-sub">This semester</div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="pf-payment" data-testid="payment-methods">
+                        <div className="pf-payment-head">
+                          <div>
+                            <h2>Payment Methods</h2>
+                            <p>Saved cards are required for Pay-As-You-Go rides and final automatic ride charges.</p>
+                          </div>
+                          <button className="pf-btn primary" style={{width:"auto", whiteSpace:"nowrap"}}
+                                  disabled={addingCard}
+                                  onClick={async () => {
+                                    if (addingCard) return;
+                                    setAddingCard(true);
+                                    await startAddCardCheckout(pushToast);
+                                  }}
+                                  data-testid="add-card-btn">
+                            <Icon.card/> {addingCard ? "Opening Stripe..." : "Add Card"}
+                          </button>
+                        </div>
+                        {cardsLoading ? (
+                          <div className="pf-empty-card">Loading saved cards...</div>
+                        ) : paymentMethods.length === 0 ? (
+                          <div className="pf-empty-card">
+                            No saved payment card. Add a card to use Pay-As-You-Go rides.
+                          </div>
+                        ) : (
+                          <div className="pf-card-list">
+                            {paymentMethods.map(card => (
+                              <div key={card.id} className={"pf-card-row" + (card.isDefault ? " default-card" : "")}>
+                                <div className="pf-card-icon"><Icon.card s={20}/></div>
+                                <div className="pf-card-body">
+                                  <div className="pf-card-title">
+                                    {(card.brand || "Card").replace(/^./, c => c.toUpperCase())} ending in {card.last4 || "----"}
+                                    {card.isDefault ? " • Default" : ""}
+                                  </div>
+                                  <div className="pf-card-sub">Expires {String(card.expMonth || "").padStart(2, "0")}/{card.expYear || "----"}</div>
+                                </div>
+                                <div className="pf-card-actions">
+                                  {!card.isDefault && (
+                                    <button className="pf-mini-btn" disabled={!!cardBusyId} onClick={() => setDefaultCard(card)}>
+                                      <Icon.check s={13}/> Set Default
+                                    </button>
+                                  )}
+                                  <button className="pf-mini-btn danger" disabled={!!cardBusyId} onClick={() => removeCard(card)}>
+                                    <Icon.trash s={13}/> Remove
+                                  </button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        <div className="pf-secure-note">
+                          <Icon.shield s={14}/>
+                          <span>Cards are stored by Stripe. Campus Bike Sharing only saves safe metadata like brand, last four digits and expiry.</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Recent Activity */}
+                  <div className="pf-recent" data-testid="recent-activity">
+                    <div className="pf-recent-head">
+                      <h2>Recent Activity</h2>
+                      <a className="pf-recent-link" href="User_ride_history.html" data-testid="view-all-rides">
+                        View all <Icon.chev s={14}/>
+                      </a>
+                    </div>
+                    {recent.length === 0 ? (
+                      <div className="pf-recent-empty">
+                        <div className="pf-recent-empty-ico"><Icon.bike s={28}/></div>
+                        <h4>No activity yet</h4>
+                        <p style={{margin:0, fontSize:13}}>Book your first bike to see your activity here.</p>
+                      </div>
+                    ) : (
+                      <div className="pf-recent-grid">
+                        {recent.slice(0, 4).map(a => {
+                          // Bucketize status (recent_activity has DB status; map pending/expired to display)
+                          const raw = String(a.status || "").toLowerCase();
+                          let displayStatus = raw;
+                          if (raw === "pending") {
+                            const startMs = new Date(a.start_time).getTime();
+                            displayStatus = startMs > Date.now() ? "upcoming" : "active";
+                          }
+                          return (
+                            <div key={a.id} className="pf-act-card" data-testid={`activity-${a.id}`}>
+                              <div className={"pf-act-thumb " + displayStatus}><Icon.bike s={20}/></div>
+                              <div className="pf-act-body">
+                                <span className="pf-act-bike">Bike #{a.bike_code}</span>
+                                <span className="pf-act-station">{a.pickup_station}</span>
+                                <span className="pf-act-date">
+                                  <Icon.calendar s={11}/>
+                                  {new Date(a.start_time).toLocaleDateString("en-AU", { day:"numeric", month:"short", year:"numeric" })}
+                                </span>
+                              </div>
+                              <span className={"pf-act-pill " + displayStatus}>
+                                {displayStatus.toUpperCase()}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
+            </main>
+          </div>
+          {showEdit && data && <EditProfileModal initial={data.user} onClose={() => setShowEdit(false)} onSave={saveProfile}/>}
+          {showPwd && <ChangePasswordModal onClose={() => setShowPwd(false)} onSave={savePassword}/>}
+          {/* Add Card redirects to Stripe Checkout in setup mode — no inline modal needed. */}
+          <window.UserToastStack toasts={toasts}/>
+        </div>
+      );
+    }
+
+    setTimeout(() => ReactDOM.createRoot(document.getElementById("root")).render(<App/>), 50);
+  </script>
+</body>
+</html>
+    

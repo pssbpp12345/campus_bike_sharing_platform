@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Account Settings | Campus Bike Sharing</title>
+  <link rel="stylesheet" href="../../Login.css">
+  <link rel="stylesheet" href="user-shared.css">
+  <link rel="stylesheet" href="user-premium.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    /* ====================================================================
+       ACCOUNT SETTINGS — matches the target reference screenshot
+       ==================================================================== */
+
+    /* Page header */
+    .as-head h1 {
+      font-size: 32px; font-weight: 800; letter-spacing: -.5px;
+      color: #0F172A; margin: 0;
+      position: relative; display: inline-block; padding-bottom: 8px;
+    }
+    .as-head h1::after {
+      content: ""; position: absolute; left: 0; bottom: 0;
+      width: 50px; height: 4px; background: #22C55E; border-radius: 999px;
+    }
+    .as-head p { margin: 10px 0 0; color: #64748B; font-size: 14px; }
+
+    /* Top grid: profile (left) + content stack (right) */
+    .as-grid {
+      display: grid;
+      grid-template-columns: 360px minmax(0, 1fr);
+      gap: 22px;
+      align-items: start;
+    }
+    @media (max-width: 1100px) { .as-grid { grid-template-columns: 1fr; } }
+
+    .as-right { display: flex; flex-direction: column; gap: 22px; min-width: 0; }
+    .as-pref-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+    }
+    @media (max-width: 1100px) { .as-pref-row { grid-template-columns: 1fr; } }
+
+    /* Card base */
+    .as-card {
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 22px;
+      padding: 26px;
+      box-shadow: 0 4px 16px rgba(15,23,42,.04);
+      animation: asFadeIn .4s ease-out both;
+      transition: transform .22s ease-out, box-shadow .22s ease-out, border-color .22s ease-out;
+    }
+    .as-card:hover {
+      border-color: #BBF7D0;
+      box-shadow: 0 10px 28px rgba(34,197,94,.08);
+    }
+    @keyframes asFadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .as-card-title {
+      font-size: 20px; font-weight: 800; color: #0F172A;
+      letter-spacing: -.3px;
+      position: relative; padding-bottom: 8px; display: inline-block;
+      margin: 0 0 18px;
+    }
+    .as-card-title::after {
+      content: ""; position: absolute; left: 0; bottom: 0;
+      width: 36px; height: 3px; background: #22C55E; border-radius: 999px;
+    }
+
+    /* ─── Profile card ─────────────────────────────────────── */
+    .as-profile {
+      text-align: center;
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+    }
+    .as-avatar-wrap {
+      position: relative;
+      margin: 8px auto 4px;
+      display: inline-block;
+    }
+    .as-avatar-wrap::before {
+      content: "";
+      position: absolute; inset: -10px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(34,197,94,.22) 0%, rgba(34,197,94,0) 70%);
+      z-index: 0;
+      animation: asGlow 4s ease-in-out infinite;
+    }
+    @keyframes asGlow {
+      0%, 100% { opacity: .7; transform: scale(1); }
+      50%      { opacity: 1; transform: scale(1.04); }
+    }
+    .as-avatar-wrap .cbs-avatar {
+      width: 130px !important; height: 130px !important;
+      font-size: 44px !important;
+      border-radius: 50% !important;
+      box-shadow:
+        0 0 0 4px #FFFFFF,
+        0 0 0 6px #BBF7D0,
+        0 10px 24px rgba(34,197,94,.25) !important;
+      position: relative; z-index: 1;
+      transition: transform .25s ease-out;
+    }
+    .as-avatar-wrap:hover .cbs-avatar { transform: scale(1.02); }
+    .as-avatar-wrap .cbs-avatar-img {
+      padding: 0 !important;
+      box-shadow:
+        0 0 0 4px #FFFFFF,
+        0 0 0 6px #BBF7D0,
+        0 10px 24px rgba(34,197,94,.25) !important;
+    }
+    .as-avatar-wrap .cbs-avatar-img img { border-radius: 50% !important; }
+    .as-camera {
+      position: absolute;
+      right: 4px; bottom: 4px;
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%);
+      color: #FFFFFF;
+      border: 3px solid #FFFFFF;
+      display: inline-flex; align-items: center; justify-content: center;
+      cursor: pointer; z-index: 2;
+      box-shadow: 0 6px 14px rgba(34,197,94,.35);
+      transition: transform .15s cubic-bezier(.18,.89,.32,1.28), box-shadow .15s ease-out;
+    }
+    .as-camera:hover { transform: scale(1.1); box-shadow: 0 10px 22px rgba(34,197,94,.45); }
+    .as-camera svg { width: 14px; height: 14px; }
+
+    .as-profile-name {
+      margin: 14px 0 0;
+      font-size: 22px; font-weight: 800; color: #0F172A; letter-spacing: -.3px;
+    }
+    .as-profile-email { color: #64748B; font-size: 13.5px; word-break: break-word; }
+    .as-role-pill {
+      margin-top: 8px;
+      padding: 5px 14px; border-radius: 999px;
+      font-size: 11px; font-weight: 800; letter-spacing: .06em;
+      text-transform: uppercase;
+      background: #DCFCE7; color: #15803D;
+      border: 1px solid #BBF7D0;
+    }
+
+    .as-profile-btns {
+      display: flex; gap: 10px; width: 100%; margin-top: 18px;
+    }
+    .as-btn {
+      flex: 1;
+      padding: 11px 14px;
+      border-radius: 12px;
+      font-size: 13.5px; font-weight: 700;
+      cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      font-family: inherit;
+      transition: transform .15s ease-out, box-shadow .15s ease-out, background .15s ease-out, border-color .15s ease-out;
+    }
+    .as-btn.primary {
+      background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%);
+      color: #FFFFFF; border: none;
+      box-shadow: 0 6px 16px rgba(34,197,94,.28);
+    }
+    .as-btn.primary:hover { transform: translateY(-2px); box-shadow: 0 10px 22px rgba(34,197,94,.40); }
+    .as-btn.primary:disabled { opacity: .6; cursor: not-allowed; transform: none; box-shadow: none; }
+    .as-btn.secondary {
+      background: #FFFFFF; color: #0F172A;
+      border: 1px solid #E2E8F0;
+    }
+    .as-btn.secondary:hover { border-color: #BBF7D0; background: #F0FDF4; }
+    .as-btn.danger-outline {
+      background: #FFFFFF; color: #B91C1C;
+      border: 1px solid #FECACA;
+    }
+    .as-btn.danger-outline:hover { background: #FEF2F2; border-color: #EF4444; }
+
+    .as-helper {
+      font-size: 12px; color: #94A3B8; margin-top: 12px;
+    }
+
+    .as-divider {
+      width: 100%; height: 1px;
+      background: #F1F5F9;
+      margin: 18px 0 14px;
+    }
+    .as-status-row {
+      display: flex; align-items: center; gap: 12px;
+      width: 100%;
+    }
+    .as-status-ico {
+      width: 38px; height: 38px; border-radius: 12px;
+      background: #DCFCE7; color: #15803D;
+      display: inline-flex; align-items: center; justify-content: center;
+    }
+    .as-status-label { font-size: 13px; color: #0F172A; font-weight: 700; flex: 1; text-align: left; }
+    .as-status-pill {
+      padding: 4px 12px; border-radius: 999px;
+      font-size: 11px; font-weight: 800; letter-spacing: .04em;
+      background: #DCFCE7; color: #15803D;
+      border: 1px solid #BBF7D0;
+    }
+    .as-status-pill.inactive { background: #FEE2E2; color: #B91C1C; border-color: #FECACA; }
+
+    /* ─── Security & Password ──────────────────────────────── */
+    .as-pwd-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+    @media (max-width: 900px) { .as-pwd-grid { grid-template-columns: 1fr; } }
+
+    .as-field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+    .as-field label {
+      font-size: 13px; font-weight: 700; color: #0F172A;
+    }
+    .as-input-wrap {
+      position: relative;
+      display: flex; align-items: center;
+    }
+    .as-input {
+      width: 100%;
+      padding: 11px 38px 11px 14px;
+      border-radius: 12px;
+      border: 1px solid #E2E8F0;
+      background: #FFFFFF;
+      font-size: 14px; color: #0F172A; font-family: inherit;
+      transition: border-color .18s ease-out, box-shadow .18s ease-out;
+    }
+    .as-input:focus {
+      outline: none;
+      border-color: #22C55E;
+      box-shadow: 0 0 0 4px rgba(34,197,94,.14);
+    }
+    .as-input::placeholder { color: #94A3B8; }
+    .as-eye {
+      position: absolute; right: 10px;
+      background: transparent; border: none; cursor: pointer;
+      color: #94A3B8;
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 4px;
+    }
+    .as-eye:hover { color: #22C55E; }
+
+    .as-pwd-foot {
+      display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+      margin-top: 18px;
+    }
+    .as-pwd-tip {
+      display: inline-flex; align-items: center; gap: 8px;
+      color: #64748B; font-size: 13px;
+    }
+    .as-pwd-tip svg { color: #15803D; flex-shrink: 0; }
+    .as-pwd-err {
+      color: #B91C1C; font-size: 13px; font-weight: 600;
+      margin-top: 10px;
+    }
+
+    .as-pwd-submit {
+      padding: 11px 22px; border-radius: 12px;
+      background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%);
+      color: #FFFFFF; border: none;
+      font-weight: 700; font-size: 13.5px; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 8px;
+      font-family: inherit;
+      box-shadow: 0 6px 16px rgba(34,197,94,.28);
+      transition: transform .15s ease-out, box-shadow .15s ease-out;
+    }
+    .as-pwd-submit:hover { transform: translateY(-2px); box-shadow: 0 10px 22px rgba(34,197,94,.40); }
+    .as-pwd-submit:disabled { opacity: .6; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    /* ─── Preference rows (notifications + privacy) ──────── */
+    .as-pref-list {
+      display: flex; flex-direction: column; gap: 4px;
+    }
+    .as-pref-item {
+      display: flex; align-items: center; gap: 14px;
+      padding: 12px 0;
+      border-bottom: 1px solid #F1F5F9;
+      transition: opacity .15s ease-out;
+    }
+    .as-pref-item:last-child { border-bottom: 0; }
+    .as-pref-item.saving { opacity: .5; pointer-events: none; }
+    .as-pref-ico {
+      width: 38px; height: 38px; border-radius: 12px;
+      display: inline-flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .as-pref-ico.mint   { background: #DCFCE7; color: #15803D; }
+    .as-pref-ico.blue   { background: #DBEAFE; color: #1D4ED8; }
+    .as-pref-ico.violet { background: #EDE9FE; color: #6D28D9; }
+    .as-pref-ico.amber  { background: #FEF3C7; color: #92400E; }
+    .as-pref-ico.sky    { background: #E0F2FE; color: #0369A1; }
+    .as-pref-body { flex: 1; min-width: 0; }
+    .as-pref-title { font-size: 14px; font-weight: 800; color: #0F172A; }
+    .as-pref-desc { font-size: 12.5px; color: #64748B; margin-top: 2px; line-height: 1.4; }
+
+    /* Modern toggle switch */
+    .as-toggle {
+      position: relative;
+      display: inline-block;
+      width: 50px; height: 28px;
+      flex-shrink: 0;
+    }
+    .as-toggle input { opacity: 0; width: 0; height: 0; }
+    .as-toggle .slider {
+      position: absolute; cursor: pointer;
+      inset: 0;
+      background: #CBD5E1;
+      border-radius: 999px;
+      transition: background .22s ease-out;
+    }
+    .as-toggle .slider::before {
+      content: "";
+      position: absolute;
+      width: 22px; height: 22px;
+      left: 3px; top: 3px;
+      background: #FFFFFF;
+      border-radius: 50%;
+      box-shadow: 0 2px 6px rgba(15,23,42,.18);
+      transition: transform .22s cubic-bezier(.18,.89,.32,1.28);
+    }
+    .as-toggle input:checked + .slider {
+      background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%);
+      box-shadow: 0 0 0 4px rgba(34,197,94,.14);
+    }
+    .as-toggle input:checked + .slider::before {
+      transform: translateX(22px);
+    }
+
+    /* ─── Deactivate Account ─────────────────────────────── */
+    .as-danger {
+      background: linear-gradient(135deg, #FFFFFF 0%, #FEF2F2 100%);
+      border: 1px solid #FECACA;
+      border-radius: 22px;
+      padding: 22px 26px;
+      display: flex; align-items: center; gap: 18px; flex-wrap: wrap;
+      animation: asFadeIn .4s ease-out both;
+    }
+    .as-danger-ico {
+      width: 44px; height: 44px; border-radius: 14px;
+      background: #FEE2E2; color: #B91C1C;
+      display: inline-flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .as-danger-body { flex: 1; min-width: 0; }
+    .as-danger-body h3 {
+      margin: 0; font-size: 16px; font-weight: 800; color: #0F172A;
+    }
+    .as-danger-body p {
+      margin: 4px 0 0; color: #64748B; font-size: 13px; line-height: 1.5;
+    }
+
+    /* Modal */
+    .as-modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(15, 23, 42, .45);
+      backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+      z-index: 9999;
+      animation: asFadeOverlay .2s ease-out;
+    }
+    @keyframes asFadeOverlay { from { opacity: 0; } to { opacity: 1; } }
+    .as-modal {
+      width: 100%; max-width: 460px;
+      background: #FFFFFF;
+      border-radius: 20px;
+      border: 1px solid #E2E8F0;
+      box-shadow: 0 30px 80px rgba(15,23,42,.25);
+      animation: asModalIn .25s cubic-bezier(.18,.89,.32,1.28);
+      overflow: hidden;
+    }
+    @keyframes asModalIn {
+      from { opacity: 0; transform: scale(.94); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+    .as-modal-head { padding: 18px 22px; border-bottom: 1px solid #F1F5F9; }
+    .as-modal-head h3 {
+      margin: 0; font-size: 17px; font-weight: 800; color: #0F172A;
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .as-modal-body { padding: 16px 22px; color: #475569; font-size: 14px; line-height: 1.55; }
+    .as-modal-foot {
+      padding: 12px 22px 18px; display: flex; justify-content: flex-end; gap: 10px;
+    }
+
+    /* Skeleton */
+    .as-skel {
+      background: linear-gradient(90deg, #F1F5F9, #E2E8F0, #F1F5F9);
+      background-size: 200% 100%;
+      animation: asShim 1.3s ease-in-out infinite;
+      border-radius: 14px;
+    }
+    @keyframes asShim { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel" data-presets="env,react" src="user-shared.js"></script>
+  <script type="text/babel" data-presets="env,react">
+    const { useEffect, useState, useRef } = React;
+    const Icon = window.UserIcons;
+
+    /* Eye SVGs */
+    const EyeOpen  = ({s=18}) => (
+      <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>
+      </svg>
+    );
+    const EyeOff = ({s=18}) => (
+      <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M17.94 17.94A10.94 10.94 0 0112 19c-6.5 0-10-7-10-7a18.06 18.06 0 014.06-4.94"/>
+        <path d="M9.9 4.24A10.94 10.94 0 0112 4c6.5 0 10 7 10 7a18.06 18.06 0 01-3.18 4.19"/>
+        <path d="M1 1l22 22"/>
+      </svg>
+    );
+
+    /* Password field with eye toggle */
+    function PasswordField({ id, label, value, onChange, placeholder, autoComplete }) {
+      const [show, setShow] = useState(false);
+      return (
+        <div className="as-field">
+          <label htmlFor={id}>{label}</label>
+          <div className="as-input-wrap">
+            <input
+              id={id}
+              type={show ? "text" : "password"}
+              className="as-input"
+              value={value}
+              onChange={e => onChange(e.target.value)}
+              placeholder={placeholder}
+              autoComplete={autoComplete || "off"}
+              data-testid={id}
+            />
+            <button
+              type="button"
+              className="as-eye"
+              onClick={() => setShow(s => !s)}
+              aria-label={show ? "Hide password" : "Show password"}
+              data-testid={`${id}-eye`}>
+              {show ? <EyeOff/> : <EyeOpen/>}
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    /* Toggle row */
+    function PrefRow({ id, icon, tone, title, desc, value, onChange, busy }) {
+      return (
+        <div className={"as-pref-item" + (busy ? " saving" : "")} data-testid={`pref-${id}`}>
+          <div className={"as-pref-ico " + (tone || "mint")}>{icon}</div>
+          <div className="as-pref-body">
+            <div className="as-pref-title">{title}</div>
+            <div className="as-pref-desc">{desc}</div>
+          </div>
+          <label className="as-toggle">
+            <input
+              type="checkbox"
+              checked={!!value}
+              onChange={(e) => onChange(e.target.checked)}
+              disabled={busy}
+              data-testid={`pref-toggle-${id}`}
+            />
+            <span className="slider"/>
+          </label>
+        </div>
+      );
+    }
+
+    /* Deactivation modal */
+    function DeactivateModal({ busy, onClose, onConfirm }) {
+      const [reason, setReason] = useState("");
+      useEffect(() => {
+        const onKey = (e) => { if (e.key === "Escape") onClose(); };
+        document.addEventListener("keydown", onKey);
+        return () => document.removeEventListener("keydown", onKey);
+      }, [onClose]);
+      return (
+        <div className="as-modal-overlay" onClick={onClose}>
+          <div className="as-modal" onClick={e => e.stopPropagation()} data-testid="deactivate-modal">
+            <div className="as-modal-head">
+              <h3><Icon.alert/> Request account deactivation?</h3>
+            </div>
+            <div className="as-modal-body">
+              <p style={{margin:0}}>
+                Your account will <strong>not</strong> be deleted immediately. A support team member will review the request, contact you, then process the deactivation. Your ride history, payments and bookings are kept as required by platform records.
+              </p>
+              <div style={{marginTop:14}}>
+                <label style={{display:"block", fontSize:13, fontWeight:700, marginBottom:6, color:"#0F172A"}}>Reason (optional)</label>
+                <textarea
+                  rows={3}
+                  className="as-input"
+                  style={{paddingRight:14, resize:"vertical"}}
+                  placeholder="Help us improve — what's the reason for deactivation?"
+                  value={reason}
+                  onChange={e => setReason(e.target.value)}
+                  data-testid="deactivate-reason"
+                />
+              </div>
+            </div>
+            <div className="as-modal-foot">
+              <button className="as-btn secondary" onClick={onClose} disabled={busy}>Cancel</button>
+              <button
+                className="as-btn"
+                style={{background:"#EF4444", color:"#fff", border:"none"}}
+                onClick={() => onConfirm(reason)}
+                disabled={busy}
+                data-testid="deactivate-confirm">
+                {busy ? "Submitting…" : "Submit request"}
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function App() {
+      const { user, setUser, pushToast, toasts, requireAuth, logout } = window.useUserAuth();
+      const [profile, setProfile] = useState(null);
+      const [prefs, setPrefs]     = useState(null);
+      const [loadError, setLoadError] = useState("");
+      const [savingKey, setSavingKey] = useState(null);   // which preference is currently saving
+
+      // Password form
+      const [cur, setCur] = useState("");
+      const [nw, setNw]   = useState("");
+      const [cf, setCf]   = useState("");
+      const [pwdErr, setPwdErr] = useState("");
+      const [pwdBusy, setPwdBusy] = useState(false);
+
+      // Deactivation
+      const [showDeactivate, setShowDeactivate] = useState(false);
+      const [deactBusy, setDeactBusy] = useState(false);
+
+      // File input ref (so we can click it from the camera icon)
+      const fileRef = useRef(null);
+
+      useEffect(() => { if (!requireAuth()) return; load(); }, []);
+
+      const load = async () => {
+        try {
+          const d = await window.cbsApi("/api/profile");
+          setProfile(d.user);
+          // Sync cached user + topbar
+          try {
+            const cached = JSON.parse(localStorage.getItem("cbs_user") || "{}");
+            const merged = { ...cached, ...d.user };
+            localStorage.setItem("cbs_user", JSON.stringify(merged));
+            window.dispatchEvent(new CustomEvent("cbs:user-updated", { detail: merged }));
+            if (setUser) setUser(merged);
+          } catch (_) {}
+          const p = await window.cbsApi("/api/profile/preferences");
+          setPrefs(p.preferences);
+        } catch (e) {
+          setLoadError(e.message);
+        }
+      };
+
+      /* Avatar upload / remove */
+      const uploadAvatar = async (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        // Client-side validation
+        if (!/^image\/(png|jpe?g|webp)$/i.test(file.type)) {
+          pushToast("Invalid file", "Please choose a JPG, PNG or WEBP image.", "error");
+          e.target.value = ""; return;
+        }
+        if (file.size > 2 * 1024 * 1024) {
+          pushToast("File too large", "Max size is 2 MB.", "error");
+          e.target.value = ""; return;
+        }
+        const fd = new FormData(); fd.append("avatar", file);
+        try {
+          const d = await window.cbsApi("/api/profile/avatar", { method: "POST", body: fd });
+          let updatedUser = null;
+          try {
+            const cached = JSON.parse(localStorage.getItem("cbs_user") || "{}");
+            updatedUser = { ...cached, avatar_url: d.avatar_url };
+            localStorage.setItem("cbs_user", JSON.stringify(updatedUser));
+          } catch (_) {}
+          try { window.dispatchEvent(new CustomEvent("cbs:user-updated", { detail: updatedUser })); } catch (_) {}
+          pushToast("Picture updated", "Looking sharp!");
+          load();
+        } catch (err) {
+          pushToast("Upload failed", err.message, "error");
+        }
+        e.target.value = "";
+      };
+      const removeAvatar = async () => {
+        if (!window.confirm("Remove your profile photo?")) return;
+        try {
+          await window.cbsApi("/api/profile/avatar", { method: "DELETE" });
+          try {
+            const cached = JSON.parse(localStorage.getItem("cbs_user") || "{}");
+            delete cached.avatar_url;
+            localStorage.setItem("cbs_user", JSON.stringify(cached));
+            window.dispatchEvent(new CustomEvent("cbs:user-updated", { detail: cached }));
+          } catch (_) {}
+          pushToast("Picture removed", "Showing initials again.");
+          load();
+        } catch (e) {
+          pushToast("Could not remove", e.message, "error");
+        }
+      };
+
+      /* Password change */
+      const updatePassword = async () => {
+        setPwdErr("");
+        if (!cur)            return setPwdErr("Current password is required.");
+        if (!nw)             return setPwdErr("New password is required.");
+        if (nw.length < 8)   return setPwdErr("New password must be at least 8 characters.");
+        if (nw === cur)      return setPwdErr("New password must be different from the current password.");
+        if (nw !== cf)       return setPwdErr("New password and confirmation don't match.");
+        setPwdBusy(true);
+        try {
+          await window.cbsApi("/api/profile/change-password", {
+            method: "POST",
+            body: JSON.stringify({ currentPassword: cur, newPassword: nw }),
+          });
+          setCur(""); setNw(""); setCf("");
+          pushToast("Password updated successfully", "Use your new password next time you log in.");
+        } catch (e) {
+          setPwdErr(e.message || "Could not update password.");
+        } finally {
+          setPwdBusy(false);
+        }
+      };
+
+      /* Preferences — save immediately, revert on error */
+      const togglePref = async (key, val) => {
+        if (!prefs) return;
+        // optimistic update
+        const previous = prefs[key];
+        setPrefs(prev => ({ ...prev, [key]: val }));
+        setSavingKey(key);
+        try {
+          const d = await window.cbsApi("/api/profile/preferences", {
+            method: "PATCH",
+            body: JSON.stringify({ [key]: val }),
+          });
+          setPrefs(d.preferences);
+          pushToast("Preference saved", val ? "Turned on." : "Turned off.");
+        } catch (e) {
+          // revert
+          setPrefs(prev => ({ ...prev, [key]: previous }));
+          pushToast("Could not save", e.message, "error");
+        } finally {
+          setSavingKey(null);
+        }
+      };
+
+      /* Deactivation request */
+      const submitDeactivation = async (reason) => {
+        setDeactBusy(true);
+        try {
+          await window.cbsApi("/api/profile/deactivation-request", {
+            method: "POST",
+            body: JSON.stringify({ reason: reason || "" }),
+          });
+          setShowDeactivate(false);
+          pushToast("Deactivation request submitted", "Support will contact you.");
+        } catch (e) {
+          pushToast("Could not submit", e.message, "error");
+        } finally {
+          setDeactBusy(false);
+        }
+      };
+
+      const isActive = profile ? !!profile.is_active : true;
+
+      return (
+        <div className="cbs-shell">
+          <window.UserTopbar active="profile" user={user} onLogout={logout} pushToast={pushToast}/>
+          <div className="cbs-main">
+            <window.UserSidebar active="profile"/>
+            <main className="cbs-content">
+              <header className="as-head">
+                <h1>Account Settings</h1>
+                <p>Manage your picture, password, notifications and privacy preferences.</p>
+              </header>
+
+              {loadError && (
+                <div className="s-error" style={{maxWidth:520}}>{loadError}</div>
+              )}
+
+              {!profile && !loadError && (
+                <div className="as-grid">
+                  <div className="as-skel" style={{height: 460}}/>
+                  <div style={{display:"flex", flexDirection:"column", gap:22}}>
+                    <div className="as-skel" style={{height: 220}}/>
+                    <div className="as-skel" style={{height: 320}}/>
+                  </div>
+                </div>
+              )}
+
+              {profile && prefs && (
+                <>
+                  <div className="as-grid">
+                    {/* LEFT — Profile card */}
+                    <aside className="as-card as-profile" data-testid="card-profile">
+                      <div className="as-avatar-wrap">
+                        <window.CbsAvatar user={profile} size={130}/>
+                        <button
+                          className="as-camera"
+                          onClick={() => fileRef.current && fileRef.current.click()}
+                          title="Upload a new photo"
+                          aria-label="Change profile picture"
+                          data-testid="camera-btn">
+                          <Icon.camera s={14}/>
+                        </button>
+                        <input
+                          ref={fileRef}
+                          type="file"
+                          accept="image/jpeg,image/jpg,image/png,image/webp"
+                          style={{display:"none"}}
+                          onChange={uploadAvatar}
+                          data-testid="avatar-input"
+                        />
+                      </div>
+                      <h2 className="as-profile-name" data-testid="profile-name">{profile.full_name || "User"}</h2>
+                      <div className="as-profile-email" data-testid="profile-email">{profile.email}</div>
+                      <span className="as-role-pill" data-testid="profile-role">{(profile.role || "student").toUpperCase()}</span>
+
+                      <div className="as-profile-btns">
+                        <button
+                          className="as-btn primary"
+                          onClick={() => fileRef.current && fileRef.current.click()}
+                          data-testid="upload-btn">
+                          <Icon.camera s={14}/> Upload Photo
+                        </button>
+                        <button
+                          className="as-btn secondary"
+                          onClick={removeAvatar}
+                          disabled={!profile.avatar_url}
+                          data-testid="remove-btn"
+                          style={!profile.avatar_url ? {opacity:.5, cursor:"not-allowed"} : null}>
+                          <Icon.trash s={14}/> Remove
+                        </button>
+                      </div>
+                      <div className="as-helper">JPG, PNG or WEBP, max 2 MB.</div>
+
+                      <div className="as-divider"/>
+                      <div className="as-status-row">
+                        <div className="as-status-ico"><Icon.shield s={16}/></div>
+                        <div className="as-status-label">Account status</div>
+                        <span className={"as-status-pill" + (isActive ? "" : " inactive")} data-testid="status-pill">
+                          {isActive ? "Active" : "Disabled"}
+                        </span>
+                      </div>
+                    </aside>
+
+                    {/* RIGHT — Security + Preferences */}
+                    <div className="as-right">
+                      {/* Security & Password */}
+                      <section className="as-card" data-testid="card-security">
+                        <h2 className="as-card-title">Security &amp; Password</h2>
+                        <div className="as-pwd-grid">
+                          <PasswordField
+                            id="cur-pwd"
+                            label="Current password"
+                            value={cur}
+                            onChange={setCur}
+                            placeholder="Enter current password"
+                            autoComplete="current-password"/>
+                          <PasswordField
+                            id="new-pwd"
+                            label="New password (8+ chars)"
+                            value={nw}
+                            onChange={setNw}
+                            placeholder="Enter new password"
+                            autoComplete="new-password"/>
+                          <PasswordField
+                            id="cf-pwd"
+                            label="Confirm new password"
+                            value={cf}
+                            onChange={setCf}
+                            placeholder="Confirm new password"
+                            autoComplete="new-password"/>
+                        </div>
+                        {pwdErr && <div className="as-pwd-err" data-testid="pwd-err">{pwdErr}</div>}
+                        <div className="as-pwd-foot">
+                          <button
+                            className="as-pwd-submit"
+                            onClick={updatePassword}
+                            disabled={pwdBusy}
+                            data-testid="update-pwd-btn">
+                            <Icon.lock s={14}/> {pwdBusy ? "Updating…" : "Update Password"}
+                          </button>
+                          <span className="as-pwd-tip">
+                            <Icon.shield s={14}/>
+                            Use at least 8 characters with a mix of letters and numbers.
+                          </span>
+                        </div>
+                      </section>
+
+                      {/* Notification + Privacy in 2 columns */}
+                      <div className="as-pref-row">
+                        {/* Notification Preferences */}
+                        <section className="as-card" data-testid="card-notifications">
+                          <h2 className="as-card-title">Notification Preferences</h2>
+                          <div className="as-pref-list">
+                            <PrefRow
+                              id="email"
+                              icon={<Icon.mail s={18}/>}
+                              tone="mint"
+                              title="Email notifications"
+                              desc="Receive important updates by email."
+                              value={prefs.email_notifications}
+                              busy={savingKey === "email_notifications"}
+                              onChange={(v) => togglePref("email_notifications", v)}
+                            />
+                            <PrefRow
+                              id="reminders"
+                              icon={<Icon.bell s={18}/>}
+                              tone="amber"
+                              title="Booking reminders"
+                              desc="Get a reminder before your upcoming bookings."
+                              value={prefs.booking_reminders}
+                              busy={savingKey === "booking_reminders"}
+                              onChange={(v) => togglePref("booking_reminders", v)}
+                            />
+                            <PrefRow
+                              id="receipts"
+                              icon={<Icon.card s={18}/>}
+                              tone="violet"
+                              title="Ride receipt emails"
+                              desc="Email me a receipt every time I complete a ride."
+                              value={prefs.ride_receipts_email}
+                              busy={savingKey === "ride_receipts_email"}
+                              onChange={(v) => togglePref("ride_receipts_email", v)}
+                            />
+                            <PrefRow
+                              id="push"
+                              icon={<Icon.bell s={18}/>}
+                              tone="blue"
+                              title="In-app notifications"
+                              desc="Show alerts in the notification bell."
+                              value={prefs.push_notifications}
+                              busy={savingKey === "push_notifications"}
+                              onChange={(v) => togglePref("push_notifications", v)}
+                            />
+                          </div>
+                        </section>
+
+                        {/* Privacy & Preferences */}
+                        <section className="as-card" data-testid="card-privacy">
+                          <h2 className="as-card-title">Privacy &amp; Preferences</h2>
+                          <div className="as-pref-list">
+                            <PrefRow
+                              id="stats"
+                              icon={<Icon.route s={18}/>}
+                              tone="mint"
+                              title="Show ride stats on profile"
+                              desc="Display totals and completed ride counts on your profile."
+                              value={prefs.show_ride_stats_on_profile}
+                              busy={savingKey === "show_ride_stats_on_profile"}
+                              onChange={(v) => togglePref("show_ride_stats_on_profile", v)}
+                            />
+                            <PrefRow
+                              id="receipts-local"
+                              icon={<Icon.card s={18}/>}
+                              tone="sky"
+                              title="Keep receipt shortcuts"
+                              desc="Remember receipt links in this browser for faster access."
+                              value={prefs.keep_receipt_shortcuts}
+                              busy={savingKey === "keep_receipt_shortcuts"}
+                              onChange={(v) => togglePref("keep_receipt_shortcuts", v)}
+                            />
+                            <PrefRow
+                              id="followups"
+                              icon={<Icon.help s={18}/>}
+                              tone="violet"
+                              title="Support follow-ups"
+                              desc="Allow support to follow up about open tickets."
+                              value={prefs.support_follow_ups}
+                              busy={savingKey === "support_follow_ups"}
+                              onChange={(v) => togglePref("support_follow_ups", v)}
+                            />
+                          </div>
+                        </section>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Deactivate Account row */}
+                  <div className="as-danger" data-testid="card-danger" style={{marginTop:22}}>
+                    <div className="as-danger-ico"><Icon.alert s={20}/></div>
+                    <div className="as-danger-body">
+                      <h3>Deactivate Account</h3>
+                      <p>You can request account deactivation through support. We keep booking records only as required for platform operations.</p>
+                    </div>
+                    <button className="as-btn danger-outline" onClick={() => setShowDeactivate(true)} data-testid="contact-support-btn">
+                      <Icon.help s={14}/> Contact Support
+                    </button>
+                  </div>
+                </>
+              )}
+            </main>
+          </div>
+
+          {showDeactivate && (
+            <DeactivateModal
+              busy={deactBusy}
+              onClose={() => setShowDeactivate(false)}
+              onConfirm={submitDeactivation}/>
+          )}
+          <window.UserToastStack toasts={toasts}/>
+        </div>
+      );
+    }
+
+    setTimeout(() => ReactDOM.createRoot(document.getElementById("root")).render(<App/>), 50);
+  </script>
+</body>
+</html>

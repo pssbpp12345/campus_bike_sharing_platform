@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate" />
+  <title>Reports Management | Campus Bike Sharing Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.9/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="../../Login.css" />
+  <link rel="stylesheet" href="admin-dashboard.css" />
+  <link rel="stylesheet" href="admin-bookings.css" />
+  <link rel="stylesheet" href="admin-reports.css" />
+  <link rel="stylesheet" href="admin-shared.css" />
+</head>
+<body class="ad-auth-pending">
+  <div class="ad-shell">
+    <header class="ad-topbar">
+      <a class="ad-brand" href="./Admin_dashboard.html" aria-label="Campus Bike Sharing Admin Dashboard">
+        <span class="ad-brand-logo" aria-hidden="true"><svg viewBox="0 0 64 64" width="42" height="42" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="16" cy="44" r="12"></circle><circle cx="48" cy="44" r="12"></circle><path d="M16 44 L28 24 L42 24 L48 44"></path><path d="M28 24 L34 14 L42 14"></path><circle cx="32" cy="24" r="2" fill="currentColor"></circle></svg></span>
+        <span class="ad-brand-text">Campus <strong>Bike Sharing</strong></span>
+      </a>
+      <div class="ad-topbar-actions">
+        <div class="ad-admin-controls">
+          <button class="ad-control-btn" type="button" id="refresh-dashboard"><span data-icon="rotate"></span><span>Refresh</span></button>
+          <button class="ad-control-btn primary" type="button" id="export-report"><span data-icon="bar-chart"></span><span>Export Report</span></button>
+        </div>
+        <div class="ad-menu-wrap">
+          <button class="ad-bell" type="button" id="notification-button" aria-label="Notifications" aria-haspopup="true" aria-expanded="false"><span data-icon="bell"></span><span class="ad-bell-badge" id="notification-badge">0</span></button>
+          <div class="ad-dropdown ad-notification-menu" id="notification-menu" hidden><div class="ad-dropdown-head"><div><h3>Notifications</h3><span id="notification-unread-count">0 unread</span></div><button type="button" id="mark-notifications-read">Mark all as read</button></div><div class="ad-notification-list" id="notification-list"></div></div>
+        </div>
+        <div class="ad-menu-wrap">
+          <button class="ad-profile" type="button" id="profile-menu-button" aria-label="Admin profile menu" aria-haspopup="true" aria-expanded="false"><span class="ad-avatar" id="admin-avatar">AU</span><span class="ad-profile-copy"><strong id="admin-name">Admin User</strong><span>Administrator</span></span><span class="ad-profile-chev" data-icon="chevron-down"></span></button>
+          <div class="ad-dropdown ad-profile-menu" id="profile-menu" hidden><div class="ad-profile-menu-head"><span class="ad-avatar large" id="admin-avatar-menu">AU</span><div><strong id="admin-menu-name">Admin User</strong><span>Administrator</span></div></div><div class="ad-profile-menu-list"><button type="button" data-admin-menu-action="profile"><span data-icon="help-circle"></span>View Admin Profile</button><button type="button" data-admin-menu-action="settings"><span data-icon="settings"></span>Admin Settings</button></div><div class="ad-profile-menu-foot"><button type="button" id="admin-logout"><span data-icon="logout"></span>Logout</button></div></div>
+        </div>
+      </div>
+    </header>
+
+    <div class="ad-main">
+      <aside class="ad-sidebar" aria-label="Admin navigation">
+        <nav class="ad-nav">
+          <a class="ad-nav-item" href="./Admin_dashboard.html" data-page="Admin_dashboard.html"><span data-icon="layout-dashboard"></span>Dashboard</a>
+          <a class="ad-nav-item" href="./Admin_bookings.html" data-page="Admin_bookings.html"><span data-icon="calendar"></span>Bookings</a>
+          <a class="ad-nav-item" href="./Admin_payments.html" data-page="Admin_payments.html"><span data-icon="credit-card"></span>Payments</a>
+          <a class="ad-nav-item" href="./Admin_bikes.html" data-page="Admin_bikes.html"><span data-icon="bike"></span>Bikes</a>
+          <a class="ad-nav-item" href="./Admin_stations.html" data-page="Admin_stations.html"><span data-icon="map-pin"></span>Stations</a>
+          <a class="ad-nav-item" href="./Admin_maintenance.html" data-page="Admin_maintenance.html"><span data-icon="wrench"></span>Maintenance</a>
+          <a class="ad-nav-item active" href="./Admin_reports.html" data-page="Admin_reports.html"><span data-icon="bar-chart"></span>Reports</a>
+          <a class="ad-nav-item" href="./Admin_support.html" data-page="Admin_support.html"><span data-icon="help-circle"></span>Support Issues</a>
+          <a class="ad-nav-item" href="./Admin_ai.html" data-page="Admin_ai.html"><span data-icon="sparkles"></span>AI Assistant</a>
+          <a class="ad-nav-item" href="./Admin_settings.html" data-page="Admin_settings.html"><span data-icon="settings"></span>Settings</a>
+        </nav>
+        <a class="ad-help-card" href="./Admin_help.html" id="admin-help-button"><span class="ad-help-icon" data-icon="headphones"></span><span><strong>Help Center</strong><small>Admin guides and support</small></span><span data-icon="chevron-right"></span></a>
+      </aside>
+
+      <main class="ad-content">
+        <div class="rp-grid">
+          <section class="ad-page-head">
+            <div>
+              <h1>Reports Management</h1>
+              <p>Export operational reports for rides, revenue, stations, maintenance, bikes, payments, and support trends.</p>
+            </div>
+            <div class="ab-head-actions">
+              <div class="ad-range-tabs" role="tablist" aria-label="Date range">
+                <button type="button" class="active" data-range="today">Today</button>
+                <button type="button" data-range="week">Week</button>
+                <button type="button" data-range="month">Month</button>
+                <button type="button" data-range="year">Year</button>
+              </div>
+              <button class="ab-btn-primary" type="button" id="generate-report-button"><span data-icon="bar-chart"></span>Generate Report</button>
+              <button class="ab-btn-secondary" type="button" id="export-all-button"><span data-icon="credit-card"></span>Export All</button>
+            </div>
+          </section>
+
+          <section class="ab-kpi-grid rp-kpi-grid">
+            <article class="ab-kpi"><span class="ab-kpi-ico green"><span data-icon="bar-chart"></span></span><div class="ab-kpi-body"><span class="ab-kpi-lbl">Reports Generated</span><strong id="kpi-reportsGenerated">--</strong><small id="trend-reportsGenerated">Loading</small></div></article>
+            <article class="ab-kpi"><span class="ab-kpi-ico blue"><span data-icon="credit-card"></span></span><div class="ab-kpi-body"><span class="ab-kpi-lbl">Downloads This Month</span><strong id="kpi-downloadsThisMonth">--</strong><small id="trend-downloadsThisMonth">Loading</small></div></article>
+            <article class="ab-kpi"><span class="ab-kpi-ico purple"><span data-icon="calendar"></span></span><div class="ab-kpi-body"><span class="ab-kpi-lbl">Scheduled Reports</span><strong id="kpi-scheduledReports">--</strong><small id="trend-scheduledReports">Loading</small></div></article>
+            <article class="ab-kpi"><span class="ab-kpi-ico red"><span data-icon="alert"></span></span><div class="ab-kpi-body"><span class="ab-kpi-lbl">Failed Exports</span><strong id="kpi-failedExports">--</strong><small id="trend-failedExports">Loading</small></div></article>
+            <article class="ab-kpi rp-text-kpi"><span class="ab-kpi-ico amber"><span data-icon="bar-chart"></span></span><div class="ab-kpi-body"><span class="ab-kpi-lbl">Most Exported Type</span><strong id="kpi-mostExportedType">--</strong><small id="trend-mostExportedType">Loading</small></div></article>
+            <article class="ab-kpi rp-text-kpi"><span class="ab-kpi-ico green"><span data-icon="bar-chart"></span></span><div class="ab-kpi-body"><span class="ab-kpi-lbl">Last Generated Report</span><strong id="kpi-lastGeneratedReport">--</strong><small id="trend-lastGeneratedReport">Loading</small></div></article>
+            <article class="ab-kpi rp-text-kpi"><span class="ab-kpi-ico blue"><span data-icon="credit-card"></span></span><div class="ab-kpi-body"><span class="ab-kpi-lbl">Average File Size</span><strong id="kpi-averageFileSize">--</strong><small id="trend-averageFileSize">Loading</small></div></article>
+            <article class="ab-kpi"><span class="ab-kpi-ico purple"><span data-icon="rotate"></span></span><div class="ab-kpi-body"><span class="ab-kpi-lbl">Pending Reports</span><strong id="kpi-pendingReports">--</strong><small id="trend-pendingReports">Loading</small></div></article>
+          </section>
+
+          <section class="rp-chart-grid">
+            <article class="ad-card ab-chart-card">
+              <div class="ad-card-head"><h2>Report Generation Trend</h2><div class="ad-chart-select" id="reports-trend-label">Today</div></div>
+              <div class="ad-chart-legend"><span><i class="dot green"></i>Ride Reports</span><span><i class="dot blue"></i>Revenue Reports</span><span><i class="dot orange"></i>Maintenance Reports</span></div>
+              <div class="ad-chart-wrap"><canvas id="reports-trend-chart"></canvas></div>
+            </article>
+            <article class="ad-card ab-chart-card">
+              <div class="ad-card-head"><h2>Report Type Breakdown</h2></div>
+              <div class="rp-donut-layout"><div class="ad-donut-wrap"><canvas id="reports-type-chart"></canvas></div><div class="rp-donut-legend" id="reports-type-legend"></div></div>
+            </article>
+          </section>
+
+          <section class="ad-card rp-generator-card">
+            <div class="ad-card-head rp-section-head">
+              <div>
+                <h2>Generate Operational Report</h2>
+                <p>Create export files from live bookings, payments, bikes, stations, maintenance, and support data.</p>
+              </div>
+            </div>
+            <div class="rp-report-type-grid" id="report-type-grid"></div>
+          </section>
+
+          <section class="rp-ops-grid">
+            <article class="ad-card rp-ops-card"><div class="ad-card-head"><h2>Quick Export</h2></div><div class="rp-quick-list" id="quick-export-list"></div></article>
+            <article class="ad-card rp-ops-card"><div class="ad-card-head"><h2>Scheduled Reports</h2><a class="ab-view-all" href="./Admin_settings.html#reports">View all</a></div><div class="rp-scheduled-list" id="scheduled-reports-list"></div></article>
+            <article class="ad-card rp-ops-card"><div class="ad-card-head"><h2>Recent Report Activity</h2><a class="ab-view-all" href="./Admin_reports.html">View all</a></div><div class="ab-list" id="report-activity-list"></div></article>
+          </section>
+
+          <section class="ad-card ab-table-card rp-table-card">
+            <div class="rp-filter-bar">
+              <label class="ab-search"><span data-icon="search"></span><input id="report-search" type="search" placeholder="Search by report name, ID, type, or generated by..." /></label>
+              <label class="ab-filter-field"><span>Type</span><select id="filter-type"><option value="all">All Types</option><option value="rides">Rides</option><option value="revenue">Revenue & Payments</option><option value="stations">Stations</option><option value="bikes">Bikes</option><option value="maintenance">Maintenance</option><option value="support">Support Issues</option><option value="operations">Full Operations</option></select></label>
+              <label class="ab-filter-field"><span>Status</span><select id="filter-status"><option value="all">All Statuses</option><option value="ready">Ready</option><option value="scheduled">Scheduled</option><option value="processing">Processing</option><option value="failed">Failed</option><option value="draft">Draft</option></select></label>
+              <label class="ab-filter-field"><span>Format</span><select id="filter-format"><option value="all">All Formats</option><option value="csv">CSV</option><option value="pdf">PDF</option><option value="xlsx">XLSX</option></select></label>
+              <label class="ab-filter-field"><span>Date From</span><input id="filter-date-from" type="date" /></label>
+              <label class="ab-filter-field"><span>Date To</span><input id="filter-date-to" type="date" /></label>
+              <button class="ab-btn-secondary" type="button" id="reset-filters"><span data-icon="rotate"></span>Reset</button>
+            </div>
+            <div class="ad-card-head rp-table-head"><div><h2>Report History <span id="reports-total-count">(0)</span></h2><p>View generated, scheduled, downloaded, and failed report exports.</p></div><span class="ab-row-count" id="reports-row-count">Loading reports...</span></div>
+            <div class="ab-table-wrap rp-table-wrap">
+              <table class="ab-table rp-table">
+                <colgroup><col class="rp-col-id" /><col class="rp-col-name" /><col class="rp-col-type" /><col class="rp-col-period" /><col class="rp-col-format" /><col class="rp-col-by" /><col class="rp-col-status" /><col class="rp-col-date" /><col class="rp-col-size" /><col class="rp-col-actions" /></colgroup>
+                <thead><tr><th>Report ID</th><th>Report Name</th><th>Type</th><th>Date Range</th><th>Format</th><th>Generated By</th><th>Status</th><th>Created Date</th><th>File Size</th><th>Actions</th></tr></thead>
+                <tbody id="reports-table-body"><tr><td colspan="10" class="ab-table-empty">Loading reports...</td></tr></tbody>
+              </table>
+            </div>
+            <div class="ab-pagination"><label class="rp-page-size">Rows per page: <select id="reports-page-size"><option>10</option><option>20</option><option>50</option></select></label><div class="ab-pages" id="reports-pagination"></div></div>
+          </section>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <aside class="ab-drawer rp-drawer" id="report-drawer" hidden>
+    <div class="ab-drawer-overlay" data-close-drawer></div>
+    <section class="ab-drawer-panel" aria-label="Report details">
+      <div class="ab-drawer-head"><div><span class="ab-status-badge" id="drawer-status">Status</span><h2>Report Details</h2></div><button class="ab-drawer-close" type="button" id="close-report-drawer" aria-label="Close report details"><span data-icon="chevron-right"></span></button></div>
+      <div class="ab-drawer-body" id="report-drawer-body"></div>
+      <div class="rp-drawer-actions">
+        <button class="ab-btn-primary" type="button" data-drawer-action="download"><span data-icon="credit-card"></span>Download Report</button>
+        <button class="ab-btn-secondary blue" type="button" data-drawer-action="regenerate"><span data-icon="rotate"></span>Regenerate Report</button>
+        <button class="ab-btn-secondary purple" type="button" data-drawer-action="schedule"><span data-icon="calendar"></span>Schedule Report</button>
+        <button class="ab-btn-secondary" type="button" data-drawer-action="email"><span data-icon="message"></span>Email Report</button>
+        <button class="ab-btn-secondary red" type="button" data-drawer-action="delete"><span data-icon="alert"></span>Delete Report</button>
+        <button class="ab-btn-secondary" type="button" data-drawer-action="audit"><span data-icon="bar-chart"></span>Export Audit Log</button>
+      </div>
+    </section>
+  </aside>
+
+  <div class="ab-modal" id="report-modal" hidden>
+    <div class="ab-modal-overlay" data-close-modal></div>
+    <section class="ab-modal-panel" aria-label="Report action">
+      <div class="ab-modal-head"><h2 id="report-modal-title">Generate New Report</h2><button class="ab-drawer-close" type="button" data-close-modal><span data-icon="chevron-right"></span></button></div>
+      <form id="report-modal-form"><div class="ab-modal-body" id="report-modal-body"></div><div class="ab-modal-foot"><button class="ab-btn-secondary" type="button" data-close-modal>Cancel</button><button class="ab-btn-primary" type="submit" id="report-modal-submit">Generate Report</button></div></form>
+    </section>
+  </div>
+
+  <div class="ad-toast" id="admin-toast" hidden role="status" aria-live="polite"></div>
+  <script src="admin-dashboard.js"></script>
+  <script src="admin-reports.js"></script>
+</body>
+</html>

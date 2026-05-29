@@ -20,7 +20,7 @@
     <div id="root"></div>
 
   <script type="text/babel" data-presets="env,react">
-    const { useState } = React;
+    const { useEffect, useState } = React;
     const API_BASE = "/api";
 
 
@@ -45,6 +45,14 @@
 
       const [error, setError] = useState("");
       const [loading, setLoading] = useState(false);
+      const [publicSettings, setPublicSettings] = useState(null);
+
+      useEffect(() => {
+        fetch("/api/settings/public", { cache: "no-store" })
+          .then((res) => res.ok ? res.json() : null)
+          .then((settings) => setPublicSettings(settings))
+          .catch(() => {});
+      }, []);
 
       const handleRegister = async (e) => {
         e.preventDefault();
@@ -52,6 +60,10 @@
 
         if (!fullName || !email || !password || !confirmPassword) {
           setError("Please fill in every field.");
+          return;
+        }
+        if (publicSettings && publicSettings.allowNewRegistrations === false) {
+          setError("New registrations are currently disabled by admin.");
           return;
         }
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -91,9 +103,9 @@
           // Redirect to the right dashboard based on assigned role.
           const role = ((data.user && data.user.role) || "student").toLowerCase();
           let dest;
-          if (role === "admin")      dest = "frontend/Admin/admin_dashboard.html";
-          else if (role === "staff") dest = "frontend/Staff/Staff_dashboard.html";
-          else                       dest = "frontend/Student/Student_dashboard.html";
+          // Student and Staff both land on the shared User dashboard.
+          if (role === "admin") dest = "frontend/Admin/admin_dashboard.html";
+          else                  dest = "frontend/User/User_dashboard.html";
           window.location.href = dest;
         } catch (err) {
           setError("Cannot reach the server. Make sure the backend is running on port 5000.");
@@ -231,7 +243,10 @@
                     </div>
                   </div>
 
-                  <button type="submit" className="cbs-btn cbs-btn-primary" disabled={loading}>
+                  {publicSettings && publicSettings.allowNewRegistrations === false && (
+                    <div className="cbs-alert cbs-alert-error">New registrations are currently disabled by admin.</div>
+                  )}
+                  <button type="submit" className="cbs-btn cbs-btn-primary" disabled={loading || (publicSettings && publicSettings.allowNewRegistrations === false)}>
                     {loading ? <span className="cbs-spinner"/> : (
                       <>
                         <span>Register</span>

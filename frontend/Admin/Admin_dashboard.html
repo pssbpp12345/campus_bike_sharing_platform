@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Admin Dashboard | Campus Bike Sharing</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../../Login.css" />
+  <link rel="stylesheet" href="admin-dashboard.css" />
+  <link rel="stylesheet" href="admin-shared.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.9/dist/chart.umd.min.js"></script>
+</head>
+<body class="ad-auth-pending">
+  <div class="ad-shell">
+    <header class="ad-topbar">
+      <a class="ad-brand" href="./Admin_dashboard.html" aria-label="Campus Bike Sharing Admin Dashboard">
+        <span class="ad-brand-logo" aria-hidden="true">
+          <svg viewBox="0 0 64 64" width="42" height="42" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="16" cy="44" r="12"></circle>
+            <circle cx="48" cy="44" r="12"></circle>
+            <path d="M16 44 L28 24 L42 24 L48 44"></path>
+            <path d="M28 24 L34 14 L42 14"></path>
+            <circle cx="32" cy="24" r="2" fill="currentColor"></circle>
+          </svg>
+        </span>
+        <span class="ad-brand-text">Campus <strong>Bike Sharing</strong></span>
+      </a>
+
+      <div class="ad-topbar-actions">
+        <div class="ad-admin-controls" aria-label="Dashboard actions">
+          <button class="ad-control-btn" type="button" id="refresh-dashboard">
+            <span data-icon="rotate"></span>
+            <span>Refresh</span>
+          </button>
+          <button class="ad-control-btn primary" type="button" id="export-report">
+            <span data-icon="bar-chart"></span>
+            <span>Export Report</span>
+          </button>
+        </div>
+
+        <div class="ad-menu-wrap">
+          <button class="ad-bell" type="button" id="notification-button" aria-label="Notifications" aria-haspopup="true" aria-expanded="false">
+            <span data-icon="bell"></span>
+            <span class="ad-bell-badge" id="notification-badge">0</span>
+          </button>
+          <div class="ad-dropdown ad-notification-menu" id="notification-menu" hidden>
+            <div class="ad-dropdown-head">
+              <div>
+                <h3>Notifications</h3>
+                <span id="notification-unread-count">0 unread</span>
+              </div>
+              <button type="button" id="mark-notifications-read">Mark all as read</button>
+            </div>
+            <div class="ad-notification-list" id="notification-list"></div>
+          </div>
+        </div>
+
+        <div class="ad-menu-wrap">
+          <button class="ad-profile" type="button" id="profile-menu-button" aria-label="Admin profile menu" aria-haspopup="true" aria-expanded="false">
+            <span class="ad-avatar" id="admin-avatar">AU</span>
+            <span class="ad-profile-copy">
+              <strong id="admin-name">Admin User</strong>
+              <span>Administrator</span>
+            </span>
+            <span class="ad-profile-chev" data-icon="chevron-down"></span>
+          </button>
+          <div class="ad-dropdown ad-profile-menu" id="profile-menu" hidden>
+            <div class="ad-profile-menu-head">
+              <span class="ad-avatar large" id="admin-avatar-menu">AU</span>
+              <div>
+                <strong id="admin-menu-name">Admin User</strong>
+                <span>Administrator</span>
+              </div>
+            </div>
+            <div class="ad-profile-menu-list">
+              <button type="button" data-admin-menu-action="profile"><span data-icon="help-circle"></span>View Admin Profile</button>
+              <button type="button" data-admin-menu-action="settings"><span data-icon="settings"></span>Admin Settings</button>
+            </div>
+            <div class="ad-profile-menu-foot">
+              <button type="button" id="admin-logout"><span data-icon="logout"></span>Logout</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="ad-main">
+      <aside class="ad-sidebar" aria-label="Admin navigation">
+        <nav class="ad-nav">
+          <a class="ad-nav-item active" href="./Admin_dashboard.html" data-page="Admin_dashboard.html" title="Dashboard"><span data-icon="layout-dashboard"></span>Dashboard</a>
+          <a class="ad-nav-item" href="./Admin_bookings.html" data-page="Admin_bookings.html" title="Bookings"><span data-icon="calendar"></span>Bookings</a>
+          <a class="ad-nav-item" href="./Admin_payments.html" data-page="Admin_payments.html" title="Payments"><span data-icon="credit-card"></span>Payments</a>
+          <a class="ad-nav-item" href="./Admin_bikes.html" data-page="Admin_bikes.html" title="Bikes"><span data-icon="bike"></span>Bikes</a>
+          <a class="ad-nav-item" href="./Admin_stations.html" data-page="Admin_stations.html" title="Stations"><span data-icon="map-pin"></span>Stations</a>
+          <a class="ad-nav-item" href="./Admin_maintenance.html" data-page="Admin_maintenance.html" title="Maintenance"><span data-icon="wrench"></span>Maintenance</a>
+          <a class="ad-nav-item" href="./Admin_reports.html" data-page="Admin_reports.html" title="Reports"><span data-icon="bar-chart"></span>Reports</a>
+          <a class="ad-nav-item" href="./Admin_support.html" data-page="Admin_support.html" title="Support Issues"><span data-icon="help-circle"></span>Support Issues</a>
+          <a class="ad-nav-item" href="./Admin_ai.html" data-page="Admin_ai.html" title="AI Assistant"><span data-icon="sparkles"></span>AI Assistant</a>
+          <a class="ad-nav-item" href="./Admin_settings.html" data-page="Admin_settings.html" title="Settings"><span data-icon="settings"></span>Settings</a>
+        </nav>
+        <a class="ad-help-card" href="./Admin_help.html" id="admin-help-button" aria-label="Need Help? Admin Help Center">
+          <span class="ad-help-icon" data-icon="headphones"></span>
+          <span><strong>Help Center</strong><small>Admin guides and support</small></span>
+          <span data-icon="chevron-right"></span>
+        </a>
+      </aside>
+
+      <main class="ad-content">
+        <section class="ad-dashboard-grid">
+          <div class="ad-dashboard-main">
+            <div class="ad-page-head">
+              <div>
+                <h1>Admin Dashboard</h1>
+                <p>Monitor bookings, revenue, expenses, maintenance, support issues, and bike operations in real time.</p>
+              </div>
+              <div class="ad-range-tabs" role="tablist" aria-label="Date range">
+                <button type="button" class="active" data-range="today">Today</button>
+                <button type="button" data-range="week">Week</button>
+                <button type="button" data-range="month">Month</button>
+                <button type="button" data-range="year">Year</button>
+              </div>
+            </div>
+
+            <div class="ad-error" id="dashboard-error" hidden></div>
+
+            <section class="ad-kpi-grid" id="fleet" aria-label="Key metrics">
+              <article class="ad-kpi-card" data-kpi="totalRevenue">
+                <span class="ad-kpi-icon green" data-icon="dollar"></span>
+                <div><span>Total Revenue</span><strong id="kpi-totalRevenue">...</strong><small id="trend-totalRevenue"></small></div>
+              </article>
+              <article class="ad-kpi-card" data-kpi="totalExpenses">
+                <span class="ad-kpi-icon blue" data-icon="wallet"></span>
+                <div><span>Total Expenses</span><strong id="kpi-totalExpenses">...</strong><small id="trend-totalExpenses"></small></div>
+              </article>
+              <article class="ad-kpi-card" data-kpi="netProfit">
+                <span class="ad-kpi-icon green" data-icon="trending-up"></span>
+                <div><span>Net Profit</span><strong id="kpi-netProfit">...</strong><small id="trend-netProfit"></small></div>
+              </article>
+              <article class="ad-kpi-card" data-kpi="totalBookings">
+                <span class="ad-kpi-icon blue" data-icon="calendar"></span>
+                <div><span>Total Bookings</span><strong id="kpi-totalBookings">...</strong><small id="trend-totalBookings"></small></div>
+              </article>
+              <article class="ad-kpi-card" data-kpi="activeRides">
+                <span class="ad-kpi-icon purple" data-icon="bike"></span>
+                <div><span>Active Rides</span><strong id="kpi-activeRides">...</strong><small id="trend-activeRides"></small></div>
+              </article>
+              <article class="ad-kpi-card" data-kpi="availableBikes">
+                <span class="ad-kpi-icon green" data-icon="bike"></span>
+                <div><span>Available Bikes</span><strong id="kpi-availableBikes">...</strong><small id="trend-availableBikes"></small></div>
+              </article>
+              <article class="ad-kpi-card" data-kpi="maintenanceAlerts">
+                <span class="ad-kpi-icon amber" data-icon="wrench"></span>
+                <div><span>Maintenance Alerts</span><strong id="kpi-maintenanceAlerts">...</strong><small id="trend-maintenanceAlerts"></small></div>
+              </article>
+              <article class="ad-kpi-card" data-kpi="openIssues">
+                <span class="ad-kpi-icon red" data-icon="alert"></span>
+                <div><span>Open Issues</span><strong id="kpi-openIssues">...</strong><small id="trend-openIssues"></small></div>
+              </article>
+            </section>
+
+            <section class="ad-chart-row" id="charts">
+              <article class="ad-card ad-chart-card">
+                <div class="ad-card-head">
+                  <h2>Revenue vs Expenses</h2>
+                  <div class="ad-chart-select" id="chart-range-label">Monthly</div>
+                </div>
+                <div class="ad-chart-legend">
+                  <span><i class="green"></i>Revenue (Booking Income)</span>
+                  <span><i class="orange"></i>Expenses (Maintenance, Refunds, Ops)</span>
+                </div>
+                <div class="ad-chart-wrap"><canvas id="revenue-expenses-chart"></canvas></div>
+              </article>
+
+              <article class="ad-card ad-donut-card">
+                <div class="ad-card-head"><h2>Booking Status</h2></div>
+                <div class="ad-donut-layout">
+                  <div class="ad-donut-wrap"><canvas id="booking-status-chart"></canvas></div>
+                  <div class="ad-status-list" id="booking-status-list"></div>
+                </div>
+              </article>
+            </section>
+
+            <section class="ad-lower-grid">
+              <article class="ad-card" id="financial-summary">
+                <div class="ad-card-head compact"><h2>Financial Summary</h2></div>
+                <div class="ad-summary-list" id="financial-summary-list"></div>
+              </article>
+
+              <article class="ad-card ad-table-card" id="maintenance">
+                <div class="ad-card-head compact"><h2>Maintenance Alerts</h2></div>
+                <div class="ad-compact-list" id="maintenance-alerts-body" aria-label="Top maintenance alerts"></div>
+              </article>
+
+              <article class="ad-card ad-table-card" id="issues">
+                <div class="ad-card-head compact"><h2>Reported Issues</h2></div>
+                <div class="ad-compact-list" id="reported-issues-body" aria-label="Top reported issues"></div>
+              </article>
+            </section>
+
+            <section class="ad-card ad-table-card ad-transactions-card" id="recent-transactions">
+              <div class="ad-card-head compact"><h2>Recent Transactions</h2></div>
+              <div class="ad-table-scroll">
+                <table>
+                  <thead><tr><th>Booking ID</th><th>User</th><th>Station</th><th>Amount</th><th>Payment Method</th><th>Status</th><th>Date</th></tr></thead>
+                  <tbody id="recent-transactions-body"></tbody>
+                </table>
+              </div>
+              <a class="ad-card-link" href="Admin_bookings.html">View all transactions <span data-icon="chevron-right"></span></a>
+            </section>
+          </div>
+
+          <aside class="ad-right-rail">
+            <article class="ad-card ad-activity-card" id="activity">
+              <div class="ad-card-head"><h2>Recent Activity</h2></div>
+              <div class="ad-activity-list" id="recent-activity-list"></div>
+              <a class="ad-card-link" href="#activity">View all activity <span data-icon="chevron-right"></span></a>
+            </article>
+
+            <article class="ad-card ad-alert-card" id="alerts">
+              <div class="ad-card-head"><h2>Alerts</h2></div>
+              <div class="ad-alert-list" id="alerts-list"></div>
+              <a class="ad-card-link" href="#alerts">View all alerts <span data-icon="chevron-right"></span></a>
+            </article>
+          </aside>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <div class="ad-toast" id="admin-toast" hidden role="status" aria-live="polite"></div>
+
+  <script src="admin-dashboard.js"></script>
+</body>
+</html>

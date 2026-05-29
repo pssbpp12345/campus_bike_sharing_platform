@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate" />
+  <title>Admin Settings | Campus Bike Sharing Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../../Login.css" />
+  <link rel="stylesheet" href="admin-dashboard.css" />
+  <link rel="stylesheet" href="admin-bookings.css" />
+  <link rel="stylesheet" href="admin-settings.css" />
+  <link rel="stylesheet" href="admin-shared.css" />
+</head>
+<body class="ad-auth-pending">
+  <div class="ad-shell">
+    <header class="ad-topbar">
+      <a class="ad-brand" href="./Admin_dashboard.html" aria-label="Campus Bike Sharing Admin Dashboard">
+        <span class="ad-brand-logo" aria-hidden="true"><svg viewBox="0 0 64 64" width="42" height="42" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="16" cy="44" r="12"></circle><circle cx="48" cy="44" r="12"></circle><path d="M16 44 L28 24 L42 24 L48 44"></path><path d="M28 24 L34 14 L42 14"></path><circle cx="32" cy="24" r="2" fill="currentColor"></circle></svg></span>
+        <span class="ad-brand-text">Campus <strong>Bike Sharing</strong></span>
+      </a>
+
+      <div class="ad-topbar-actions">
+        <div class="ad-admin-controls">
+          <button class="ad-control-btn" type="button" id="refresh-dashboard"><span data-icon="rotate"></span><span>Refresh</span></button>
+          <button class="ad-control-btn primary" type="button" id="export-report"><span data-icon="bar-chart"></span><span>Export Data</span></button>
+        </div>
+        <div class="ad-menu-wrap">
+          <button class="ad-bell" type="button" id="notification-button" aria-label="Notifications" aria-haspopup="true" aria-expanded="false"><span data-icon="bell"></span><span class="ad-bell-badge" id="notification-badge">0</span></button>
+          <div class="ad-dropdown ad-notification-menu" id="notification-menu" hidden><div class="ad-dropdown-head"><div><h3>Notifications</h3><span id="notification-unread-count">0 unread</span></div><button type="button" id="mark-notifications-read">Mark all as read</button></div><div class="ad-notification-list" id="notification-list"></div></div>
+        </div>
+        <div class="ad-menu-wrap">
+          <button class="ad-profile" type="button" id="profile-menu-button" aria-label="Admin profile menu" aria-haspopup="true" aria-expanded="false"><span class="ad-avatar" id="admin-avatar">AU</span><span class="ad-profile-copy"><strong id="admin-name">Admin User</strong><span>Administrator</span></span><span class="ad-profile-chev" data-icon="chevron-down"></span></button>
+          <div class="ad-dropdown ad-profile-menu" id="profile-menu" hidden><div class="ad-profile-menu-head"><span class="ad-avatar large" id="admin-avatar-menu">AU</span><div><strong id="admin-menu-name">Admin User</strong><span>Administrator</span></div></div><div class="ad-profile-menu-list"><button type="button" data-admin-menu-action="profile"><span data-icon="help-circle"></span>View Admin Profile</button><button type="button" data-admin-menu-action="settings"><span data-icon="settings"></span>Admin Settings</button></div><div class="ad-profile-menu-foot"><button type="button" id="admin-logout"><span data-icon="logout"></span>Logout</button></div></div>
+        </div>
+      </div>
+    </header>
+
+    <div class="ad-main">
+      <aside class="ad-sidebar" aria-label="Admin navigation">
+        <nav class="ad-nav">
+          <a class="ad-nav-item" href="./Admin_dashboard.html" data-page="Admin_dashboard.html"><span data-icon="layout-dashboard"></span>Dashboard</a>
+          <a class="ad-nav-item" href="./Admin_bookings.html" data-page="Admin_bookings.html"><span data-icon="calendar"></span>Bookings</a>
+          <a class="ad-nav-item" href="./Admin_payments.html" data-page="Admin_payments.html"><span data-icon="credit-card"></span>Payments</a>
+          <a class="ad-nav-item" href="./Admin_bikes.html" data-page="Admin_bikes.html"><span data-icon="bike"></span>Bikes</a>
+          <a class="ad-nav-item" href="./Admin_stations.html" data-page="Admin_stations.html"><span data-icon="map-pin"></span>Stations</a>
+          <a class="ad-nav-item" href="./Admin_maintenance.html" data-page="Admin_maintenance.html"><span data-icon="wrench"></span>Maintenance</a>
+          <a class="ad-nav-item" href="./Admin_reports.html" data-page="Admin_reports.html"><span data-icon="bar-chart"></span>Reports</a>
+          <a class="ad-nav-item" href="./Admin_support.html" data-page="Admin_support.html"><span data-icon="help-circle"></span>Support Issues</a>
+          <a class="ad-nav-item" href="./Admin_ai.html" data-page="Admin_ai.html"><span data-icon="sparkles"></span>AI Assistant</a>
+          <a class="ad-nav-item active" href="./Admin_settings.html" data-page="Admin_settings.html"><span data-icon="settings"></span>Settings</a>
+        </nav>
+        <a class="ad-help-card" href="./Admin_help.html" id="admin-help-button"><span class="ad-help-icon" data-icon="headphones"></span><span><strong>Help Center</strong><small>Admin guides and support</small></span><span data-icon="chevron-right"></span></a>
+      </aside>
+
+      <main class="ad-content">
+        <div class="as-grid">
+          <section class="ad-page-head">
+            <div>
+              <h1>Admin Settings</h1>
+              <p>Manage administrator preferences, access controls, platform configuration, pricing, notifications, and security settings.</p>
+            </div>
+            <div class="as-head-actions">
+              <button class="ab-btn-primary" type="button" id="save-current-section"><span data-icon="check"></span>Save Changes</button>
+              <button class="ab-btn-secondary danger" type="button" id="reset-defaults"><span data-icon="rotate"></span>Reset Defaults</button>
+            </div>
+          </section>
+
+          <section class="as-layout">
+            <aside class="as-menu-card" aria-label="Settings sections">
+              <button class="as-menu-item settings-nav-item active" type="button" data-section="profile"><span data-icon="settings"></span><span><strong>Profile Settings</strong><small>Admin account and preferences</small></span></button>
+              <button class="as-menu-item settings-nav-item" type="button" data-section="platform"><span data-icon="layout-dashboard"></span><span><strong>Platform Settings</strong><small>Name, campus, currency</small></span></button>
+              <button class="as-menu-item settings-nav-item" type="button" data-section="pricing"><span data-icon="dollar"></span><span><strong>Pricing Rules</strong><small>Unlock and ride fees</small></span></button>
+              <button class="as-menu-item settings-nav-item" type="button" data-section="access"><span data-icon="help-circle"></span><span><strong>Access Control</strong><small>Roles and permissions</small></span></button>
+              <button class="as-menu-item settings-nav-item" type="button" data-section="notifications"><span data-icon="bell"></span><span><strong>Notifications</strong><small>Alerts and email updates</small></span></button>
+              <button class="as-menu-item settings-nav-item" type="button" data-section="security"><span data-icon="settings"></span><span><strong>Security</strong><small>Sessions and login rules</small></span></button>
+              <button class="as-menu-item settings-nav-item" type="button" data-section="backup"><span data-icon="bar-chart"></span><span><strong>Data & Backup</strong><small>Exports and audit tools</small></span></button>
+              <button class="as-menu-item settings-nav-item" type="button" data-section="integrations"><span data-icon="credit-card"></span><span><strong>Integrations</strong><small>Stripe, email, maps</small></span></button>
+            </aside>
+
+            <section class="as-panel" id="settings-panel" aria-live="polite">
+              <div class="as-loading">Loading settings...</div>
+            </section>
+          </section>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div class="as-modal" id="settings-modal" hidden>
+    <div class="as-modal-overlay" data-close-settings-modal></div>
+    <section class="as-modal-panel" aria-label="Settings confirmation">
+      <div class="as-modal-head"><h2 id="settings-modal-title">Confirm Action</h2><button class="as-modal-close" type="button" data-close-settings-modal aria-label="Close modal"><span data-icon="x"></span></button></div>
+      <div class="as-modal-body" id="settings-modal-body"></div>
+      <div class="as-modal-foot"><button class="ab-btn-secondary" type="button" data-close-settings-modal>Cancel</button><button class="ab-btn-primary" type="button" id="settings-modal-confirm">Continue</button></div>
+    </section>
+  </div>
+
+  <div class="ad-toast" id="admin-toast" hidden role="status" aria-live="polite"></div>
+  <script src="admin-dashboard.js"></script>
+  <script src="admin-settings.js"></script>
+</body>
+</html>

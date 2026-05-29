@@ -1,0 +1,1771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ride History | Campus Bike Sharing</title>
+  <link rel="stylesheet" href="../../Login.css">
+  <link rel="stylesheet" href="user-shared.css">
+  <link rel="stylesheet" href="ride-history.css">
+  <link rel="stylesheet" href="user-premium.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    /* ============================================================
+       RIDE HISTORY — NEW DESIGN (matches target screenshot)
+       ============================================================ */
+
+    /* Page header */
+    .rh2-page-head h1 {
+      font-size: 28px; font-weight: 800; letter-spacing: -.5px;
+      color: #0F172A; margin: 0;
+      position: relative; display: inline-block; padding-bottom: 6px;
+    }
+    .rh2-page-head h1::after {
+      content: ""; position: absolute; left: 0; bottom: 0;
+      width: 44px; height: 3px; background: #22C55E; border-radius: 999px;
+    }
+    .rh2-page-head p { margin: 8px 0 0; color: #64748B; font-size: 13.5px; }
+
+    /* Active ride banner */
+    .rh2-active-banner {
+      display: flex; align-items: center; gap: 14px;
+      background: linear-gradient(135deg, #EFF6FF 0%, #F0FDF4 100%);
+      border: 1px solid #BFDBFE;
+      border-radius: 16px;
+      padding: 14px 18px;
+    }
+    .rh2-active-ico {
+      width: 50px; height: 50px; border-radius: 14px;
+      background: #FFFFFF; color: #1D4ED8;
+      display: inline-flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 12px rgba(45,127,249,.18);
+      flex-shrink: 0;
+    }
+    .rh2-active-body { flex: 1; min-width: 0; }
+    .rh2-active-body h4 { margin: 0; font-size: 15px; font-weight: 800; color: #0F172A; }
+    .rh2-active-body p  { margin: 2px 0 0; color: #475569; font-size: 13px; }
+    .rh2-active-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .rh2-banner-btn {
+      padding: 9px 16px; border-radius: 10px;
+      background: #FFFFFF; color: #0F172A;
+      border: 1px solid #E2E8F0;
+      font-weight: 700; font-size: 13px;
+      cursor: pointer; text-decoration: none;
+      transition: border-color .15s ease-out, background .15s ease-out;
+    }
+    .rh2-banner-btn:hover { border-color: #BBF7D0; background: #F0FDF4; }
+    .rh2-banner-btn.primary {
+      background: #1D4ED8; color: #FFFFFF; border-color: transparent;
+    }
+    .rh2-banner-btn.primary:hover { background: #1E40AF; }
+
+    /* Layout: main + right details panel.
+       When the details panel is visible we strip the cbs-content right padding
+       so the panel can sit flush against the viewport edge. */
+    .cbs-content:has(.rh2-layout:not(.no-detail)) {
+      padding-right: 0 !important;
+      max-width: none !important;
+    }
+    .rh2-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 440px;
+      gap: 0;                      /* no gap — panel is flush */
+      align-items: start;
+    }
+    /* Main column grows with the page; only the Ride Details panel scrolls independently. */
+    .rh2-layout:not(.no-detail) > .rh2-main-col {
+      padding-right: 22px;
+      padding-bottom: 24px;
+    }
+    /* When there's no ride to show in the right panel, let the main column take full width */
+    .rh2-layout.no-detail { grid-template-columns: 1fr; }
+    @media (max-width: 1180px) {
+      .rh2-layout { grid-template-columns: 1fr; gap: 18px; }
+      .rh2-layout:not(.no-detail) > .rh2-main-col { padding-right: 0; padding-bottom: 0; }
+      .cbs-content:has(.rh2-layout:not(.no-detail)) { padding-right: 32px !important; }
+    }
+
+    /* Summary cards — 6 with coloured top stripe */
+    .rh2-summary {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .rh2-stat {
+      position: relative;
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 16px;
+      padding: 18px 16px 14px;
+      overflow: hidden;
+      transition: transform .22s ease-out, box-shadow .22s ease-out, border-color .22s ease-out;
+    }
+    .rh2-stat:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 14px 30px rgba(34,197,94,.10);
+      border-color: #BBF7D0;
+    }
+    .rh2-stat::before {
+      content: ""; position: absolute; left: 0; right: 0; top: 0;
+      height: 3px;
+    }
+    .rh2-stat.green::before { background: #22C55E; }
+    .rh2-stat.amber::before { background: #F59E0B; }
+    .rh2-stat.blue::before  { background: #3B82F6; }
+    .rh2-stat.violet::before { background: #8B5CF6; }
+    .rh2-stat.leaf::before  { background: #65A30D; }
+    .rh2-stat.sky::before   { background: #38BDF8; }
+
+    .rh2-stat-top {
+      display: flex; justify-content: space-between; align-items: center; gap: 8px;
+      margin-bottom: 6px;
+    }
+    .rh2-stat-label {
+      font-size: 12px; color: #64748B; font-weight: 700;
+    }
+    .rh2-stat-ico {
+      width: 32px; height: 32px; border-radius: 10px;
+      display: inline-flex; align-items: center; justify-content: center;
+    }
+    .rh2-stat.green  .rh2-stat-ico { background: #DCFCE7; color: #15803D; }
+    .rh2-stat.amber  .rh2-stat-ico { background: #FEF3C7; color: #92400E; }
+    .rh2-stat.blue   .rh2-stat-ico { background: #DBEAFE; color: #1D4ED8; }
+    .rh2-stat.violet .rh2-stat-ico { background: #EDE9FE; color: #6D28D9; }
+    .rh2-stat.leaf   .rh2-stat-ico { background: #ECFCCB; color: #3F6212; }
+    .rh2-stat.sky    .rh2-stat-ico { background: #E0F2FE; color: #0369A1; }
+    .rh2-stat-value {
+      font-family: "Plus Jakarta Sans", "Inter", sans-serif;
+      font-size: 26px; font-weight: 800; color: #0F172A;
+      letter-spacing: -.6px; line-height: 1.05;
+    }
+    .rh2-stat-sub { font-size: 11.5px; color: #94A3B8; margin-top: 2px; }
+
+    /* Insight pills */
+    .rh2-insights { display: flex; gap: 10px; flex-wrap: wrap; }
+    .rh2-insight {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 8px 14px;
+      background: #F0FDF4;
+      border: 1px solid #BBF7D0;
+      border-radius: 999px;
+      color: #15803D;
+      font-size: 12.5px; font-weight: 700;
+      text-decoration: none;
+      transition: background .15s ease-out, border-color .15s ease-out, transform .15s ease-out;
+    }
+    .rh2-insight:hover {
+      background: #DCFCE7;
+      border-color: #22C55E;
+      transform: translateX(2px);
+    }
+    .rh2-insight .ico {
+      width: 22px; height: 22px; border-radius: 8px;
+      background: #FFFFFF; color: #15803D;
+      display: inline-flex; align-items: center; justify-content: center;
+    }
+    .rh2-insight .val { color: #0F172A; font-weight: 800; }
+
+    /* Search bar (lives inside the filter card now) */
+    .rh2-search {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 14px;
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      border-radius: 12px;
+      transition: border-color .18s ease-out, box-shadow .18s ease-out, background .18s ease-out;
+    }
+    .rh2-search:focus-within {
+      border-color: #22C55E;
+      background: #FFFFFF;
+      box-shadow: 0 0 0 4px rgba(34,197,94,.12);
+    }
+    .rh2-search svg { color: #94A3B8; flex-shrink: 0; }
+    .rh2-search:focus-within svg { color: #15803D; }
+    .rh2-search input {
+      flex: 1; border: none; outline: none; background: transparent;
+      font-size: 14px; color: #0F172A;
+    }
+    .rh2-search input::placeholder { color: #94A3B8; }
+
+    /* Filter row — sits inside the same white card as search */
+    .rh2-filter-card {
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 16px;
+      padding: 18px 18px 16px;
+      display: flex; flex-direction: column; gap: 14px;
+      box-shadow: 0 1px 2px rgba(15,23,42,.03);
+    }
+    .rh2-filters {
+      display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    }
+    .rh2-tabs {
+      display: inline-flex; gap: 4px; flex-wrap: wrap;
+      flex: 1; min-width: 0;
+    }
+    .rh2-tab {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 9px 14px;
+      background: transparent;
+      border: none;
+      border-radius: 10px;
+      color: #64748B;
+      font-size: 13.5px; font-weight: 700;
+      cursor: pointer;
+      transition: background .15s ease-out, color .15s ease-out;
+      font-family: inherit;
+    }
+    .rh2-tab:hover { background: #F1F5F9; color: #0F172A; }
+    .rh2-tab.active {
+      background: #DCFCE7; color: #15803D;
+    }
+    .rh2-tab svg { flex-shrink: 0; }
+    .rh2-tab.active svg { color: #15803D; }
+    .rh2-tab .count {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 20px; height: 20px; padding: 0 6px;
+      background: rgba(100,116,139,.12);
+      color: inherit;
+      border-radius: 999px;
+      font-size: 11px; font-weight: 800;
+    }
+    .rh2-tab.active .count { background: rgba(34,197,94,.18); color: #15803D; }
+
+    .rh2-date-input {
+      padding: 8px 12px;
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 10px;
+      font-size: 13px; color: #0F172A;
+      font-family: inherit;
+    }
+    .rh2-date-input:focus { outline: none; border-color: #22C55E; box-shadow: 0 0 0 4px rgba(34,197,94,.12); }
+    .rh2-date-sep { color: #94A3B8; }
+    .rh2-sort {
+      padding: 8px 12px;
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 10px;
+      font-size: 13px; color: #0F172A;
+      cursor: pointer; font-family: inherit;
+    }
+    .rh2-reset {
+      background: transparent; border: none; cursor: pointer;
+      color: #15803D; font-weight: 700; font-size: 13px;
+      padding: 8px 12px; border-radius: 10px;
+      font-family: inherit;
+    }
+    .rh2-reset:hover { background: #F0FDF4; }
+
+    /* Ride card list */
+    .rh2-list {
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .rh2-card {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 20px;
+      align-items: center;
+      padding: 18px 20px;
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: transform .22s ease-out, box-shadow .22s ease-out, border-color .22s ease-out, background .22s ease-out;
+    }
+    .rh2-card:hover {
+      transform: translateY(-2px);
+      border-color: #BBF7D0;
+      box-shadow: 0 10px 25px rgba(15,23,42,.08);
+    }
+    .rh2-card.selected {
+      border-color: #22C55E;
+      background: linear-gradient(135deg, #F0FDF4 0%, #FFFFFF 80%);
+      box-shadow: 0 12px 28px rgba(34,197,94,.12);
+    }
+    .rh2-card-left { display: flex; align-items: center; gap: 14px; min-width: 0; }
+    .rh2-card-thumb {
+      flex-shrink: 0; width: 48px; height: 48px;
+      border-radius: 14px;
+      display: inline-flex; align-items: center; justify-content: center;
+      transition: transform .25s cubic-bezier(.18,.89,.32,1.28), background .2s ease-out;
+    }
+    .rh2-card:hover .rh2-card-thumb { transform: scale(1.06); }
+    /* Status-coloured thumbs */
+    .rh2-card-thumb.completed { background: #DCFCE7; color: #15803D; }
+    .rh2-card-thumb.upcoming  { background: #FEF3C7; color: #92400E; }
+    .rh2-card-thumb.active    { background: #DBEAFE; color: #1D4ED8; }
+    .rh2-card-thumb.cancelled { background: #FEE2E2; color: #B91C1C; }
+    .rh2-card-thumb.expired   { background: #F1F5F9; color: #64748B; }
+    .rh2-card-info { min-width: 0; }
+    .rh2-card-bike {
+      font-size: 14px; font-weight: 600; color: #0F172A;
+      display: flex; align-items: center; gap: 8px;
+      letter-spacing: -.01em;
+    }
+    .rh2-card-route {
+      font-size: 13px; color: #475569; margin-top: 3px;
+      display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+      font-weight: 400;
+    }
+    .rh2-card-route .stop { color: #0F172A; font-weight: 500; }
+    .rh2-card-route .arrow { color: #16A34A; font-weight: 500; }
+    .rh2-card-meta {
+      font-size: 12px; color: #64748B; margin-top: 5px;
+      display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+      font-weight: 400;
+    }
+    .rh2-card-meta .dot { color: #CBD5E1; }
+
+    /* Mini stats inline — uniform width per column for clean alignment */
+    .rh2-card-stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(72px, 1fr));
+      gap: 18px;
+      flex-shrink: 0;
+      align-items: start;
+    }
+    .rh2-mini { display: flex; flex-direction: column; gap: 3px; min-width: 60px; }
+    .rh2-mini-lbl {
+      font-size: 10.5px; color: #94A3B8; font-weight: 500;
+      letter-spacing: .04em; text-transform: uppercase;
+      display: inline-flex; align-items: center; gap: 4px;
+    }
+    .rh2-mini-lbl svg { color: #94A3B8; }
+    .rh2-mini-val { font-size: 13.5px; font-weight: 500; color: #0F172A; }
+    .rh2-mini-val.paid { color: #16A34A; }
+    .rh2-mini-val.pending { color: #B45309; }
+    .rh2-mini-val.failed { color: #B91C1C; }
+
+    .rh2-card-right {
+      display: flex; flex-direction: column; align-items: flex-end; gap: 10px;
+      flex-shrink: 0;
+    }
+
+    /* Status pill */
+    .rh2-pill {
+      padding: 4px 11px; border-radius: 999px;
+      font-size: 10.5px; font-weight: 600; letter-spacing: .04em;
+      text-transform: uppercase;
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .rh2-pill.completed { background: #DCFCE7; color: #15803D; border: 1px solid #BBF7D0; }
+    .rh2-pill.upcoming  { background: #FEF3C7; color: #92400E; border: 1px solid #FDE68A; }
+    .rh2-pill.active    { background: #DBEAFE; color: #1D4ED8; border: 1px solid #BFDBFE; }
+    .rh2-pill.cancelled { background: #FEE2E2; color: #991B1B; border: 1px solid #FECACA; }
+    .rh2-pill.expired   { background: #F1F5F9; color: #64748B; border: 1px solid #E2E8F0; }
+    .rh2-pill.active .live-dot {
+      width: 6px; height: 6px; border-radius: 50%; background: #2563EB;
+      animation: rh2Pulse 1.6s ease-in-out infinite;
+    }
+    @keyframes rh2Pulse { 0%,100% { opacity: 1; } 50% { opacity: .4; } }
+
+    /* Action buttons */
+    .rh2-actions { display: flex; gap: 8px; }
+    .rh2-btn-view {
+      padding: 6px 12px; border-radius: 9px;
+      background: #FFFFFF; color: #0F172A;
+      border: 1px solid #E2E8F0;
+      font-size: 12.5px; font-weight: 700; cursor: pointer;
+      transition: background .15s ease-out, border-color .15s ease-out;
+    }
+    .rh2-btn-view:hover { background: #F8FAFC; border-color: #CBD5E1; }
+    .rh2-btn-receipt {
+      padding: 6px 12px; border-radius: 9px;
+      background: #22C55E; color: #FFFFFF;
+      border: none;
+      font-size: 12.5px; font-weight: 700; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 6px;
+      box-shadow: 0 4px 10px rgba(34,197,94,.30);
+      transition: background .15s ease-out, transform .15s ease-out, box-shadow .15s ease-out;
+    }
+    .rh2-btn-receipt:hover { background: #16A34A; transform: translateY(-1px); box-shadow: 0 8px 16px rgba(34,197,94,.38); }
+    .rh2-btn-cancel {
+      padding: 6px 12px; border-radius: 9px;
+      background: #FFFFFF; color: #DC2626;
+      border: 1px solid #FECACA;
+      font-size: 12.5px; font-weight: 700; cursor: pointer;
+      transition: background .15s ease-out, border-color .15s ease-out;
+    }
+    .rh2-btn-cancel:hover { background: #FEF2F2; border-color: #EF4444; }
+    .rh2-btn-end {
+      padding: 6px 12px; border-radius: 9px;
+      background: #2563EB; color: #FFFFFF;
+      border: none;
+      font-size: 12.5px; font-weight: 700; cursor: pointer;
+      transition: background .15s ease-out, transform .15s ease-out;
+    }
+    .rh2-btn-end:hover { background: #1D4ED8; transform: translateY(-1px); }
+
+    /* Right-side details panel — flush against the right edge of the viewport */
+    .rh2-details {
+      background: #FFFFFF;
+      border-top: 1px solid #E2E8F0;
+      border-bottom: 1px solid #E2E8F0;
+      border-left: 1px solid #E2E8F0;
+      border-right: none;
+      border-radius: 20px 0 0 20px;
+      padding: 28px;
+      position: sticky;
+      top: 71px;                              /* sit just below the topbar */
+      min-height: 0;
+      max-height: calc(100vh - 82px);
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      scrollbar-gutter: stable;
+      box-shadow: -8px 0 24px rgba(15,23,42,.04);
+    }
+    @media (max-width: 1180px) {
+      .rh2-details {
+        border-radius: 20px;
+        border-right: 1px solid #E2E8F0;
+        position: static; min-height: 0; max-height: none; overflow: visible;
+        box-shadow: 0 4px 16px rgba(15,23,42,.04);
+      }
+    }
+    .rh2-details-head {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .rh2-details-head h3 {
+      font-size: 20px; font-weight: 800; color: #0F172A; margin: 0;
+      position: relative; padding-bottom: 8px;
+      letter-spacing: -.3px;
+    }
+    .rh2-details-head h3::after {
+      content: ""; position: absolute; left: 0; bottom: 0;
+      width: 38px; height: 3px; background: #22C55E; border-radius: 999px;
+    }
+    .rh2-details-close {
+      width: 32px; height: 32px; border-radius: 10px;
+      background: #F1F5F9; color: #64748B;
+      border: none; cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center;
+      transition: background .15s ease-out;
+    }
+    .rh2-details-close:hover { background: #E2E8F0; }
+
+    .rh2-d-list {
+      display: flex; flex-direction: column; gap: 0;
+      margin-bottom: 18px;
+    }
+    .rh2-d-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid #F1F5F9;
+      gap: 12px;
+    }
+    .rh2-d-row:last-child { border-bottom: 0; }
+    .rh2-d-row .k {
+      display: inline-flex; align-items: center; gap: 10px;
+      color: #64748B; font-size: 13.5px; font-weight: 600;
+    }
+    .rh2-d-row .k svg { color: #15803D; flex-shrink: 0; }
+    .rh2-d-row .v { color: #0F172A; font-weight: 800; font-size: 14px; text-align: right; }
+    .rh2-d-row .v.paid { color: #15803D; }
+    .rh2-d-row .v.pending { color: #92400E; }
+    .rh2-d-row .v.failed { color: #B91C1C; }
+
+    .rh2-d-actions {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+      margin-bottom: 18px;
+      clear: both;
+    }
+    .rh2-d-btn {
+      padding: 11px 14px; border-radius: 12px;
+      font-size: 13.5px; font-weight: 700; cursor: pointer;
+      transition: background .15s ease-out, border-color .15s ease-out;
+      text-align: center;
+      border: 1px solid #E2E8F0;
+      background: #FFFFFF; color: #0F172A;
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .rh2-d-btn:hover { border-color: #BBF7D0; background: #F0FDF4; }
+    .rh2-d-btn.primary {
+      background: #22C55E; color: #FFFFFF; border-color: transparent;
+      box-shadow: 0 6px 14px rgba(34,197,94,.25);
+    }
+    .rh2-d-btn.primary:hover { background: #16A34A; }
+
+    /* Mini map in details panel */
+    .rh2-d-map {
+      width: 100%; height: 240px;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid #E2E8F0;
+      background: linear-gradient(135deg, #F0FDF4, #ECFDF5);
+      position: relative;
+    }
+    .rh2-d-map-canvas { width: 100%; height: 100%; }
+    .rh2-d-map-fallback {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      height: 100%;
+      color: #15803D; font-size: 12px; padding: 12px; text-align: center;
+    }
+    .rh2-view-full {
+      display: inline-flex; align-items: center; gap: 6px;
+      margin-top: 10px;
+      background: transparent; border: none; cursor: pointer;
+      color: #2563EB; font-weight: 700; font-size: 13px;
+      padding: 4px 0; font-family: inherit;
+    }
+    .rh2-view-full:hover { color: #1D4ED8; text-decoration: underline; }
+
+    .rh2-d-empty {
+      text-align: center;
+      padding: 36px 16px;
+    }
+    .rh2-d-empty-ico {
+      width: 64px; height: 64px; border-radius: 50%;
+      margin: 0 auto 12px;
+      background: linear-gradient(135deg, #F0FDF4, #ECFDF5);
+      color: #15803D;
+      display: inline-flex; align-items: center; justify-content: center;
+    }
+    .rh2-d-empty h4 { margin: 0 0 4px; font-size: 15px; font-weight: 800; color: #0F172A; }
+    .rh2-d-empty p { margin: 0; font-size: 13px; color: #64748B; }
+
+    /* Full route map modal — CENTERED, ~55vw */
+    .rh2-modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(15, 23, 42, .35);
+      backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
+      z-index: 9998;
+      animation: rh2Fade .2s ease-out;
+    }
+    @keyframes rh2Fade { from { opacity: 0; } to { opacity: 1; } }
+    .rh2-modal {
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 55vw; max-width: 900px; min-width: 320px;
+      max-height: 88vh;
+      background: #FFFFFF;
+      border-radius: 18px;
+      box-shadow: 0 30px 80px rgba(15,23,42,.25), 0 0 0 1px rgba(34,197,94,.10);
+      overflow: hidden;
+      z-index: 9999;
+      display: flex; flex-direction: column;
+      animation: rh2ModalIn .25s cubic-bezier(.18,.89,.32,1.28);
+    }
+    @keyframes rh2ModalIn {
+      from { opacity: 0; transform: translate(-50%, -48%) scale(.96); }
+      to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    }
+    .rh2-modal-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 22px;
+      background: linear-gradient(135deg, #DCFCE7 0%, #F0FDF4 100%);
+      border-bottom: 1px solid #BBF7D0;
+    }
+    .rh2-modal-head h3 {
+      margin: 0; font-size: 16px; font-weight: 800; color: #0F172A;
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .rh2-modal-close {
+      width: 32px; height: 32px; border-radius: 10px;
+      background: rgba(255,255,255,.7); color: #15803D;
+      border: 1px solid rgba(34,197,94,.2);
+      cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center;
+    }
+    .rh2-modal-close:hover { background: #FFFFFF; }
+    .rh2-modal-canvas { width: 100%; height: 360px; background: #F8FAFC; position: relative; }
+    .rh2-modal-stops {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+      padding: 12px 22px;
+      background: #F8FAFC;
+      border-bottom: 1px solid #E2E8F0;
+    }
+    .rh2-stop {
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 12px;
+      padding: 10px 14px;
+    }
+    .rh2-stop .label {
+      font-size: 11px; color: #94A3B8; font-weight: 800;
+      text-transform: uppercase; letter-spacing: .06em;
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .rh2-stop.start .label { color: #15803D; }
+    .rh2-stop.end .label   { color: #1D4ED8; }
+    .rh2-stop .name { font-size: 13.5px; color: #0F172A; font-weight: 800; margin-top: 2px; }
+    .rh2-stop .time { font-size: 12px; color: #64748B; margin-top: 2px; }
+    .rh2-modal-foot {
+      display: flex; gap: 18px; flex-wrap: wrap;
+      padding: 14px 22px;
+    }
+    .rh2-modal-foot-item .lbl {
+      font-size: 11px; color: #94A3B8; font-weight: 800;
+      text-transform: uppercase; letter-spacing: .06em;
+    }
+    .rh2-modal-foot-item .val { color: #0F172A; font-weight: 800; font-size: 14px; margin-top: 2px; }
+    .rh2-modal-foot-item .val.green { color: #15803D; }
+    .rh2-modal-loading {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 10px;
+      color: #64748B; font-size: 13px;
+      background: #F8FAFC;
+    }
+    .rh2-spin {
+      width: 28px; height: 28px;
+      border: 3px solid rgba(34,197,94,.2);
+      border-top-color: #22C55E;
+      border-radius: 50%;
+      animation: rh2Spin 1s linear infinite;
+    }
+    @keyframes rh2Spin { to { transform: rotate(360deg); } }
+
+    /* Loading skeleton */
+    .rh2-skel {
+      background: linear-gradient(90deg, #F1F5F9, #E2E8F0, #F1F5F9);
+      background-size: 200% 100%;
+      animation: rh2Shim 1.2s ease-in-out infinite;
+      border-radius: 14px;
+    }
+    @keyframes rh2Shim { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+
+    /* Empty list state */
+    .rh2-empty {
+      text-align: center;
+      padding: 56px 24px;
+      background: #FFFFFF;
+      border: 1px dashed #E2E8F0;
+      border-radius: 16px;
+    }
+    .rh2-empty-ico {
+      width: 72px; height: 72px; border-radius: 50%;
+      margin: 0 auto 12px;
+      background: linear-gradient(135deg, #F0FDF4, #ECFDF5);
+      color: #15803D;
+      display: inline-flex; align-items: center; justify-content: center;
+    }
+    .rh2-empty h3 { margin: 0 0 6px; color: #0F172A; font-size: 18px; font-weight: 800; }
+    .rh2-empty p { margin: 0 auto 16px; max-width: 420px; color: #64748B; font-size: 13.5px; line-height: 1.55; }
+
+    /* Refined animations and polish */
+    @keyframes rh2RiseIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .rh2-stat { animation: rh2RiseIn .45s ease-out both; }
+    .rh2-stat:nth-child(1) { animation-delay: 30ms; }
+    .rh2-stat:nth-child(2) { animation-delay: 70ms; }
+    .rh2-stat:nth-child(3) { animation-delay: 110ms; }
+    .rh2-stat:nth-child(4) { animation-delay: 150ms; }
+    .rh2-stat:nth-child(5) { animation-delay: 190ms; }
+    .rh2-stat:nth-child(6) { animation-delay: 230ms; }
+    .rh2-list .rh2-card { animation: rh2RiseIn .35s ease-out both; }
+    .rh2-list .rh2-card:nth-child(1) { animation-delay: 60ms; }
+    .rh2-list .rh2-card:nth-child(2) { animation-delay: 110ms; }
+    .rh2-list .rh2-card:nth-child(3) { animation-delay: 160ms; }
+    .rh2-list .rh2-card:nth-child(4) { animation-delay: 210ms; }
+    .rh2-list .rh2-card:nth-child(5) { animation-delay: 260ms; }
+    .rh2-list .rh2-card:nth-child(n+6) { animation-delay: 310ms; }
+
+    /* Smoother stat-card top stripe + a soft glow on hover */
+    .rh2-stat { transition: transform .25s cubic-bezier(.18,.89,.32,1.28), box-shadow .25s ease-out, border-color .25s ease-out; }
+    .rh2-stat::before { transition: height .25s ease-out; }
+    .rh2-stat:hover::before { height: 4px; }
+
+    /* Selected ride: subtle inner ring */
+    .rh2-card.selected {
+      box-shadow:
+        0 0 0 1px #22C55E inset,
+        0 12px 28px rgba(34,197,94,.12);
+    }
+
+    /* Soft focus ring for inputs / tab buttons */
+    .rh2-tab:focus-visible,
+    .rh2-reset:focus-visible {
+      outline: 2px solid #22C55E; outline-offset: 2px; border-radius: 10px;
+    }
+    .rh2-date-input:focus,
+    .rh2-sort:focus { outline: none; border-color: #22C55E; box-shadow: 0 0 0 3px rgba(34,197,94,.14); }
+
+    /* Right panel: gentle slide-in when a ride is selected */
+    .rh2-details { animation: rh2RiseIn .3s ease-out both; }
+
+    /* Pill: subtle gloss */
+    .rh2-pill { backdrop-filter: saturate(140%); }
+
+    /* Card hover: lift the action buttons slightly */
+    .rh2-card .rh2-actions { transition: transform .25s ease-out; }
+    .rh2-card:hover .rh2-actions { transform: translateX(-2px); }
+
+    /* Receipt CTA pulse on completed-paid hover */
+    .rh2-card:hover .rh2-btn-receipt {
+      box-shadow: 0 8px 18px rgba(34,197,94,.40);
+    }
+
+    /* Responsive */
+    @media (max-width: 1180px) {
+      .rh2-summary { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .rh2-details { position: static; max-height: none; }
+    }
+    @media (max-width: 900px) {
+      .rh2-card { grid-template-columns: 1fr; gap: 10px; }
+      .rh2-card-stats { gap: 14px; flex-wrap: wrap; }
+      .rh2-card-right { flex-direction: row; justify-content: space-between; width: 100%; }
+    }
+    @media (max-width: 640px) {
+      .rh2-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .rh2-modal { width: 92vw; min-width: 0; }
+      .rh2-modal-canvas { height: 280px; }
+      .rh2-modal-stops { grid-template-columns: 1fr; }
+      .rh2-active-banner { flex-direction: column; align-items: stretch; }
+      .rh2-active-actions { justify-content: flex-end; }
+    }
+    .rh2-btn-refund {
+      border: 1px solid #FDBA74;
+      background: #FFF7ED;
+      color: #C2410C;
+      border-radius: 10px;
+      padding: 8px 10px;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .rh2-btn-refund:hover { background: #FFEDD5; transform: translateY(-1px); }
+    .rh2-btn-refund.requested,
+    .rh2-btn-refund:disabled {
+      background: #F0FDF4;
+      border-color: #BBF7D0;
+      color: #15803D;
+      cursor: default;
+      transform: none;
+    }
+    .rh2-d-btn.refund { color: #C2410C; border-color: #FDBA74; background: #FFF7ED; }
+    .rh2-d-btn.refund.requested,
+    .rh2-d-btn.refund:disabled {
+      color: #15803D;
+      border-color: #BBF7D0;
+      background: #F0FDF4;
+      cursor: default;
+    }
+    .rh2-status-note {
+      margin: 12px 0 0;
+      padding: 12px 13px;
+      border: 1px solid #FED7AA;
+      background: #FFF7ED;
+      color: #7C2D12;
+      border-radius: 14px;
+      font-size: 12.5px;
+      line-height: 1.45;
+    }
+    .rh2-status-note + .rh2-d-actions,
+    .rh2-refund-state-note + .rh2-d-actions { margin-top: 16px; }
+    .rh2-refund-state-note {
+      margin: 12px 0 0;
+      padding: 11px 13px;
+      border: 1px solid #BBF7D0;
+      background: #F0FDF4;
+      color: #166534;
+      border-radius: 14px;
+      font-size: 12.5px;
+      line-height: 1.45;
+      font-weight: 700;
+    }
+    .rh2-refund-body { padding: 18px 22px; display: grid; gap: 14px; }
+    .rh2-refund-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .rh2-refund-item {
+      border: 1px solid #E2E8F0;
+      border-radius: 12px;
+      padding: 10px 12px;
+      background: #F8FAFC;
+      min-width: 0;
+    }
+    .rh2-refund-item .k {
+      color: #64748B;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    .rh2-refund-item .v {
+      color: #0F172A;
+      font-size: 15px;
+      font-weight: 800;
+      margin-top: 4px;
+    }
+    .rh2-refund-policy {
+      border: 1px solid #BBF7D0;
+      background: #F0FDF4;
+      color: #166534;
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .rh2-refund-reason label {
+      display: block;
+      color: #0F172A;
+      font-size: 13px;
+      font-weight: 800;
+      margin-bottom: 7px;
+    }
+    .rh2-refund-reason textarea {
+      width: 100%;
+      min-height: 105px;
+      resize: vertical;
+      border: 1px solid #CBD5E1;
+      border-radius: 14px;
+      padding: 12px 13px;
+      font-family: inherit;
+      font-size: 14px;
+      line-height: 1.45;
+      outline: none;
+      box-sizing: border-box;
+    }
+    .rh2-refund-reason textarea:focus {
+      border-color: #16A34A;
+      box-shadow: 0 0 0 4px rgba(22, 163, 74, .12);
+    }
+    @media (max-width: 640px) {
+      .rh2-refund-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel" data-presets="env,react" src="user-shared.js"></script>
+  <script type="text/babel" data-presets="env,react">
+    const { useEffect, useMemo, useState, useRef, useCallback } = React;
+    const Icon = window.UserIcons;
+    const PRICE_FMT = new Intl.NumberFormat("en-AU", { style: "currency", currency: "AUD" });
+    const NEVER_STARTED_STATUSES = new Set(["cancelled", "expired", "no_show", "missed", "payment_failed", "not_started"]);
+    const isNeverStartedRide = (ride) => !!ride && (ride.is_never_started || NEVER_STARTED_STATUSES.has(String(ride.status || "").toLowerCase()));
+    const canShowRideMap = (ride) => !!ride && (ride.can_show_route_map || ride.status === "completed" || ride.status === "active");
+    const isRefundRequested = (ride) => ["requested", "approved", "rejected", "refunded", "approved_pending_manual_processing"].includes(String(ride?.refund_status || "").toLowerCase());
+    const canRequestRefund = (ride) => !!ride && !isRefundRequested(ride) && (ride.refund_eligible || isNeverStartedRide(ride));
+    const rideDurationText = (ride) => isNeverStartedRide(ride) ? "Not applicable" : (ride.duration_minutes ? `${ride.duration_minutes} min` : "Not available");
+    const rideDistanceText = (ride, digits = 1) => isNeverStartedRide(ride) ? "Not applicable" : (ride.distance_km ? `${Number(ride.distance_km).toFixed(digits)} km` : "Not available");
+    const rideEndText = (ride) => isNeverStartedRide(ride) ? "Not started" : (ride.end_time ? `${fmtDate(ride.end_time)}, ${fmtTime(ride.end_time)}` : "In progress");
+    const rideRouteText = (ride) => isNeverStartedRide(ride)
+      ? `${ride.start_station || "Scheduled pickup"} - not started`
+      : `${ride.start_station || "Pickup"} -> ${ride.display_end_label || ride.end_station || (ride.status === "active" ? "current location" : "Drop-off")}`;
+    const fmtDate = (s) => s ? new Date(s).toLocaleDateString("en-AU", { day:"numeric", month:"short", year:"numeric" }) : "—";
+    const fmtTime = (s) => s ? new Date(s).toLocaleTimeString("en-AU", { hour:"2-digit", minute:"2-digit" }) : "—";
+
+    /* ────── Google Maps loader (same key as User_dashboard.html) ────── */
+    // Same browser-side key the dashboard already uses. Restrict it in Google
+    // Cloud Console → Credentials → HTTP referrers:
+    //   http://localhost:*  http://localhost:5000/*  <your-deployed-domain>/*
+    const FALLBACK_GMAPS_KEY = "AIzaSyB6PW601u22m34P5Vcl5d4DBXgQxOYSV2U";
+    let __gMapsPromise = null;
+    function loadGoogleMaps() {
+      if (__gMapsPromise) return __gMapsPromise;
+      __gMapsPromise = new Promise((resolve, reject) => {
+        if (window.google && window.google.maps) return resolve(window.google.maps);
+        // Try the backend-configured key first, fall back to the dashboard key
+        fetch("/api/config/google-maps-key")
+          .then(r => r.ok ? r.json() : { key: "" })
+          .catch(() => ({ key: "" }))
+          .then(({ key }) => {
+            const finalKey = key || FALLBACK_GMAPS_KEY;
+            const s = document.createElement("script");
+            s.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(finalKey)}&libraries=places&loading=async`;
+            s.async = true; s.defer = true;
+            s.onload = () => (window.google && window.google.maps) ? resolve(window.google.maps) : reject(new Error("Google Maps init failed."));
+            s.onerror = () => reject(new Error("Could not load Google Maps."));
+            document.head.appendChild(s);
+          });
+      });
+      return __gMapsPromise;
+    }
+
+    /* ────── Status pill ────── */
+    function Pill({ status }) {
+      const labels = {
+        completed: "Completed",
+        upcoming:  "Upcoming",
+        ready_to_start: "Ready to start",
+        active:    "Live",
+        cancelled: "Cancelled",
+        expired:   "Expired",
+      };
+      const cls = "rh2-pill " + (status === "ready_to_start" ? "upcoming" : status);
+      return (
+        <span className={cls}>
+          {status === "active" && <span className="live-dot"/>}
+          {labels[status] || status}
+        </span>
+      );
+    }
+
+    /* ────── Ride card (list item) ────── */
+    function RideCard({ ride, selected, onSelect, onView, onReceipt, onCancel, onEnd, onStart, onRefund }) {
+      const isPaid = (ride.payment_status || "").toLowerCase() === "paid";
+      const payCls = (ride.payment_status || "").toLowerCase();
+      if (isNeverStartedRide(ride)) {
+        ride = { ...ride, end_station: "Not started", end_time: null, duration_minutes: null, distance_km: null };
+      }
+      const thumbCls = "rh2-card-thumb " + ride.status;
+      return (
+        <div
+          className={"rh2-card" + (selected ? " selected" : "")}
+          onClick={() => onSelect(ride)}
+          data-testid={`ride-card-${ride.ride_id}`}>
+          <div className="rh2-card-left">
+            <div className={thumbCls}><Icon.bike s={22}/></div>
+            <div className="rh2-card-info">
+              <div className="rh2-card-bike">Bike #{ride.bike_code}</div>
+              <div className="rh2-card-route">
+                <span className="stop">{ride.start_station}</span>
+                <span className="arrow">→</span>
+                <span className="stop">{ride.end_station || ride.display_end_label || "—"}</span>
+              </div>
+              <div className="rh2-card-meta">
+                <Icon.calendar s={12}/>
+                <span>{fmtDate(ride.start_time)}</span>
+                <span className="dot">·</span>
+                <span>{fmtTime(ride.start_time)}{isNeverStartedRide(ride) ? "" : (ride.end_time ? " – " + fmtTime(ride.end_time) : "")}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="rh2-card-stats">
+            <div className="rh2-mini">
+              <span className="rh2-mini-lbl"><Icon.clock s={14}/> Duration</span>
+              <span className="rh2-mini-val">{rideDurationText(ride)}</span>
+            </div>
+            <div className="rh2-mini">
+              <span className="rh2-mini-lbl"><Icon.pin/> Distance</span>
+              <span className="rh2-mini-val">{rideDistanceText(ride)}</span>
+            </div>
+            <div className="rh2-mini">
+              <span className="rh2-mini-lbl"><Icon.wallet s={14}/> Cost</span>
+              <span className="rh2-mini-val">{PRICE_FMT.format(Number(ride.cost) || 0)}</span>
+            </div>
+            <div className="rh2-mini">
+              <span className="rh2-mini-lbl"><Icon.card s={14}/> Payment</span>
+              <span className={"rh2-mini-val " + payCls}>{ride.payment_status ? (ride.payment_status[0].toUpperCase() + ride.payment_status.slice(1)) : "—"}</span>
+            </div>
+          </div>
+
+          <div className="rh2-card-right">
+            <Pill status={ride.status}/>
+            <div className="rh2-actions" onClick={(e) => e.stopPropagation()}>
+              <button className="rh2-btn-view" onClick={() => onView(ride)} data-testid={`view-${ride.ride_id}`}>View Details</button>
+              {ride.status === "completed" && isPaid && (
+                <button className="rh2-btn-receipt" onClick={() => onReceipt(ride)} data-testid={`receipt-${ride.ride_id}`}>
+                  <Icon.card s={12}/> Receipt
+                </button>
+              )}
+              {(ride.status === "upcoming" || ride.status === "ready_to_start") && (
+                <button className="rh2-btn-cancel" onClick={() => onCancel(ride)} data-testid={`cancel-${ride.ride_id}`}>Cancel</button>
+              )}
+              {ride.status === "ready_to_start" && onStart && (
+                <button className="rh2-btn-end" style={{background:"#16A34A"}}
+                        onClick={() => onStart(ride)} data-testid={`start-${ride.ride_id}`}>Start Ride</button>
+              )}
+              {ride.status === "active" && (
+                <button className="rh2-btn-end" onClick={() => onEnd(ride)} data-testid={`end-${ride.ride_id}`}>End Ride</button>
+              )}
+              {isRefundRequested(ride) ? (
+                <button className="rh2-btn-refund requested" disabled data-testid={`refund-requested-${ride.ride_id}`}>Refund Requested</button>
+              ) : canRequestRefund(ride) && (
+                <button className="rh2-btn-refund" onClick={() => onRefund(ride)} data-testid={`refund-${ride.ride_id}`}>Request Refund</button>
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Default campus centre used when a ride has no station coordinates at
+    // all (very old seed rows). Sydney CBD point - matches the station seed.
+    const DEFAULT_CAMPUS = { lat: -33.8830, lng: 151.2093 };
+
+    // For PAYG rides without a stored destination we generate a simulated
+    // endpoint about 800m from the pickup so the map can still show a
+    // route preview. Deterministic per ride id so the marker doesn't jump
+    // around between renders.
+    function simulatedEndpoint(startLat, startLng, rideId) {
+      const seed = (Number(rideId) || 1) * 1.61803;
+      const angle = (seed % Math.PI) * 2;          // 0..2π
+      const km = 0.6 + ((seed * 7) % 1) * 0.6;     // 0.6..1.2km
+      // ~111 km per degree of latitude; adjust longitude by cos(lat)
+      const dLat = (km / 111) * Math.cos(angle);
+      const dLng = (km / (111 * Math.cos((startLat * Math.PI) / 180))) * Math.sin(angle);
+      return { lat: Number(startLat) + dLat, lng: Number(startLng) + dLng, simulated: true };
+    }
+
+    function resolveRideCoords(ride) {
+      if (!ride) return { start: null, end: null, simulated: false };
+      const haveStart = ride.pickup_lat != null && ride.pickup_lng != null;
+      const haveEnd   = ride.destination_lat != null && ride.destination_lng != null;
+      const start = haveStart
+        ? { lat: Number(ride.pickup_lat), lng: Number(ride.pickup_lng) }
+        : { ...DEFAULT_CAMPUS };
+      if (haveEnd) {
+        return { start, end: { lat: Number(ride.destination_lat), lng: Number(ride.destination_lng) }, simulated: false };
+      }
+      // PAYG ride or missing destination — generate one near the pickup.
+      const end = simulatedEndpoint(start.lat, start.lng, ride.ride_id);
+      return { start, end, simulated: true };
+    }
+
+    /* ────── Right details panel ────── */
+    function RideDetailsPanel({ ride, onClose, onReceipt, onViewFullMap, onEnd, onStart, onCancel, onReport, onRefund }) {
+      const mapElRef = useRef(null);
+      const [mapState, setMapState] = useState({ status: "idle", msg: "", simulated: false });
+
+      // Build small map when ride changes. We always try to render — only
+      // show "Map unavailable" if Google Maps itself can't load.
+      useEffect(() => {
+        if (!ride) return;
+        if (!canShowRideMap(ride)) {
+          setMapState({ status: "none", msg: "This ride was never started, so no route map is available.", simulated: false });
+          return;
+        }
+        const { start, end, simulated } = resolveRideCoords(ride);
+        setMapState({ status: "loading", msg: "", simulated });
+        loadGoogleMaps()
+          .then(maps => {
+            if (!mapElRef.current) return;
+            const map = new maps.Map(mapElRef.current, {
+              center: start, zoom: 14,
+              disableDefaultUI: true, gestureHandling: "cooperative", clickableIcons: false,
+            });
+            const liveMode = ride.status === "active";
+            new maps.Marker({ position: start, map, label: { text: "A", color: "#fff", fontWeight: "700" }, title: ride.start_station || "Pickup" });
+            new maps.Marker({
+              position: end,
+              map,
+              label: { text: liveMode ? "•" : "B", color: "#fff", fontWeight: "700" },
+              title: liveMode ? "Live ride tracking" : (ride.end_station || ride.display_end_label || (simulated ? "Approximate end" : "Drop-off"))
+            });
+            new maps.Polyline({
+              path: [start, end],
+              strokeColor: simulated ? "#3B82F6" : "#22C55E",
+              strokeOpacity: .9,
+              strokeWeight: 3,
+            }).setMap(map);
+            const bounds = new maps.LatLngBounds(); bounds.extend(start); bounds.extend(end);
+            map.fitBounds(bounds, 30);
+            setMapState({ status: "ready", msg: "", simulated });
+          })
+          .catch(err => setMapState({ status: "error", msg: err.message || "Map unavailable.", simulated }));
+      }, [ride && ride.ride_id, ride && ride.pickup_lat, ride && ride.destination_lat]);
+
+      // When no ride is selected we render NOTHING — the parent layout will
+      // collapse the right column so the main column takes the full width.
+      if (!ride) return null;
+
+      const originalRide = ride;
+      if (isNeverStartedRide(ride)) {
+        ride = { ...ride, end_station: "Not started", end_time: null, duration_minutes: null, distance_km: null };
+      }
+      const isPaid = (ride.payment_status || "").toLowerCase() === "paid";
+      const payCls = (ride.payment_status || "").toLowerCase();
+      // A map is renderable for any ride that has at least a pickup, or where
+      // we'll use the campus default — i.e. always.
+      const hasCoords = canShowRideMap(originalRide);
+
+      return (
+        <aside className="rh2-details" data-testid="details-panel">
+          <div className="rh2-details-head">
+            <h3>Ride Details</h3>
+            <button className="rh2-details-close" onClick={onClose} aria-label="Close" data-testid="details-close">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            </button>
+          </div>
+
+          <div className="rh2-d-list">
+            <div className="rh2-d-row"><span className="k"><Icon.bike s={14}/> Bike</span><span className="v">{ride.bike_code}</span></div>
+            <div className="rh2-d-row"><span className="k"><Icon.id s={14}/> Ride ID</span><span className="v">#{ride.ride_id}</span></div>
+            <div className="rh2-d-row"><span className="k"><Icon.route s={14}/> Route</span><span className="v" style={{maxWidth:200, fontSize:12}}>{rideRouteText(originalRide)}</span></div>
+            <div className="rh2-d-row"><span className="k"><Icon.calendar s={14}/> Started</span><span className="v">{fmtDate(ride.start_time)}, {fmtTime(ride.start_time)}</span></div>
+            <div className="rh2-d-row"><span className="k"><Icon.calendar s={14}/> Ended</span><span className="v">{rideEndText(originalRide)}</span></div>
+            <div className="rh2-d-row"><span className="k"><Icon.clock s={14}/> Duration</span><span className="v">{rideDurationText(originalRide)}</span></div>
+            <div className="rh2-d-row"><span className="k"><Icon.pin/> Distance</span><span className="v">{rideDistanceText(originalRide, 2)}</span></div>
+            <div className="rh2-d-row"><span className="k"><Icon.wallet s={14}/> Cost</span><span className="v">{PRICE_FMT.format(Number(ride.cost) || 0)}</span></div>
+            <div className="rh2-d-row"><span className="k"><Icon.card s={14}/> Payment</span><span className={"v " + payCls}>{ride.payment_status || "—"}</span></div>
+            <div className="rh2-d-row"><span className="k"><Icon.check s={14}/> Status</span><span className="v"><Pill status={ride.status}/></span></div>
+          </div>
+
+          {originalRide.status_note && (
+            <div className="rh2-status-note">{originalRide.status_note}</div>
+          )}
+
+          {isRefundRequested(originalRide) && (
+            <div className="rh2-refund-state-note">Refund request submitted. Admin will review your request.</div>
+          )}
+
+          <div className="rh2-d-actions">
+            {ride.status === "completed" && isPaid && (
+              <button className="rh2-d-btn primary" onClick={() => onReceipt(ride)} data-testid="d-receipt">
+                <Icon.card s={14}/> Receipt
+              </button>
+            )}
+            {ride.status === "active" && (
+              <button className="rh2-d-btn primary" onClick={() => onEnd(ride)} data-testid="d-end-ride" style={{background:"#2563EB", boxShadow:"0 6px 14px rgba(37,99,235,.25)"}}>
+                <Icon.check s={14}/> End Ride
+              </button>
+            )}
+            {ride.status === "ready_to_start" && onStart && (
+              <button className="rh2-d-btn primary" onClick={() => onStart(ride)} data-testid="d-start-ride" style={{background:"#16A34A"}}>
+                <Icon.check s={14}/> Start Ride
+              </button>
+            )}
+            {(ride.status === "upcoming" || ride.status === "ready_to_start") && (
+              <button className="rh2-d-btn" onClick={() => onCancel(ride)} data-testid="d-cancel" style={{color:"#DC2626", borderColor:"#FECACA"}}>Cancel</button>
+            )}
+            {isRefundRequested(originalRide) ? (
+              <button className="rh2-d-btn refund requested" disabled data-testid="d-refund-requested">Refund Requested</button>
+            ) : canRequestRefund(originalRide) && (
+              <button className="rh2-d-btn refund" onClick={() => onRefund(originalRide)} data-testid="d-refund">Request Refund</button>
+            )}
+            <button className="rh2-d-btn" onClick={() => onReport(ride)} data-testid="d-report">Report Issue</button>
+          </div>
+
+          <div className="rh2-d-map">
+            {/* Always render the canvas so mapElRef is attached BEFORE the
+               Google Maps init effect runs. Otherwise the effect runs while
+               the ref is still null and the map silently never mounts —
+               which is why this used to stay stuck on "Loading route…". */}
+            <div ref={mapElRef} className="rh2-d-map-canvas"
+                 style={{display: mapState.status === "ready" ? "block" : "none"}}/>
+            {mapState.status === "ready" && mapState.simulated && (
+              <div style={{fontSize:11, color:"#64748B", marginTop:6, textAlign:"center"}}>
+                Approximate route preview (no GPS recorded)
+              </div>
+            )}
+            {mapState.status === "none" && (
+              <div className="rh2-d-map-fallback">
+                <Icon.map s={22}/>
+                <div>{mapState.msg || "This ride was never started, so no route map is available."}</div>
+              </div>
+            )}
+            {mapState.status === "loading" && (
+              <div className="rh2-d-map-fallback">
+                <Icon.map s={22}/>
+                <div>Loading route…</div>
+              </div>
+            )}
+            {(mapState.status === "error" || mapState.status === "idle") && (
+              <div className="rh2-d-map-fallback">
+                <Icon.map s={22}/>
+                <div>{mapState.msg || "Map unavailable - could not load Google Maps."}</div>
+                <div style={{color:"#0F172A", marginTop: 6}}>
+                  <strong>{ride.start_station}</strong> → <strong>{ride.end_station || "—"}</strong>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {hasCoords && (
+            <button className="rh2-view-full" onClick={() => onViewFullMap(ride)} data-testid="view-full-map">
+              View full map <Icon.chev s={14}/>
+            </button>
+          )}
+        </aside>
+      );
+    }
+
+    /* ────── Full Route Map Modal ────── */
+    function FullRouteMapModal({ ride, onClose }) {
+      const mapElRef = useRef(null);
+      const [state, setState] = useState({ status: "loading", msg: "" });
+      const [info, setInfo] = useState(null);
+
+      useEffect(() => {
+        const onKey = (e) => { if (e.key === "Escape") onClose(); };
+        document.addEventListener("keydown", onKey);
+        return () => document.removeEventListener("keydown", onKey);
+      }, [onClose]);
+
+      useEffect(() => {
+        if (!ride) return;
+        const { start, end, simulated } = resolveRideCoords(ride);
+        loadGoogleMaps()
+          .then(maps => {
+            if (!mapElRef.current) return;
+            const map = new maps.Map(mapElRef.current, {
+              center: start, zoom: 14,
+              mapTypeControl: false, streetViewControl: false, fullscreenControl: false,
+            });
+            const liveMode = ride.status === "active";
+            new maps.Marker({ position: start, map, label: { text: "A", color: "#fff", fontWeight: "700" }, title: ride.start_station || "Pickup" });
+            new maps.Marker({
+              position: end,
+              map,
+              label: { text: liveMode ? "•" : "B", color: "#fff", fontWeight: "700" },
+              title: liveMode ? "Live ride tracking" : (ride.end_station || ride.display_end_label || (simulated ? "Approximate end" : "Drop-off"))
+            });
+            const polyColor = simulated ? "#3B82F6" : "#22C55E";
+            if (!simulated) {
+              try {
+                const ds = new maps.DirectionsService();
+                const dr = new maps.DirectionsRenderer({
+                  map, suppressMarkers: true,
+                  polylineOptions: { strokeColor: polyColor, strokeWeight: 5, strokeOpacity: .9 }
+                });
+                ds.route({ origin: start, destination: end, travelMode: maps.TravelMode.BICYCLING }, (result, status) => {
+                  if (status === "OK" && result) {
+                    dr.setDirections(result);
+                    const leg = result.routes[0] && result.routes[0].legs[0];
+                    if (leg) setInfo({ distance: leg.distance && leg.distance.text, duration: leg.duration && leg.duration.text });
+                  } else {
+                    new maps.Polyline({ path: [start, end], strokeColor: polyColor, strokeWeight: 4 }).setMap(map);
+                  }
+                });
+              } catch (_) {
+                new maps.Polyline({ path: [start, end], strokeColor: polyColor, strokeWeight: 4 }).setMap(map);
+              }
+            } else {
+              new maps.Polyline({ path: [start, end], strokeColor: polyColor, strokeWeight: 4 }).setMap(map);
+              setInfo({ distance: "Approximate", duration: "Estimated preview" });
+            }
+            const bounds = new maps.LatLngBounds(); bounds.extend(start); bounds.extend(end);
+            map.fitBounds(bounds, 60);
+            setState({ status: "ready" });
+          })
+          .catch(err => setState({ status: "error", msg: err.message || "Map unavailable." }));
+      }, [ride && ride.ride_id]);
+
+      if (!ride) return null;
+      const co2 = ride.distance_km ? (Number(ride.distance_km) * 0.192).toFixed(2) : "0.00";
+      const modalTitle = ride.status === "active" ? "Live ride tracking" : rideRouteText(ride);
+
+      return (
+        <>
+          <div className="rh2-modal-overlay" onClick={onClose}/>
+          <div className="rh2-modal" data-testid="full-map-modal" role="dialog" aria-modal="true">
+            <div className="rh2-modal-head">
+              <h3><Icon.map s={18}/> {modalTitle}</h3>
+              <button className="rh2-modal-close" onClick={onClose} aria-label="Close" data-testid="full-map-close">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+              </button>
+            </div>
+            <div className="rh2-modal-canvas">
+              <div ref={mapElRef} style={{width:"100%",height:"100%"}}/>
+              {state.status === "loading" && (
+                <div className="rh2-modal-loading">
+                  <div className="rh2-spin"/>
+                  <div>Loading map…</div>
+                </div>
+              )}
+              {state.status === "error" && (
+                <div className="rh2-modal-loading">
+                  <Icon.map s={26}/>
+                  <div>{state.msg}</div>
+                  <div style={{color:"#0F172A"}}><strong>{ride.start_station}</strong> → <strong>{ride.end_station || "—"}</strong></div>
+                </div>
+              )}
+            </div>
+            <div className="rh2-modal-stops">
+              <div className="rh2-stop start">
+                <div className="label"><span style={{width:8,height:8,borderRadius:50,background:"#22C55E",display:"inline-block"}}/> Start</div>
+                <div className="name">{ride.start_station}</div>
+                <div className="time">{fmtTime(ride.start_time)}</div>
+              </div>
+              <div className="rh2-stop end">
+                <div className="label"><span style={{width:8,height:8,borderRadius:50,background:"#3B82F6",display:"inline-block"}}/> End</div>
+                <div className="name">{ride.end_station || "—"}</div>
+                <div className="time">{ride.end_time ? fmtTime(ride.end_time) : "—"}</div>
+              </div>
+            </div>
+            <div className="rh2-modal-foot">
+              <div className="rh2-modal-foot-item">
+                <div className="lbl">Distance</div>
+                <div className="val">{(info && info.distance) || (ride.distance_km ? `${Number(ride.distance_km).toFixed(2)} km` : "—")}</div>
+              </div>
+              <div className="rh2-modal-foot-item">
+                <div className="lbl">Estimated Duration</div>
+                <div className="val">{(info && info.duration) || (ride.duration_minutes ? `${ride.duration_minutes} min` : "—")}</div>
+              </div>
+              <div className="rh2-modal-foot-item">
+                <div className="lbl">CO₂ Saved</div>
+                <div className="val green">{co2} kg</div>
+              </div>
+            </div>
+          </div>
+        </>
+      );
+    }
+
+    /* ────── Cancel confirm modal ────── */
+    function CancelConfirmModal({ ride, busy, onClose, onConfirm }) {
+      useEffect(() => {
+        const onKey = (e) => { if (e.key === "Escape") onClose(); };
+        document.addEventListener("keydown", onKey);
+        return () => document.removeEventListener("keydown", onKey);
+      }, [onClose]);
+      if (!ride) return null;
+      return (
+        <>
+          <div className="rh2-modal-overlay" onClick={onClose}/>
+          <div className="rh2-modal" style={{width:"min(420px, 92vw)", minWidth:0}} data-testid="cancel-modal">
+            <div className="rh2-modal-head">
+              <h3><Icon.alert/> Cancel booking?</h3>
+              <button className="rh2-modal-close" onClick={onClose} aria-label="Close">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+              </button>
+            </div>
+            <div style={{padding:"18px 22px", color:"#475569", fontSize:14, lineHeight:1.55}}>
+              Are you sure you want to cancel <strong style={{color:"#0F172A"}}>Ride #{ride.ride_id}</strong>?
+              This action can't be undone.
+            </div>
+            <div style={{display:"flex", justifyContent:"flex-end", gap:10, padding:"0 22px 18px"}}>
+              <button className="rh2-d-btn" onClick={onClose} disabled={busy}>Keep booking</button>
+              <button className="rh2-d-btn" style={{background:"#EF4444", color:"#fff", borderColor:"transparent"}} onClick={() => onConfirm(ride)} disabled={busy} data-testid="confirm-cancel">
+                {busy ? "Cancelling…" : "Yes, cancel"}
+              </button>
+            </div>
+          </div>
+        </>
+      );
+    }
+
+    /* ────── Receipt modal (reused) ────── */
+    function RefundRequestModal({ ride, busy, onClose, onSubmit }) {
+      const [reason, setReason] = useState("");
+      useEffect(() => {
+        const onKey = (e) => { if (e.key === "Escape") onClose(); };
+        document.addEventListener("keydown", onKey);
+        return () => document.removeEventListener("keydown", onKey);
+      }, [onClose]);
+      if (!ride) return null;
+      const e = ride.refund_estimate || {};
+      const payg = !!e.payAsYouGo;
+      const refundAmount = Number(e.calculatedRefundAmount || 0);
+      return (
+        <>
+          <div className="rh2-modal-overlay" onClick={onClose}/>
+          <div className="rh2-modal" style={{width:"min(560px, 94vw)", minWidth:0}} data-testid="refund-modal" role="dialog" aria-modal="true">
+            <div className="rh2-modal-head">
+              <h3><Icon.wallet s={18}/> Request Refund</h3>
+              <button className="rh2-modal-close" onClick={onClose} aria-label="Close">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+              </button>
+            </div>
+            <div className="rh2-refund-body">
+              <div className="rh2-refund-grid">
+                <div className="rh2-refund-item"><div className="k">Booking</div><div className="v">#{ride.ride_id}</div></div>
+                <div className="rh2-refund-item"><div className="k">Status</div><div className="v">{ride.status}</div></div>
+                <div className="rh2-refund-item"><div className="k">Total paid</div><div className="v">{PRICE_FMT.format(Number(e.amountPaid || ride.amount_paid || ride.cost || 0))}</div></div>
+                <div className="rh2-refund-item"><div className="k">Unlock fee</div><div className="v">{PRICE_FMT.format(Number(e.unlockFee || ride.unlock_fee || 0))}</div></div>
+                {!payg && <div className="rh2-refund-item"><div className="k">No-show fee</div><div className="v">{PRICE_FMT.format(Number(e.noShowFee || 0))}</div></div>}
+                <div className="rh2-refund-item"><div className="k">Estimated refund</div><div className="v">{PRICE_FMT.format(refundAmount)}</div></div>
+              </div>
+              <div className="rh2-refund-policy">
+                {payg
+                  ? "Pay-As-You-Go bookings only paid the activation fee. The activation fee is non-refundable, but you can submit the request for admin review."
+                  : (e.policyExplanation || "The unlock fee is non-refundable and a 10% no-show/cancellation fee applies to ride-time charges. Admin will review before any refund is processed.")}
+              </div>
+              <div className="rh2-refund-reason">
+                <label>Reason for refund request</label>
+                <textarea
+                  value={reason}
+                  onChange={(ev) => setReason(ev.target.value)}
+                  placeholder="Tell admin why this booking should be reviewed..."
+                  disabled={busy}
+                />
+              </div>
+            </div>
+            <div style={{display:"flex",justifyContent:"flex-end",gap:8,padding:"0 22px 18px",flexWrap:"wrap"}}>
+              <button className="rh2-d-btn" onClick={onClose} disabled={busy}>Cancel</button>
+              <button className="rh2-d-btn primary" onClick={() => onSubmit(ride, reason)} disabled={busy || reason.trim().length < 8}>
+                {busy ? "Submitting..." : "Submit Refund Request"}
+              </button>
+            </div>
+          </div>
+        </>
+      );
+    }
+
+    function ReceiptModal({ receipt, onClose, pushToast }) {
+      const r = receipt;
+      useEffect(() => {
+        const onKey = (e) => { if (e.key === "Escape") onClose(); };
+        document.addEventListener("keydown", onKey);
+        return () => document.removeEventListener("keydown", onKey);
+      }, [onClose]);
+      return (
+        <>
+          <div className="rh2-modal-overlay" onClick={onClose}/>
+          <div className="rh2-modal" data-testid="receipt-modal">
+            <div className="rh2-modal-head">
+              <h3><Icon.card s={18}/> Receipt {r.receipt_number}</h3>
+              <button className="rh2-modal-close" onClick={onClose} aria-label="Close">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+              </button>
+            </div>
+            <div style={{padding:"18px 22px", display:"flex", flexDirection:"column", gap:12}}>
+              <div style={{display:"grid", gridTemplateColumns:"1fr 1fr", gap:12}}>
+                <div><div style={{color:"#94A3B8",fontSize:11,fontWeight:800,textTransform:"uppercase",letterSpacing:".06em"}}>Issued to</div><div style={{color:"#0F172A",fontWeight:800,marginTop:2}}>{r.student_name}</div></div>
+                <div><div style={{color:"#94A3B8",fontSize:11,fontWeight:800,textTransform:"uppercase",letterSpacing:".06em"}}>Email</div><div style={{color:"#0F172A",fontWeight:800,marginTop:2}}>{r.student_email}</div></div>
+                <div><div style={{color:"#94A3B8",fontSize:11,fontWeight:800,textTransform:"uppercase",letterSpacing:".06em"}}>Ride ID</div><div style={{color:"#0F172A",fontWeight:800,marginTop:2}}>#{r.ride_id}</div></div>
+                <div><div style={{color:"#94A3B8",fontSize:11,fontWeight:800,textTransform:"uppercase",letterSpacing:".06em"}}>Date</div><div style={{color:"#0F172A",fontWeight:800,marginTop:2}}>{fmtDate(r.start_time)}</div></div>
+              </div>
+              <div style={{borderTop:"1px solid #E2E8F0",paddingTop:12,display:"flex",flexDirection:"column",gap:6}}>
+                <div className="rh2-d-row"><span className="k">Bike</span><span className="v">{r.bike_code} · {r.bike_type}</span></div>
+                <div className="rh2-d-row"><span className="k">Route</span><span className="v">{r.start_station} → {r.end_station || "—"}</span></div>
+                <div className="rh2-d-row"><span className="k">Duration</span><span className="v">{r.duration_minutes} min</span></div>
+                <div className="rh2-d-row"><span className="k">Distance</span><span className="v">{Number(r.distance_km).toFixed(2)} km</span></div>
+                <div className="rh2-d-row"><span className="k">Unlock fee</span><span className="v">{PRICE_FMT.format(r.unlock_fee)}</span></div>
+                <div className="rh2-d-row"><span className="k">Minute charge</span><span className="v">{PRICE_FMT.format(r.minute_charge)}</span></div>
+                <div className="rh2-d-row"><span className="k">Payment method</span><span className="v" style={{textTransform:"capitalize"}}>{(r.payment_method || "card").replace("_"," ")}</span></div>
+              </div>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"14px 16px",background:"#DCFCE7",borderRadius:14,border:"1px solid #BBF7D0"}}>
+                <span style={{color:"#15803D",fontWeight:800,fontSize:14}}>Total paid</span>
+                <span style={{color:"#15803D",fontWeight:800,fontSize:20}}>{PRICE_FMT.format(r.total_paid)}</span>
+              </div>
+            </div>
+            <div style={{display:"flex",justifyContent:"flex-end",gap:8,padding:"0 22px 18px"}}>
+              <button className="rh2-d-btn" onClick={onClose}>Close</button>
+              <button className="rh2-d-btn" onClick={() => window.print()}>Print / PDF</button>
+              <button className="rh2-d-btn primary" onClick={() => pushToast("Coming soon", "Receipt download is on its way.")}>Download</button>
+            </div>
+          </div>
+        </>
+      );
+    }
+
+    /* ============ MAIN PAGE ============ */
+    function App() {
+      const { user, requireAuth, logout, pushToast, toasts } = window.useUserAuth();
+      const [data, setData] = useState(null);
+      const [error, setError] = useState("");
+      const [loading, setLoading] = useState(true);
+
+      const initialTab = (() => {
+        const value = new URLSearchParams(window.location.search).get("tab") || "all";
+        return ["all", "upcoming", "active", "completed", "cancelled"].includes(value) ? value : "all";
+      })();
+      const [tab, setTab]       = useState(initialTab);
+      const [sort, setSort]     = useState("newest");
+      const [q, setQ]           = useState("");
+      const [from, setFrom]     = useState("");
+      const [to, setTo]         = useState("");
+
+      const [selected,   setSelected]   = useState(null);
+      const [fullMapFor, setFullMapFor] = useState(null);
+      const [cancelFor,  setCancelFor]  = useState(null);
+      const [cancelBusy, setCancelBusy] = useState(false);
+      const [refundFor,  setRefundFor]  = useState(null);
+      const [refundBusy, setRefundBusy] = useState(false);
+      const [receipt,    setReceipt]    = useState(null);
+
+      useEffect(() => { if (!requireAuth()) return; load(); }, []);
+      useEffect(() => { load(); }, [sort, from, to, q]);
+
+      const load = async () => {
+        const token = window.getAuthToken ? window.getAuthToken() : localStorage.getItem("cbs_token");
+        if (!token) return;
+        setLoading(true); setError("");
+        try {
+          const params = new URLSearchParams({ tab: "all", sort });
+          if (q) params.set("q", q);
+          if (from) params.set("from", from);
+          if (to) params.set("to", to);
+          const d = await window.cbsApi("/api/user/rides?" + params.toString());
+          setData(d);
+          // Auto-select first ride if none selected (or refresh selected after action)
+          setSelected(prev => {
+            if (prev) {
+              const fresh = (d.rides || []).find(r => r.ride_id === prev.ride_id);
+              return fresh || null;
+            }
+            const active = (d.rides || []).find(r => r.status === "active");
+            return active || (d.rides && d.rides[0]) || null;
+          });
+        } catch (e) { setError(e.message); setData({ rides: [], summary: null }); }
+        finally { setLoading(false); }
+      };
+
+      const onSelect = (ride) => setSelected(ride);
+      const onView   = (ride) => setSelected(ride);
+      const onReceipt = async (ride) => {
+        try {
+          const d = await window.cbsApi(`/api/user/rides/${ride.ride_id}/receipt`);
+          setReceipt(d.receipt);
+        } catch (e) { pushToast("Could not load receipt", e.message, "error"); }
+      };
+      const onEnd = async (ride) => {
+        if (ride.status !== "active") {
+          pushToast("Ride not active", "This ride isn't currently in progress, so End Ride doesn't apply.");
+          return;
+        }
+        if (!window.confirm(`End ride #${ride.ride_id} now? This action can't be undone.`)) return;
+        try {
+          await window.cbsApi(`/api/bookings/${ride.ride_id}/end`, {
+            method: "POST", body: JSON.stringify({}),
+          });
+          pushToast("Ride ended", `Booking #${ride.ride_id} marked complete.`);
+          load();
+        } catch (e) { pushToast("Could not end ride", e.message, "error"); }
+      };
+      const onStart = async (ride) => {
+        if (ride.status !== "ready_to_start") {
+          pushToast("Not ready yet", "This ride is not within its start window.");
+          return;
+        }
+        try {
+          await window.cbsApi(`/api/bookings/${ride.ride_id}/start`, {
+            method: "POST", body: JSON.stringify({}),
+          });
+          pushToast("Ride started", `Bike ${ride.bike_code} is now active.`);
+          load();
+        } catch (e) { pushToast("Could not start ride", e.message, "error"); }
+      };
+      const onCancel = (ride) => setCancelFor(ride);
+      const confirmCancel = async (ride) => {
+        setCancelBusy(true);
+        try {
+          await window.cbsApi(`/api/user/bookings/${ride.ride_id}/cancel`, { method: "POST", body: JSON.stringify({}) });
+          setCancelFor(null);
+          pushToast("Booking cancelled", `Ride #${ride.ride_id} has been cancelled.`);
+          load();
+        } catch (e) { pushToast("Could not cancel", e.message, "error"); }
+        finally { setCancelBusy(false); }
+      };
+      const onRefund = (ride) => setRefundFor(ride);
+      const submitRefundRequest = async (ride, reason) => {
+        setRefundBusy(true);
+        try {
+          const d = await window.cbsApi("/api/user/refund-requests", {
+            method: "POST",
+            body: JSON.stringify({
+              booking_id: ride.ride_id,
+              reason,
+              calculated_refund_amount: ride.refund_estimate?.calculatedRefundAmount || 0,
+              refund_type: ride.status,
+            }),
+          });
+          setRefundFor(null);
+          pushToast("Refund request submitted", d.message || "Your refund request has been submitted for admin review.");
+          load();
+        } catch (e) {
+          pushToast("Could not submit refund", e.message, "error");
+        } finally {
+          setRefundBusy(false);
+        }
+      };
+      const onReport = (ride) => {
+        window.location.href = `User_need_help.html?bookingId=${ride.ride_id}`;
+      };
+
+      const resetFilters = () => { setTab("all"); setSort("newest"); setQ(""); setFrom(""); setTo(""); };
+
+      const rides    = data?.rides || [];
+      const summary  = data?.summary || {};
+      const counts   = useMemo(() => {
+        const c = { all: rides.length, upcoming: 0, active: 0, completed: 0, cancelled: 0 };
+        rides.forEach(r => { if (c[r.status] !== undefined) c[r.status]++; });
+        return c;
+      }, [rides]);
+      const visible = useMemo(() => tab === "all" ? rides : rides.filter(r => r.status === tab), [rides, tab]);
+      // Only the literal backend status counts as "active" — ready_to_start is
+      // a separate state and must not appear in the Active filter.
+      const activeRide = useMemo(() => rides.find(r => r.status === "active"), [rides]);
+
+      const TABS = [
+        { v: "all",       label: "All",       icon: <Icon.leaf s={14}/> },
+        { v: "upcoming",  label: "Upcoming",  icon: <Icon.calendar s={14}/> },
+        { v: "active",    label: "Active",    icon: <Icon.bike s={14}/> },
+        { v: "completed", label: "Completed", icon: <Icon.check s={14}/> },
+        { v: "cancelled", label: "Cancelled", icon: <Icon.alert s={14}/> },
+      ];
+
+      return (
+        <div className="cbs-shell">
+          <window.UserTopbar active="" user={user} onLogout={logout} pushToast={pushToast}/>
+          <div className="cbs-main">
+            <window.UserSidebar active="rides"/>
+            <main className="cbs-content">
+              <header className="rh2-page-head">
+                <h1>Ride History</h1>
+                <p>All your bookings, current rides and past trips in one place.</p>
+              </header>
+
+              <div className={"rh2-layout" + (selected ? "" : " no-detail")}>
+                {/* MAIN COLUMN */}
+                <div className="rh2-main-col" style={{display:"flex", flexDirection:"column", gap:18, minWidth:0}}>
+                  {/* Summary cards */}
+                  <section className="rh2-summary" data-testid="summary-grid">
+                    <div className="rh2-stat green">
+                      <div className="rh2-stat-top">
+                        <span className="rh2-stat-label">Completed Rides</span>
+                        <span className="rh2-stat-ico"><Icon.check s={16}/></span>
+                      </div>
+                      <div className="rh2-stat-value">{summary.total_completed || 0}</div>
+                    </div>
+                    <div className="rh2-stat amber">
+                      <div className="rh2-stat-top">
+                        <span className="rh2-stat-label">Upcoming</span>
+                        <span className="rh2-stat-ico"><Icon.calendar s={16}/></span>
+                      </div>
+                      <div className="rh2-stat-value">{summary.upcoming || 0}</div>
+                    </div>
+                    <div className="rh2-stat blue">
+                      <div className="rh2-stat-top">
+                        <span className="rh2-stat-label">Active</span>
+                        <span className="rh2-stat-ico"><Icon.bike s={16}/></span>
+                      </div>
+                      <div className="rh2-stat-value">{summary.active || 0}</div>
+                    </div>
+                    <div className="rh2-stat violet">
+                      <div className="rh2-stat-top">
+                        <span className="rh2-stat-label">Total Spent</span>
+                        <span className="rh2-stat-ico"><Icon.wallet s={16}/></span>
+                      </div>
+                      <div className="rh2-stat-value">{PRICE_FMT.format(summary.total_spend || 0)}</div>
+                    </div>
+                    <div className="rh2-stat leaf">
+                      <div className="rh2-stat-top">
+                        <span className="rh2-stat-label">CO₂ Saved</span>
+                        <span className="rh2-stat-ico"><Icon.leaf s={16}/></span>
+                      </div>
+                      <div className="rh2-stat-value">{(Number(summary.co2_saved_kg) || 0).toFixed(2)} kg</div>
+                    </div>
+                    <div className="rh2-stat sky">
+                      <div className="rh2-stat-top">
+                        <span className="rh2-stat-label">Total Distance</span>
+                        <span className="rh2-stat-ico"><Icon.route s={16}/></span>
+                      </div>
+                      <div className="rh2-stat-value">{(Number(summary.total_distance_km) || 0).toFixed(1)} km</div>
+                    </div>
+                  </section>
+
+                  {/* Insight pills */}
+                  {(summary.co2_saved_kg > 0 || summary.most_used_station) && (
+                    <div className="rh2-insights" data-testid="insights">
+                      {summary.co2_saved_kg > 0 && (
+                        <span className="rh2-insight">
+                          <span className="ico"><Icon.leaf s={12}/></span>
+                          You saved <span className="val">{(Number(summary.co2_saved_kg) || 0).toFixed(2)} kg CO₂</span>
+                        </span>
+                      )}
+                      {summary.most_used_station && (
+                        <span className="rh2-insight">
+                          <span className="ico"><Icon.station s={12}/></span>
+                          Most used station: <span className="val">{summary.most_used_station}</span>
+                        </span>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Search + filters in one card */}
+                  <div className="rh2-filter-card" data-testid="filter-card">
+                    <div className="rh2-search" data-testid="search-bar">
+                      <Icon.search s={16}/>
+                      <input
+                        placeholder="Search ride #, bike, station…"
+                        value={q}
+                        onChange={e => setQ(e.target.value)}
+                        data-testid="rh-search"/>
+                    </div>
+                    <div className="rh2-filters" data-testid="filters">
+                      <div className="rh2-tabs">
+                        {TABS.map(t => (
+                          <button
+                            key={t.v}
+                            className={"rh2-tab" + (tab === t.v ? " active" : "")}
+                            onClick={() => setTab(t.v)}
+                            data-testid={`tab-${t.v}`}>
+                            {t.icon}
+                            <span>{t.label}</span>
+                          </button>
+                        ))}
+                      </div>
+                      <input type="date" className="rh2-date-input" value={from} onChange={e => setFrom(e.target.value)} data-testid="rh-from" placeholder="dd/mm/yyyy"/>
+                      <span className="rh2-date-sep">—</span>
+                      <input type="date" className="rh2-date-input" value={to} onChange={e => setTo(e.target.value)} data-testid="rh-to" placeholder="dd/mm/yyyy"/>
+                      <select className="rh2-sort" value={sort} onChange={e => setSort(e.target.value)} data-testid="rh-sort">
+                        <option value="newest">Newest first</option>
+                        <option value="oldest">Oldest first</option>
+                      </select>
+                      <button className="rh2-reset" onClick={resetFilters} data-testid="rh-reset">Reset filters</button>
+                    </div>
+                  </div>
+
+                  {/* Ride list */}
+                  {loading && (
+                    <div className="rh2-list" data-testid="rh-loading">
+                      {Array.from({length: 4}).map((_, i) => <div key={i} className="rh2-skel" style={{height: 90}}/>)}
+                    </div>
+                  )}
+
+                  {!loading && error && (
+                    <div className="rh2-empty" data-testid="rh-error">
+                      <div className="rh2-empty-ico" style={{color:"#DC2626", background:"#FEE2E2"}}><Icon.alert s={28}/></div>
+                      <h3>Could not load rides</h3>
+                      <p>{error}</p>
+                      <button className="rh2-d-btn primary" onClick={load}>Try again</button>
+                    </div>
+                  )}
+
+                  {!loading && !error && visible.length === 0 && (
+                    <div className="rh2-empty" data-testid="rh-empty">
+                      <div className="rh2-empty-ico"><Icon.bike s={32}/></div>
+                      <h3>{rides.length === 0 ? "No rides found" : "No rides match your filters"}</h3>
+                      <p>{rides.length === 0
+                        ? "Your rides will appear here after you book and complete a trip."
+                        : "Try changing the date, status, or search term."}</p>
+                      {rides.length === 0
+                        ? <a className="rh2-d-btn primary" style={{display:"inline-flex"}} href="User_dashboard.html">Find a Bike</a>
+                        : <button className="rh2-d-btn" onClick={resetFilters}>Reset filters</button>}
+                    </div>
+                  )}
+
+                  {!loading && !error && visible.length > 0 && (
+                    <div className="rh2-list" data-testid="rh-list">
+                      {visible.map(r => (
+                        <RideCard
+                          key={r.ride_id}
+                          ride={r}
+                          selected={selected && selected.ride_id === r.ride_id}
+                          onSelect={onSelect}
+                          onView={onView}
+                          onReceipt={onReceipt}
+                          onCancel={onCancel}
+                          onEnd={onEnd}
+                          onStart={onStart}
+                          onRefund={onRefund}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* RIGHT DETAILS PANEL */}
+                <RideDetailsPanel
+                  ride={selected}
+                  onClose={() => setSelected(null)}
+                  onReceipt={onReceipt}
+                  onViewFullMap={(r) => setFullMapFor(r)}
+                  onEnd={onEnd}
+                  onStart={onStart}
+                  onCancel={onCancel}
+                  onReport={onReport}
+                  onRefund={onRefund}
+                />
+              </div>
+            </main>
+          </div>
+
+          {fullMapFor && <FullRouteMapModal ride={fullMapFor} onClose={() => setFullMapFor(null)}/>}
+          {cancelFor  && <CancelConfirmModal ride={cancelFor} busy={cancelBusy} onClose={() => setCancelFor(null)} onConfirm={confirmCancel}/>}
+          {refundFor  && <RefundRequestModal ride={refundFor} busy={refundBusy} onClose={() => setRefundFor(null)} onSubmit={submitRefundRequest}/>}
+          {receipt    && <ReceiptModal receipt={receipt} onClose={() => setReceipt(null)} pushToast={pushToast}/>}
+          <window.UserToastStack toasts={toasts}/>
+        </div>
+      );
+    }
+
+    setTimeout(() => ReactDOM.createRoot(document.getElementById("root")).render(<App/>), 50);
+  </script>
+</body>
+</html>

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate" />
+  <title>Admin Help Center | Campus Bike Sharing Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../../Login.css" />
+  <link rel="stylesheet" href="admin-dashboard.css" />
+  <link rel="stylesheet" href="admin-bookings.css" />
+  <link rel="stylesheet" href="admin-help.css" />
+  <link rel="stylesheet" href="admin-shared.css" />
+</head>
+<body class="ad-auth-pending">
+  <div class="ad-shell">
+    <header class="ad-topbar">
+      <a class="ad-brand" href="./Admin_dashboard.html" aria-label="Campus Bike Sharing Admin Dashboard">
+        <span class="ad-brand-logo" aria-hidden="true"><svg viewBox="0 0 64 64" width="42" height="42" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="16" cy="44" r="12"></circle><circle cx="48" cy="44" r="12"></circle><path d="M16 44 L28 24 L42 24 L48 44"></path><path d="M28 24 L34 14 L42 14"></path><circle cx="32" cy="24" r="2" fill="currentColor"></circle></svg></span>
+        <span class="ad-brand-text">Campus <strong>Bike Sharing</strong></span>
+      </a>
+      <div class="ad-topbar-actions">
+        <div class="ad-admin-controls">
+          <button class="ad-control-btn" type="button" id="refresh-dashboard"><span data-icon="rotate"></span><span>Refresh</span></button>
+          <button class="ad-control-btn primary" type="button" id="export-report"><span data-icon="bar-chart"></span><span>Export Guide</span></button>
+        </div>
+        <div class="ad-menu-wrap">
+          <button class="ad-bell" type="button" id="notification-button" aria-label="Notifications" aria-haspopup="true" aria-expanded="false"><span data-icon="bell"></span><span class="ad-bell-badge" id="notification-badge">0</span></button>
+          <div class="ad-dropdown ad-notification-menu" id="notification-menu" hidden><div class="ad-dropdown-head"><div><h3>Notifications</h3><span id="notification-unread-count">0 unread</span></div><button type="button" id="mark-notifications-read">Mark all as read</button></div><div class="ad-notification-list" id="notification-list"></div></div>
+        </div>
+        <div class="ad-menu-wrap">
+          <button class="ad-profile" type="button" id="profile-menu-button" aria-label="Admin profile menu" aria-haspopup="true" aria-expanded="false"><span class="ad-avatar" id="admin-avatar">AU</span><span class="ad-profile-copy"><strong id="admin-name">Admin User</strong><span>Administrator</span></span><span class="ad-profile-chev" data-icon="chevron-down"></span></button>
+          <div class="ad-dropdown ad-profile-menu" id="profile-menu" hidden><div class="ad-profile-menu-head"><span class="ad-avatar large" id="admin-avatar-menu">AU</span><div><strong id="admin-menu-name">Admin User</strong><span>Administrator</span></div></div><div class="ad-profile-menu-list"><button type="button" data-admin-menu-action="profile"><span data-icon="help-circle"></span>View Admin Profile</button><button type="button" data-admin-menu-action="settings"><span data-icon="settings"></span>Admin Settings</button></div><div class="ad-profile-menu-foot"><button type="button" id="admin-logout"><span data-icon="logout"></span>Logout</button></div></div>
+        </div>
+      </div>
+    </header>
+
+    <div class="ad-main">
+      <aside class="ad-sidebar" aria-label="Admin navigation">
+        <nav class="ad-nav">
+          <a class="ad-nav-item" href="./Admin_dashboard.html" data-page="Admin_dashboard.html"><span data-icon="layout-dashboard"></span>Dashboard</a>
+          <a class="ad-nav-item" href="./Admin_bookings.html" data-page="Admin_bookings.html"><span data-icon="calendar"></span>Bookings</a>
+          <a class="ad-nav-item" href="./Admin_payments.html" data-page="Admin_payments.html"><span data-icon="credit-card"></span>Payments</a>
+          <a class="ad-nav-item" href="./Admin_bikes.html" data-page="Admin_bikes.html"><span data-icon="bike"></span>Bikes</a>
+          <a class="ad-nav-item" href="./Admin_stations.html" data-page="Admin_stations.html"><span data-icon="map-pin"></span>Stations</a>
+          <a class="ad-nav-item" href="./Admin_maintenance.html" data-page="Admin_maintenance.html"><span data-icon="wrench"></span>Maintenance</a>
+          <a class="ad-nav-item" href="./Admin_reports.html" data-page="Admin_reports.html"><span data-icon="bar-chart"></span>Reports</a>
+          <a class="ad-nav-item" href="./Admin_support.html" data-page="Admin_support.html"><span data-icon="help-circle"></span>Support Issues</a>
+          <a class="ad-nav-item" href="./Admin_ai.html" data-page="Admin_ai.html"><span data-icon="sparkles"></span>AI Assistant</a>
+          <a class="ad-nav-item" href="./Admin_settings.html" data-page="Admin_settings.html"><span data-icon="settings"></span>Settings</a>
+        </nav>
+        <a class="ad-help-card active" href="./Admin_help.html" id="admin-help-button" aria-label="Admin Help Center"><span class="ad-help-icon" data-icon="headphones"></span><span><strong>Help Center</strong><small>Admin guides and support</small></span><span data-icon="chevron-right"></span></a>
+      </aside>
+
+      <main class="ad-content">
+        <div class="ah-grid">
+          <section class="ad-page-head ah-head">
+            <div>
+              <h1>Admin Help Center</h1>
+              <p>Find guides, troubleshooting steps, system status, and technical support options for managing the Campus Bike Sharing Platform.</p>
+            </div>
+            <div class="ah-head-actions">
+              <label class="ah-search"><span data-icon="search"></span><input id="help-search" type="search" placeholder="Search help articles..." /></label>
+              <button class="ab-btn-primary" type="button" id="contact-support-button"><span data-icon="message"></span>Contact Support</button>
+            </div>
+          </section>
+
+          <section class="ah-quick-grid" aria-label="Quick help cards">
+            <article class="ah-card ah-quick-card" data-topic-text="getting started dashboard key management pages"><span class="ah-icon green" data-icon="layout-dashboard"></span><h2>Getting Started</h2><p>Learn how to use the admin dashboard and key management pages.</p><button type="button" data-scroll-topic="dashboard">View</button></article>
+            <article class="ah-card ah-quick-card" data-topic-text="common problems booking payment bike availability data syncing issues"><span class="ah-icon orange" data-icon="alert"></span><h2>Common Problems</h2><p>Fix booking, payment, bike availability, and data syncing issues.</p><button type="button" data-scroll-section="troubleshooting">View</button></article>
+            <article class="ah-card ah-quick-card" data-topic-text="admin guides bookings refunds maintenance reports settings"><span class="ah-icon blue" data-icon="bar-chart"></span><h2>Admin Guides</h2><p>Step-by-step guides for bookings, refunds, maintenance, reports, and settings.</p><button type="button" data-scroll-section="guides">View</button></article>
+            <article class="ah-card ah-quick-card" data-topic-text="contact technical support platform bugs developer assistance"><span class="ah-icon purple" data-icon="headphones"></span><h2>Contact Technical Support</h2><p>Report platform bugs or request developer assistance.</p><button type="button" data-scroll-section="support-form">View</button></article>
+          </section>
+
+          <section class="ah-card" id="system-status-section">
+            <div class="ah-section-head"><div><h2>System Status</h2><p>Current admin platform connection checks. Secret keys are never displayed.</p></div><button class="ab-btn-secondary" type="button" id="refresh-status"><span data-icon="rotate"></span>Refresh Status</button></div>
+            <div class="ah-status-grid" id="system-status-grid">
+              <div class="ah-empty">Loading system status...</div>
+            </div>
+          </section>
+
+          <section class="ah-card" id="guides">
+            <div class="ah-section-head"><div><h2>Help Topics / Guides</h2><p>Open a guide to view the steps and checks for that admin area.</p></div></div>
+            <div class="ah-guide-grid" id="guide-list"></div>
+          </section>
+
+          <section class="ah-card" id="troubleshooting">
+            <div class="ah-section-head"><div><h2>Troubleshooting Checklist</h2><p>Compact checks for the common issues admins run into during presentations and daily operations.</p></div></div>
+            <div class="ah-trouble-grid" id="troubleshooting-list"></div>
+          </section>
+
+          <section class="ah-form-layout" id="support-form">
+            <article class="ah-card">
+              <div class="ah-section-head"><div><h2>Contact Technical Support</h2><p>This is for admin/staff technical help, not student support tickets.</p></div></div>
+              <form class="ah-form" id="admin-help-form">
+                <label class="ah-field full"><span>Issue Title</span><input name="title" maxlength="160" placeholder="Briefly describe the issue" required /></label>
+                <label class="ah-field"><span>Issue Category</span><select name="category"><option>Bug</option><option>Database issue</option><option>Payment issue</option><option>UI issue</option><option>Feature request</option><option>Other</option></select></label>
+                <label class="ah-field"><span>Priority</span><select name="priority"><option>Low</option><option selected>Medium</option><option>High</option><option>Urgent</option></select></label>
+                <label class="ah-field"><span>Page Affected</span><select name="affectedPage"><option>Dashboard</option><option>Bookings</option><option>Payments</option><option>Bikes</option><option>Stations</option><option>Maintenance</option><option>Reports</option><option>Support Issues</option><option>Settings</option><option>Student Pages</option></select></label>
+                <label class="ah-field"><span>Screenshot Upload</span><input type="file" name="screenshot" accept="image/*" /><small>Upload storage can be connected later; file name is saved locally for now.</small></label>
+                <label class="ah-field full"><span>Description</span><textarea name="description" placeholder="Describe what happened, what you expected, and any steps to reproduce it." required></textarea></label>
+                <div class="ah-form-actions"><button class="ab-btn-primary" type="submit"><span data-icon="message"></span>Submit Support Request</button></div>
+              </form>
+            </article>
+
+            <article class="ah-card">
+              <div class="ah-section-head"><div><h2>Quick Actions</h2><p>Shortcuts for admin recovery and support workflows.</p></div></div>
+              <div class="ah-action-list">
+                <button class="ah-action-card" type="button" data-action="refresh">
+                  <span class="ah-action-icon" data-icon="rotate"></span>
+                  <span class="ah-action-content"><strong>Refresh System Data</strong><small>Reload system status, guide filters, and support data.</small></span>
+                  <span class="ah-action-arrow" data-icon="chevron-right"></span>
+                </button>
+                <button class="ah-action-card" type="button" data-action="export-error-log">
+                  <span class="ah-action-icon" data-icon="bar-chart"></span>
+                  <span class="ah-action-content"><strong>Export Error Log</strong><small>Download a basic frontend and system snapshot for review.</small></span>
+                  <span class="ah-action-arrow" data-icon="chevron-right"></span>
+                </button>
+                <button class="ah-action-card" type="button" data-action="audit-log">
+                  <span class="ah-action-icon" data-icon="clock"></span>
+                  <span class="ah-action-content"><strong>View Audit Log</strong><small>Review recent local admin help activity in a clean audit modal.</small></span>
+                  <span class="ah-action-arrow" data-icon="chevron-right"></span>
+                </button>
+                <button class="ah-action-card" type="button" data-action="settings">
+                  <span class="ah-action-icon" data-icon="settings"></span>
+                  <span class="ah-action-content"><strong>Open Settings</strong><small>Jump to admin settings and platform configuration.</small></span>
+                  <span class="ah-action-arrow" data-icon="chevron-right"></span>
+                </button>
+              </div>
+            </article>
+          </section>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div class="ad-toast" id="admin-toast" hidden role="status" aria-live="polite"></div>
+  <div class="ah-modal-backdrop" id="audit-modal" hidden>
+    <section class="ah-modal" role="dialog" aria-modal="true" aria-labelledby="audit-modal-title">
+      <header class="ah-modal-head">
+        <div>
+          <h2 id="audit-modal-title">Admin Audit Log</h2>
+          <p>Recent local Help Center actions and saved technical support requests.</p>
+        </div>
+        <button class="ah-modal-close" type="button" data-modal-close aria-label="Close audit log"><span data-icon="chevron-right"></span></button>
+      </header>
+      <div class="ah-audit-list" id="audit-log-list"></div>
+      <footer class="ah-modal-actions">
+        <button class="ab-btn-secondary" type="button" data-modal-close>Close</button>
+        <button class="ab-btn-primary" type="button" id="export-audit-log"><span data-icon="bar-chart"></span>Export Audit Log</button>
+      </footer>
+    </section>
+  </div>
+  <script src="admin-dashboard.js"></script>
+  <script src="admin-help.js"></script>
+</body>
+</html>

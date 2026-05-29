@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate" />
+  <title>Support Issues | Campus Bike Sharing Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.9/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="../../Login.css" />
+  <link rel="stylesheet" href="admin-dashboard.css" />
+  <link rel="stylesheet" href="admin-bookings.css" />
+  <link rel="stylesheet" href="admin-support.css" />
+  <link rel="stylesheet" href="admin-shared.css" />
+</head>
+<body class="ad-auth-pending">
+  <div class="ad-shell">
+    <header class="ad-topbar">
+      <a class="ad-brand" href="./Admin_dashboard.html" aria-label="Campus Bike Sharing Admin Dashboard">
+        <span class="ad-brand-logo" aria-hidden="true"><svg viewBox="0 0 64 64" width="42" height="42" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="16" cy="44" r="12"></circle><circle cx="48" cy="44" r="12"></circle><path d="M16 44 L28 24 L42 24 L48 44"></path><path d="M28 24 L34 14 L42 14"></path><circle cx="32" cy="24" r="2" fill="currentColor"></circle></svg></span>
+        <span class="ad-brand-text">Campus <strong>Bike Sharing</strong></span>
+      </a>
+      <div class="ad-topbar-actions">
+        <div class="ad-admin-controls">
+          <button class="ad-control-btn" type="button" id="refresh-dashboard"><span data-icon="rotate"></span><span>Refresh</span></button>
+          <button class="ad-control-btn primary" type="button" id="export-report"><span data-icon="bar-chart"></span><span>Export Tickets</span></button>
+        </div>
+        <div class="ad-menu-wrap">
+          <button class="ad-bell" type="button" id="notification-button" aria-label="Notifications" aria-haspopup="true" aria-expanded="false"><span data-icon="bell"></span><span class="ad-bell-badge" id="notification-badge">0</span></button>
+          <div class="ad-dropdown ad-notification-menu" id="notification-menu" hidden><div class="ad-dropdown-head"><div><h3>Notifications</h3><span id="notification-unread-count">0 unread</span></div><button type="button" id="mark-notifications-read">Mark all as read</button></div><div class="ad-notification-list" id="notification-list"></div></div>
+        </div>
+        <div class="ad-menu-wrap">
+          <button class="ad-profile" type="button" id="profile-menu-button" aria-label="Admin profile menu" aria-haspopup="true" aria-expanded="false"><span class="ad-avatar" id="admin-avatar">AU</span><span class="ad-profile-copy"><strong id="admin-name">Admin User</strong><span>Administrator</span></span><span class="ad-profile-chev" data-icon="chevron-down"></span></button>
+          <div class="ad-dropdown ad-profile-menu" id="profile-menu" hidden><div class="ad-profile-menu-head"><span class="ad-avatar large" id="admin-avatar-menu">AU</span><div><strong id="admin-menu-name">Admin User</strong><span>Administrator</span></div></div><div class="ad-profile-menu-list"><button type="button" data-admin-menu-action="profile"><span data-icon="help-circle"></span>View Admin Profile</button><button type="button" data-admin-menu-action="settings"><span data-icon="settings"></span>Admin Settings</button></div><div class="ad-profile-menu-foot"><button type="button" id="admin-logout"><span data-icon="logout"></span>Logout</button></div></div>
+        </div>
+      </div>
+    </header>
+
+    <div class="ad-main">
+      <aside class="ad-sidebar" aria-label="Admin navigation">
+        <nav class="ad-nav">
+          <a class="ad-nav-item" href="./Admin_dashboard.html" data-page="Admin_dashboard.html"><span data-icon="layout-dashboard"></span>Dashboard</a>
+          <a class="ad-nav-item" href="./Admin_bookings.html" data-page="Admin_bookings.html"><span data-icon="calendar"></span>Bookings</a>
+          <a class="ad-nav-item" href="./Admin_payments.html" data-page="Admin_payments.html"><span data-icon="credit-card"></span>Payments</a>
+          <a class="ad-nav-item" href="./Admin_bikes.html" data-page="Admin_bikes.html"><span data-icon="bike"></span>Bikes</a>
+          <a class="ad-nav-item" href="./Admin_stations.html" data-page="Admin_stations.html"><span data-icon="map-pin"></span>Stations</a>
+          <a class="ad-nav-item" href="./Admin_maintenance.html" data-page="Admin_maintenance.html"><span data-icon="wrench"></span>Maintenance</a>
+          <a class="ad-nav-item" href="./Admin_reports.html" data-page="Admin_reports.html"><span data-icon="bar-chart"></span>Reports</a>
+          <a class="ad-nav-item active" href="./Admin_support.html" data-page="Admin_support.html"><span data-icon="help-circle"></span>Support Issues</a>
+          <a class="ad-nav-item" href="./Admin_ai.html" data-page="Admin_ai.html"><span data-icon="sparkles"></span>AI Assistant</a>
+          <a class="ad-nav-item" href="./Admin_settings.html" data-page="Admin_settings.html"><span data-icon="settings"></span>Settings</a>
+        </nav>
+        <a class="ad-help-card" href="./Admin_help.html" id="admin-help-button"><span class="ad-help-icon" data-icon="headphones"></span><span><strong>Help Center</strong><small>Admin guides and support</small></span><span data-icon="chevron-right"></span></a>
+      </aside>
+
+      <main class="ad-content">
+        <div class="sp-grid">
+          <section class="ad-page-head">
+            <div>
+              <h1>Support Issues</h1>
+              <p>Track student support tickets, booking issues, payment questions, damaged bike reports, and maintenance requests from one place.</p>
+            </div>
+            <div class="ab-head-actions">
+              <div class="ad-range-tabs" role="tablist" aria-label="Date range">
+                <button type="button" class="active" data-range="today">Today</button>
+                <button type="button" data-range="week">Week</button>
+                <button type="button" data-range="month">Month</button>
+                <button type="button" data-range="year">Year</button>
+              </div>
+              <button class="ab-btn-primary" type="button" id="create-ticket-button"><span data-icon="message"></span>Create Ticket</button>
+              <button class="ab-btn-secondary" type="button" id="export-tickets-button"><span data-icon="bar-chart"></span>Export Tickets</button>
+            </div>
+          </section>
+
+          <section class="ab-kpi-grid">
+            <article class="ab-kpi"><span class="ab-kpi-ico amber"><span data-icon="help-circle"></span></span><div class="ab-kpi-body"><span class="ab-kpi-lbl">Open Tickets</span><strong id="kpi-openTickets">--</strong><small id="trend-openTickets">Loading</small></div></article>
+            <article class="ab-kpi"><span class="ab-kpi-ico blue"><span data-icon="calendar"></span></span><div class="ab-kpi-body"><span class="ab-kpi-lbl">New Today</span><strong id="kpi-newToday">--</strong><small id="trend-newToday">Loading</small></div></article>
+            <article class="ab-kpi"><span class="ab-kpi-ico purple"><span data-icon="clock"></span></span><div class="ab-kpi-body"><span class="ab-kpi-lbl">In Progress</span><strong id="kpi-inProgress">--</strong><small id="trend-inProgress">Loading</small></div></article>
+            <article class="ab-kpi"><span class="ab-kpi-ico red"><span data-icon="alert"></span></span><div class="ab-kpi-body"><span class="ab-kpi-lbl">Urgent Issues</span><strong id="kpi-urgentIssues">--</strong><small id="trend-urgentIssues">Loading</small></div></article>
+            <article class="ab-kpi"><span class="ab-kpi-ico green"><span data-icon="check"></span></span><div class="ab-kpi-body"><span class="ab-kpi-lbl">Resolved Tickets</span><strong id="kpi-resolvedTickets">--</strong><small id="trend-resolvedTickets">Loading</small></div></article>
+            <article class="ab-kpi"><span class="ab-kpi-ico blue"><span data-icon="credit-card"></span></span><div class="ab-kpi-body"><span class="ab-kpi-lbl">Payment Issues</span><strong id="kpi-paymentIssues">--</strong><small id="trend-paymentIssues">Loading</small></div></article>
+            <article class="ab-kpi"><span class="ab-kpi-ico amber"><span data-icon="wrench"></span></span><div class="ab-kpi-body"><span class="ab-kpi-lbl">Maintenance Reports</span><strong id="kpi-maintenanceReports">--</strong><small id="trend-maintenanceReports">Loading</small></div></article>
+            <article class="ab-kpi sp-text-kpi"><span class="ab-kpi-ico green"><span data-icon="clock"></span></span><div class="ab-kpi-body"><span class="ab-kpi-lbl">Average Response Time</span><strong id="kpi-averageResponseTime">--</strong><small id="trend-averageResponseTime">Loading</small></div></article>
+          </section>
+
+          <section class="sp-chart-grid">
+            <article class="ad-card ab-chart-card">
+              <div class="ad-card-head"><h2>Support Ticket Trend</h2><div class="ad-chart-select" id="support-trend-label">Today</div></div>
+              <div class="ad-chart-legend"><span><i class="dot green"></i>New Tickets</span><span><i class="dot blue"></i>Resolved Tickets</span><span><i class="dot orange"></i>Urgent Tickets</span></div>
+              <div class="ad-chart-wrap"><canvas id="support-trend-chart"></canvas></div>
+            </article>
+            <article class="ad-card ab-chart-card">
+              <div class="ad-card-head"><h2>Ticket Category Breakdown</h2></div>
+              <div class="sp-donut-layout"><div class="ad-donut-wrap"><canvas id="support-category-chart"></canvas></div><div class="sp-donut-legend" id="support-category-legend"></div></div>
+            </article>
+          </section>
+
+          <section class="sp-ops-grid">
+            <article class="ad-card ab-rail-card"><div class="ad-card-head"><h2>Urgent Support Alerts</h2><a class="ab-view-all" href="#support-table-card">View all</a></div><div class="ab-list" id="support-alerts-list"></div></article>
+            <article class="ad-card ab-rail-card"><div class="ad-card-head"><h2>Assigned Support Tasks</h2><a class="ab-view-all" href="#support-table-card">View all</a></div><div class="sp-task-list" id="assigned-support-list"></div></article>
+            <article class="ad-card ab-rail-card"><div class="ad-card-head"><h2>Recent Support Activity</h2><a class="ab-view-all" href="#support-table-card">View all</a></div><div class="ab-list" id="support-activity-list"></div></article>
+          </section>
+
+          <section class="ad-card ab-table-card sp-table-card" id="support-table-card">
+            <div class="sp-filter-bar">
+              <label class="ab-search"><span data-icon="search"></span><input id="support-search" type="search" placeholder="Search ticket ID, student, email, booking ID, bike ID, or issue..." /></label>
+              <label class="ab-filter-field"><span>Status</span><select id="filter-status"><option value="all">All Statuses</option><option value="new">New</option><option value="open">Open</option><option value="pending">Pending</option><option value="in_progress">In Progress</option><option value="waiting_student">Waiting Student</option><option value="escalated">Escalated</option><option value="resolved">Resolved</option><option value="closed">Closed</option></select></label>
+              <label class="ab-filter-field"><span>Priority</span><select id="filter-priority"><option value="all">All Priorities</option><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option><option value="urgent">Urgent</option></select></label>
+              <label class="ab-filter-field"><span>Category</span><select id="filter-category"><option value="all">All Categories</option><option value="booking">Booking</option><option value="payment">Payment</option><option value="bike_issue">Bike Issue</option><option value="maintenance">Maintenance</option><option value="account">Account</option><option value="general">General</option></select></label>
+              <label class="ab-filter-field"><span>Assigned To</span><select id="filter-assigned"><option value="all">All</option><option value="unassigned">Unassigned</option></select></label>
+              <label class="ab-filter-field"><span>Date From</span><input id="filter-date-from" type="date" /></label>
+              <label class="ab-filter-field"><span>Date To</span><input id="filter-date-to" type="date" /></label>
+              <button class="ab-btn-secondary" type="button" id="reset-filters"><span data-icon="rotate"></span>Reset</button>
+            </div>
+            <div class="ad-card-head sp-table-head"><h2>All Support Tickets <span id="support-total-count">(0)</span></h2><span class="ab-row-count" id="support-row-count">Loading tickets...</span></div>
+            <div class="ab-table-wrap sp-table-wrap">
+              <table class="ab-table sp-table">
+                <colgroup><col class="sp-col-ticket" /><col class="sp-col-student" /><col class="sp-col-category" /><col class="sp-col-issue" /><col class="sp-col-booking" /><col class="sp-col-bike" /><col class="sp-col-priority" /><col class="sp-col-status" /><col class="sp-col-assigned" /><col class="sp-col-date" /><col class="sp-col-actions" /></colgroup>
+                <thead><tr><th>Ticket ID</th><th>User</th><th>Category</th><th>Issue</th><th>Related Booking</th><th>Related Bike</th><th>Priority</th><th>Status</th><th>Assigned To</th><th>Created Date</th><th>Actions</th></tr></thead>
+                <tbody id="support-table-body"><tr><td colspan="11" class="ab-table-empty">Loading support tickets...</td></tr></tbody>
+              </table>
+            </div>
+            <div class="ab-pagination"><label class="sp-page-size">Rows per page: <select id="support-page-size"><option>10</option><option>20</option><option>50</option></select></label><div class="ab-pages" id="support-pagination"></div></div>
+          </section>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <aside class="ab-drawer sp-drawer" id="support-drawer" hidden>
+    <div class="ab-drawer-overlay" data-close-drawer></div>
+    <section class="ab-drawer-panel" aria-label="Support ticket details">
+      <div class="ab-drawer-head"><div><span class="ab-status-badge" id="drawer-status">Status</span><h2>Support Ticket Details</h2></div><button class="ab-drawer-close" type="button" id="close-support-drawer" aria-label="Close support details"><span data-icon="chevron-right"></span></button></div>
+      <div class="ab-drawer-body" id="support-drawer-body"></div>
+      <div class="sp-drawer-actions">
+        <button class="ab-btn-primary" type="button" data-drawer-action="assign"><span data-icon="help-circle"></span>Assign Ticket</button>
+        <button class="ab-btn-secondary blue" type="button" data-drawer-action="reply"><span data-icon="message"></span>Reply to Student</button>
+        <button class="ab-btn-secondary red" type="button" data-drawer-action="escalate"><span data-icon="alert"></span>Escalate Issue</button>
+        <button class="ab-btn-secondary purple" type="button" data-drawer-action="maintenance"><span data-icon="wrench"></span>Link Maintenance Task</button>
+        <button class="ab-btn-secondary green" type="button" data-drawer-action="resolve"><span data-icon="check"></span>Mark Resolved</button>
+        <button class="ab-btn-secondary" type="button" data-drawer-action="close"><span data-icon="clock"></span>Close Ticket</button>
+      </div>
+    </section>
+  </aside>
+
+  <div class="ab-modal" id="support-modal" hidden>
+    <div class="ab-modal-overlay" data-close-modal></div>
+    <section class="ab-modal-panel" aria-label="Support action">
+      <div class="ab-modal-head"><h2 id="support-modal-title">Create Ticket</h2><button class="ab-drawer-close" type="button" data-close-modal><span data-icon="chevron-right"></span></button></div>
+      <form id="support-modal-form"><div class="ab-modal-body" id="support-modal-body"></div><div class="ab-modal-foot"><button class="ab-btn-secondary" type="button" data-close-modal>Cancel</button><button class="ab-btn-primary" type="submit" id="support-modal-submit">Save</button></div></form>
+    </section>
+  </div>
+
+  <div class="ad-toast" id="admin-toast" hidden role="status" aria-live="polite"></div>
+  <script src="admin-dashboard.js"></script>
+  <script src="admin-support.js"></script>
+</body>
+</html>

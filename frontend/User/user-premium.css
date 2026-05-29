@@ -1,0 +1,2460 @@
+/* =====================================================================
+   Campus Bike Sharing — User Premium UI (Dashboard Consistent)
+   ---------------------------------------------------------------------
+   COMPLETE REPLACEMENT FILE
+   Path to replace:
+   frontend/User/user-premium.css
+
+   Purpose:
+   - Keep navbar / logo / sidebar exactly consistent with Dashboard
+   - Improve Ride History, My Profile, Need Help, Account Settings
+   - Keep bright white UI, soft green accent, clean professional style
+   - Avoid heavy dark green blocks, heavy glass, or gradient logo boxes
+   ===================================================================== */
+
+/* ============================================================
+   1) Design Tokens
+   ============================================================ */
+:root {
+  --d-bg: #F8FAFC;
+  --d-bg-soft: #F1F5F9;
+  --d-card: #FFFFFF;
+  --d-ink: #0F172A;
+  --d-muted: #64748B;
+  --d-border: #E2E8F0;
+  --d-border-2: #CBD5E1;
+
+  --d-primary: #2D7FF9;
+  --d-primary-d: #1E5BC6;
+  --d-primary-soft: #DBEAFE;
+
+  --d-green: #22C55E;
+  --d-green-d: #15803D;
+  --d-green-soft: #DCFCE7;
+  --d-green-ultra: #F0FDF4;
+
+  --d-amber: #F59E0B;
+  --d-amber-d: #92400E;
+  --d-amber-soft: #FEF3C7;
+
+  --d-red: #EF4444;
+  --d-red-d: #991B1B;
+  --d-red-soft: #FEE2E2;
+
+  --d-purple: #8B5CF6;
+  --d-purple-soft: #EDE9FE;
+
+  --d-shadow: 0 1px 2px rgba(15, 23, 42, .04), 0 8px 24px rgba(15, 23, 42, .06);
+  --d-shadow-lg: 0 12px 40px rgba(15, 23, 42, .12);
+  --d-shadow-soft: 0 10px 30px rgba(15, 23, 42, .08);
+
+  --d-radius-sm: 10px;
+  --d-radius: 16px;
+  --d-radius-lg: 22px;
+
+  --cbs-ease: cubic-bezier(.4, 0, .2, 1);
+  --cbs-ease-out: cubic-bezier(.16, 1, .3, 1);
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--d-bg) !important;
+  color: var(--d-ink) !important;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+::selection { background: rgba(34, 197, 94, .18); color: var(--d-ink); }
+
+/* Clean scrollbars */
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+*::-webkit-scrollbar-thumb:hover { background: #94A3B8; background-clip: content-box; }
+
+/* ============================================================
+   2) Navbar / Logo / Sidebar — Dashboard Exact Match
+   ============================================================ */
+.cbs-topbar,
+.d-topbar {
+  min-height: 78px !important;
+  padding: 14px 28px !important;
+  background: #FFFFFF !important;
+  border-bottom: 1px solid var(--d-border) !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.cbs-brand,
+.d-brand {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+}
+
+/* Simple green bike icon, no filled square/gradient box */
+.cbs-brand-logo,
+.d-brand-logo {
+  width: 40px !important;
+  height: 40px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: var(--d-green) !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+.cbs-brand-logo svg,
+.d-brand-logo svg {
+  width: 32px !important;
+  height: 32px !important;
+  stroke: currentColor !important;
+}
+
+.cbs-brand-name,
+.d-brand-name {
+  font-family: "Plus Jakarta Sans", "Inter", system-ui, sans-serif !important;
+  font-weight: 800 !important;
+  font-size: 22px !important;
+  letter-spacing: -.3px !important;
+  color: var(--d-ink) !important;
+}
+.cbs-brand-name .accent,
+.d-brand-name .accent {
+  color: var(--d-green) !important;
+  background: none !important;
+  -webkit-background-clip: initial !important;
+  background-clip: initial !important;
+}
+
+.cbs-nav,
+.d-nav {
+  display: flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+}
+.cbs-nav-item,
+.d-nav-item {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 10px 14px !important;
+  color: var(--d-muted) !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  border-radius: var(--d-radius-sm) !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  position: relative !important;
+  transition: color .16s var(--cbs-ease), background .16s var(--cbs-ease) !important;
+}
+.cbs-nav-item:hover,
+.d-nav-item:hover {
+  color: var(--d-ink) !important;
+  background: var(--d-bg-soft) !important;
+  transform: none !important;
+}
+.cbs-nav-item.active,
+.d-nav-item.active {
+  color: var(--d-ink) !important;
+  background: transparent !important;
+}
+.cbs-nav-item.active::after,
+.d-nav-item.active::after {
+  content: "" !important;
+  position: absolute !important;
+  left: 14px !important;
+  right: 14px !important;
+  bottom: 4px !important;
+  height: 3px !important;
+  border-radius: 2px !important;
+  background: var(--d-green) !important;
+  box-shadow: none !important;
+}
+
+.cbs-icon-btn,
+.d-icon-btn {
+  width: 42px !important;
+  height: 42px !important;
+  color: var(--d-muted) !important;
+  background: transparent !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+  transition: color .16s var(--cbs-ease), background .16s var(--cbs-ease) !important;
+}
+.cbs-icon-btn:hover,
+.d-icon-btn:hover {
+  color: var(--d-ink) !important;
+  background: var(--d-bg-soft) !important;
+  transform: none !important;
+}
+.cbs-badge,
+.d-icon-btn .badge {
+  background: var(--d-red) !important;
+  color: #fff !important;
+  box-shadow: 0 0 0 2px #fff !important;
+  animation: cbsBadgePulse 2.2s ease-in-out infinite;
+}
+@keyframes cbsBadgePulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+
+/* Blue avatar stays consistent */
+.cbs-avatar {
+  background: linear-gradient(135deg, #2D7FF9 0%, #5B9BFF 100%) !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 4px 12px rgba(45, 127, 249, .35) !important;
+}
+.cbs-user-btn {
+  box-shadow: none !important;
+  border: 2px solid transparent !important;
+}
+.cbs-user-btn:hover,
+.cbs-user-btn.open {
+  border-color: var(--d-border-2) !important;
+  transform: translateY(-1px) !important;
+}
+
+.cbs-sidebar,
+.d-sidebar {
+  width: 80px !important;
+  background: #FFFFFF !important;
+  border-right: 1px solid var(--d-border) !important;
+  padding: 22px 14px !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+.cbs-side-btn,
+.d-side-btn {
+  width: 52px !important;
+  height: 52px !important;
+  border-radius: 14px !important;
+  color: var(--d-muted) !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  transform: none !important;
+  transition: color .16s var(--cbs-ease), background .16s var(--cbs-ease), transform .12s var(--cbs-ease) !important;
+}
+.cbs-side-btn:hover,
+.d-side-btn:hover,
+.cbs-side-btn.active,
+.d-side-btn.active {
+  color: var(--d-green) !important;
+  background: var(--d-green-soft) !important;
+  box-shadow: none !important;
+}
+.cbs-side-btn:active,
+.d-side-btn:active { transform: scale(.96) !important; }
+.cbs-side-btn.active::before,
+.d-side-btn.active::before { display: none !important; }
+
+/* ============================================================
+   3) Layout / Common Cards / Forms
+   ============================================================ */
+.cbs-content,
+.s-content,
+.d-content {
+  animation: cbsPageIn .32s var(--cbs-ease-out) both;
+}
+@keyframes cbsPageIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.cbs-card,
+.d-card,
+.s-card,
+.b-card,
+.bk-card,
+.rh-tabs-card,
+.rh-stat-card,
+.s-stat-card,
+.s-ticket-card,
+.rh-card {
+  background: var(--d-card) !important;
+  border: 1px solid var(--d-border) !important;
+  box-shadow: var(--d-shadow) !important;
+  border-radius: var(--d-radius-lg) !important;
+}
+.cbs-card,
+.d-card,
+.s-card,
+.b-card,
+.bk-card,
+.rh-stat-card,
+.s-stat-card,
+.s-ticket-card,
+.rh-card,
+.s-cat-btn,
+.s-faq-item {
+  transition: transform .18s var(--cbs-ease), box-shadow .18s var(--cbs-ease), border-color .18s var(--cbs-ease), background .18s var(--cbs-ease) !important;
+}
+.cbs-card:hover,
+.d-card:hover,
+.s-card:hover,
+.b-card:hover,
+.bk-card:hover,
+.rh-stat-card:hover,
+.s-stat-card:hover,
+.s-ticket-card:hover,
+.rh-card:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, .09) !important;
+  border-color: var(--d-border-2) !important;
+}
+
+.cbs-page-head h1,
+.s-page-head h1,
+.b-page-head h1,
+.b-page-head .title-block h1 {
+  color: var(--d-ink) !important;
+  letter-spacing: -.7px !important;
+}
+.cbs-page-head h1::after,
+.s-page-head h1::after,
+.cbs-card-h h3::after,
+.s-section-h h3::after,
+.d-section-h h2::after {
+  background: var(--d-green) !important;
+  box-shadow: none !important;
+  border-radius: 999px !important;
+}
+.cbs-page-head .sub,
+.s-page-head p,
+.b-page-head .title-block p {
+  color: var(--d-muted) !important;
+  line-height: 1.6 !important;
+}
+
+.d-btn,
+.rh-action-btn,
+.b-act,
+.b-book-new,
+.s-link-btn,
+.rh-reset,
+.d-cta {
+  transition: transform .14s var(--cbs-ease), box-shadow .18s var(--cbs-ease), border-color .18s var(--cbs-ease), background .18s var(--cbs-ease), color .18s var(--cbs-ease) !important;
+}
+.d-btn,
+.b-act,
+.rh-action-btn,
+.rh-reset {
+  border-radius: 12px !important;
+  font-weight: 700 !important;
+}
+.d-btn-primary,
+.b-book-new,
+.d-cta,
+.b-act.primary,
+.rh-action-btn.primary,
+button[type="submit"].d-btn-primary {
+  background: linear-gradient(135deg, var(--d-green) 0%, #16A34A 100%) !important;
+  color: #FFFFFF !important;
+  border-color: transparent !important;
+  box-shadow: 0 8px 22px rgba(34, 197, 94, .28) !important;
+}
+.d-btn-primary:hover:not(:disabled),
+.b-book-new:hover,
+.d-cta:hover:not(:disabled),
+.b-act.primary:hover,
+.rh-action-btn.primary:hover,
+button[type="submit"].d-btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 12px 28px rgba(34, 197, 94, .34) !important;
+}
+.d-btn-secondary,
+.rh-action-btn,
+.rh-reset {
+  background: #FFFFFF !important;
+  color: var(--d-ink) !important;
+  border: 1px solid var(--d-border) !important;
+  box-shadow: none !important;
+}
+.d-btn-secondary:hover,
+.rh-action-btn:hover,
+.rh-reset:hover {
+  border-color: var(--d-border-2) !important;
+  background: var(--d-bg-soft) !important;
+  transform: translateY(-1px) !important;
+}
+.d-btn:disabled,
+button:disabled {
+  cursor: not-allowed !important;
+  opacity: .65 !important;
+  transform: none !important;
+}
+
+.d-input,
+.d-textarea,
+.s-select,
+.d-search,
+.s-toolbar-search,
+input[type="date"],
+select,
+textarea {
+  border-radius: 14px !important;
+  border: 1px solid var(--d-border) !important;
+  background: var(--d-bg-soft) !important;
+  color: var(--d-ink) !important;
+  transition: border-color .18s var(--cbs-ease), background .18s var(--cbs-ease), box-shadow .18s var(--cbs-ease) !important;
+}
+.d-input:focus,
+.d-textarea:focus,
+.s-select:focus,
+.d-search:focus-within,
+.s-toolbar-search:focus-within,
+input[type="date"]:focus,
+select:focus,
+textarea:focus {
+  outline: none !important;
+  border-color: var(--d-primary) !important;
+  background: #FFFFFF !important;
+  box-shadow: 0 0 0 4px rgba(45, 127, 249, .12) !important;
+}
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--d-primary) !important;
+  outline-offset: 2px !important;
+}
+
+/* ============================================================
+   4) Notification / User Menus
+   ============================================================ */
+.cbs-notif-panel,
+.cbs-user-panel {
+  border-radius: 18px !important;
+  border: 1px solid var(--d-border) !important;
+  box-shadow: var(--d-shadow-lg) !important;
+  background: #FFFFFF !important;
+  animation: cbsDropdownIn .18s var(--cbs-ease-out) both !important;
+}
+@keyframes cbsDropdownIn {
+  from { opacity: 0; transform: translateY(-6px) scale(.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.cbs-notif-head,
+.cbs-user-head {
+  background: linear-gradient(135deg, #EFF6FF 0%, #F0FDF4 100%) !important;
+  border-bottom: 1px solid var(--d-border) !important;
+}
+.cbs-notif-item { position: relative; }
+.cbs-notif-item.unread {
+  background: linear-gradient(90deg, rgba(219, 234, 254, .72), #FFFFFF) !important;
+}
+.cbs-notif-item.unread .cbs-notif-title::before {
+  content: "";
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--d-primary);
+  margin-right: 8px;
+  vertical-align: middle;
+}
+.cbs-user-list button,
+.cbs-user-foot button {
+  transition: background .14s var(--cbs-ease), color .14s var(--cbs-ease), padding-left .14s var(--cbs-ease) !important;
+}
+.cbs-user-list button:hover,
+.cbs-user-foot button:hover {
+  background: var(--d-bg-soft) !important;
+  padding-left: 22px !important;
+}
+
+/* ============================================================
+   5) Ride History Page
+   ============================================================ */
+.rh-active-banner {
+  background: linear-gradient(135deg, #EFF6FF 0%, #F0FDF4 100%) !important;
+  border: 1px solid #BFDBFE !important;
+  border-radius: 18px !important;
+  box-shadow: var(--d-shadow) !important;
+  padding: 18px 22px !important;
+}
+.rh-active-banner .ico {
+  background: #FFFFFF !important;
+  color: var(--d-primary) !important;
+  box-shadow: 0 8px 22px rgba(45, 127, 249, .16) !important;
+}
+.rh-active-banner h4 { color: var(--d-ink) !important; font-weight: 800 !important; }
+.rh-active-banner p { color: #1E3A8A !important; }
+.rh-action-btn.live,
+.rh-active-banner .rh-action-btn.live {
+  background: var(--d-primary) !important;
+  color: #FFFFFF !important;
+  border-color: transparent !important;
+  box-shadow: 0 8px 20px rgba(45, 127, 249, .24) !important;
+}
+.rh-action-btn.live:hover { background: var(--d-primary-d) !important; }
+
+.rh-summary-grid {
+  gap: 16px !important;
+}
+.rh-stat-card {
+  padding: 20px !important;
+  overflow: hidden !important;
+  position: relative !important;
+}
+.rh-stat-card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 4px;
+  background: var(--d-green);
+}
+.rh-stat-card.tone-blue::before { background: var(--d-primary); }
+.rh-stat-card.tone-amber::before { background: var(--d-amber); }
+.rh-stat-card.tone-violet::before { background: var(--d-purple); }
+.rh-stat-card.tone-leaf::before { background: #65A30D; }
+.rh-stat-label {
+  color: var(--d-muted) !important;
+  font-weight: 800 !important;
+  letter-spacing: .06em !important;
+  text-transform: uppercase !important;
+}
+.rh-stat-value {
+  color: var(--d-ink) !important;
+  letter-spacing: -.8px !important;
+}
+.rh-stat-sub { color: var(--d-muted) !important; }
+.rh-stat-icon {
+  width: 42px !important;
+  height: 42px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 12px !important;
+  background: var(--d-green-soft) !important;
+  color: var(--d-green-d) !important;
+}
+.tone-blue .rh-stat-icon { background: var(--d-primary-soft) !important; color: var(--d-primary-d) !important; }
+.tone-amber .rh-stat-icon { background: var(--d-amber-soft) !important; color: var(--d-amber-d) !important; }
+.tone-violet .rh-stat-icon { background: var(--d-purple-soft) !important; color: #6D28D9 !important; }
+.tone-leaf .rh-stat-icon { background: #ECFCCB !important; color: #3F6212 !important; }
+
+.rh-tabs-card {
+  overflow: hidden !important;
+}
+.rh-tabs {
+  background: #FFFFFF !important;
+  border-bottom: 1px solid var(--d-border) !important;
+  padding: 12px !important;
+  gap: 8px !important;
+}
+.rh-tab {
+  border-radius: 999px !important;
+  color: var(--d-muted) !important;
+  background: transparent !important;
+  border: none !important;
+  padding: 10px 16px !important;
+  font-weight: 800 !important;
+  transition: background .16s var(--cbs-ease), color .16s var(--cbs-ease), transform .12s var(--cbs-ease) !important;
+}
+.rh-tab:hover {
+  background: var(--d-bg-soft) !important;
+  color: var(--d-ink) !important;
+}
+.rh-tab.active {
+  background: var(--d-green-soft) !important;
+  color: var(--d-green-d) !important;
+  box-shadow: none !important;
+}
+.rh-tab-count {
+  background: #EEF2F7 !important;
+  color: var(--d-muted) !important;
+  border: 1px solid var(--d-border) !important;
+}
+.rh-tab.active .rh-tab-count {
+  background: #FFFFFF !important;
+  color: var(--d-green-d) !important;
+  border-color: #BBF7D0 !important;
+}
+.rh-toolbar {
+  background: #FFFFFF !important;
+  border-bottom: 1px solid var(--d-border) !important;
+  padding: 14px 18px !important;
+  gap: 10px !important;
+}
+.rh-table {
+  width: 100% !important;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+}
+.rh-table thead th,
+.s-table thead th {
+  background: var(--d-bg-soft) !important;
+  color: var(--d-muted) !important;
+  font-size: 11px !important;
+  text-transform: uppercase !important;
+  letter-spacing: .06em !important;
+  font-weight: 800 !important;
+  border-bottom: 1px solid var(--d-border) !important;
+}
+.rh-table tbody tr,
+.s-table tbody tr {
+  transition: background .14s var(--cbs-ease) !important;
+}
+.rh-table tbody tr:hover,
+.s-table tbody tr:hover {
+  background: #F8FAFC !important;
+}
+.rh-id,
+.rh-bike-pill {
+  background: var(--d-bg-soft) !important;
+  border: 1px solid var(--d-border) !important;
+  color: var(--d-ink) !important;
+  border-radius: 999px !important;
+}
+.rh-route .dot,
+.rh-from .dot,
+.rh-to .dot {
+  background: var(--d-green) !important;
+  box-shadow: 0 0 0 3px rgba(34,197,94,.13) !important;
+}
+.rh-cost-cell { font-weight: 800 !important; color: var(--d-ink) !important; }
+.rh-badge,
+.s-status,
+.b-status-tag,
+.rh-pay {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  border-radius: 999px !important;
+  padding: 5px 11px !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  letter-spacing: .04em !important;
+  text-transform: uppercase !important;
+}
+.rh-badge.completed,
+.s-status-ok,
+.b-status-tag.completed,
+.rh-pay.paid,
+.rh-pay.succeeded {
+  background: var(--d-green-soft) !important;
+  color: var(--d-green-d) !important;
+}
+.rh-badge.active,
+.s-status-info,
+.b-status-tag.active {
+  background: var(--d-primary-soft) !important;
+  color: var(--d-primary-d) !important;
+}
+.rh-badge.upcoming,
+.s-status-warn,
+.b-status-tag.upcoming {
+  background: var(--d-amber-soft) !important;
+  color: var(--d-amber-d) !important;
+}
+.rh-badge.cancelled,
+.rh-badge.expired,
+.s-status-bad,
+.b-status-tag.cancelled,
+.rh-pay.failed {
+  background: var(--d-red-soft) !important;
+  color: var(--d-red-d) !important;
+}
+.rh-badge.live::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: cbsLiveDot 1.4s ease-in-out infinite;
+}
+@keyframes cbsLiveDot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .38; }
+}
+.rh-card-list { gap: 14px !important; }
+.rh-card {
+  padding: 16px !important;
+}
+.rh-card-head,
+.rh-card-meta {
+  border-color: var(--d-border) !important;
+}
+.rh-receipt-modal {
+  background: #FFFFFF !important;
+  border-radius: 22px !important;
+  box-shadow: var(--d-shadow-lg) !important;
+  overflow: hidden !important;
+}
+.rh-receipt-head {
+  background: var(--d-ink) !important;
+  color: #FFFFFF !important;
+}
+.rh-receipt-head .accent { color: var(--d-green) !important; }
+.rh-receipt-total {
+  background: var(--d-green-soft) !important;
+  color: var(--d-green-d) !important;
+}
+
+/* ============================================================
+   6) Profile Page
+   ============================================================ */
+.s-profile-grid {
+  display: grid !important;
+  grid-template-columns: minmax(280px, 340px) minmax(0, 1fr) !important;
+  gap: 22px !important;
+  align-items: start !important;
+}
+.s-profile-card {
+  padding: 28px 24px !important;
+  text-align: center !important;
+  position: sticky !important;
+  top: 100px !important;
+}
+.s-profile-card h2 {
+  margin-top: 16px !important;
+  font-size: 24px !important;
+  letter-spacing: -.4px !important;
+}
+.s-profile-card .email {
+  color: var(--d-muted) !important;
+  margin-top: 6px !important;
+  word-break: break-word !important;
+}
+.cbs-avatar-edit {
+  position: absolute !important;
+  right: -6px !important;
+  bottom: -6px !important;
+  width: 38px !important;
+  height: 38px !important;
+  border-radius: 50% !important;
+  background: var(--d-green) !important;
+  color: #FFFFFF !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border: 3px solid #FFFFFF !important;
+  box-shadow: 0 8px 18px rgba(34,197,94,.28) !important;
+  cursor: pointer !important;
+}
+.s-role-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 5px 12px !important;
+  border-radius: 999px !important;
+  background: var(--d-green-soft) !important;
+  color: var(--d-green-d) !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  text-transform: uppercase !important;
+  letter-spacing: .05em !important;
+  margin-top: 12px !important;
+}
+.s-profile-actions {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+  margin-top: 22px !important;
+}
+.s-info-list {
+  padding: 10px 24px 22px !important;
+}
+.s-info-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 18px !important;
+  padding: 14px 0 !important;
+  border-bottom: 1px solid var(--d-border) !important;
+}
+.s-info-row:last-child { border-bottom: 0 !important; }
+.s-info-row .lhs {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  color: var(--d-muted) !important;
+  font-weight: 650 !important;
+}
+.s-info-row .ico {
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 10px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: var(--d-primary-soft) !important;
+  color: var(--d-primary-d) !important;
+  flex-shrink: 0 !important;
+}
+.s-info-row .val {
+  color: var(--d-ink) !important;
+  font-weight: 750 !important;
+  text-align: right !important;
+  word-break: break-word !important;
+}
+.s-stats-grid {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 14px !important;
+}
+.s-stat-card {
+  padding: 18px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 14px !important;
+  min-height: 110px !important;
+}
+.s-stat-icon {
+  width: 48px !important;
+  height: 48px !important;
+  border-radius: 14px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+}
+.s-stat-green .s-stat-icon { background: var(--d-green-soft) !important; color: var(--d-green-d) !important; }
+.s-stat-blue .s-stat-icon { background: var(--d-primary-soft) !important; color: var(--d-primary-d) !important; }
+.s-stat-amber .s-stat-icon { background: var(--d-amber-soft) !important; color: var(--d-amber-d) !important; }
+.s-stat-leaf .s-stat-icon { background: #ECFCCB !important; color: #3F6212 !important; }
+.s-stat-value {
+  font-family: "Plus Jakarta Sans", "Inter", sans-serif !important;
+  font-size: 24px !important;
+  font-weight: 800 !important;
+  letter-spacing: -.5px !important;
+  color: var(--d-ink) !important;
+}
+.s-stat-label {
+  color: var(--d-muted) !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  margin-top: 3px !important;
+}
+.s-table-wrap {
+  overflow-x: auto !important;
+}
+.s-table {
+  width: 100% !important;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+}
+.s-table td,
+.s-table th {
+  padding: 14px 16px !important;
+  border-bottom: 1px solid var(--d-border) !important;
+}
+.s-muted { color: var(--d-muted) !important; }
+
+/* ============================================================
+   7) Account Settings Page
+   ============================================================ */
+.s-settings-grid {
+  display: grid !important;
+  grid-template-columns: minmax(280px, 360px) minmax(0, 1fr) !important;
+  gap: 22px !important;
+  align-items: start !important;
+}
+.s-settings-profile {
+  padding: 28px 24px !important;
+  text-align: center !important;
+  position: sticky !important;
+  top: 100px !important;
+}
+.s-settings-avatar {
+  display: flex !important;
+  justify-content: center !important;
+  margin-bottom: 16px !important;
+}
+.s-settings-profile h2 {
+  font-size: 24px !important;
+  letter-spacing: -.4px !important;
+}
+.s-settings-profile p {
+  color: var(--d-muted) !important;
+  margin: 8px 0 0 !important;
+  word-break: break-word !important;
+}
+.s-settings-actions {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  margin-top: 20px !important;
+}
+.s-settings-note {
+  margin-top: 14px !important;
+  color: var(--d-muted) !important;
+  font-size: 12px !important;
+}
+.s-settings-stack {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 22px !important;
+}
+.s-form {
+  padding: 10px 24px 24px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 14px !important;
+}
+.s-form-row label {
+  display: block !important;
+  color: var(--d-muted) !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  text-transform: uppercase !important;
+  letter-spacing: .06em !important;
+  margin-bottom: 8px !important;
+}
+.s-form-row .hint,
+.hint {
+  color: var(--d-muted) !important;
+  font-size: 12px !important;
+  margin-top: 6px !important;
+}
+.err,
+.s-error {
+  color: var(--d-red-d) !important;
+  background: var(--d-red-soft) !important;
+  border: 1px solid #FECACA !important;
+  padding: 10px 12px !important;
+  border-radius: 12px !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+}
+.s-settings-danger {
+  padding: 22px 24px !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  gap: 18px !important;
+  align-items: center !important;
+  background: linear-gradient(135deg, #FFFFFF 0%, #FEF2F2 100%) !important;
+}
+.s-settings-danger h3 {
+  font-size: 18px !important;
+  font-weight: 800 !important;
+  color: var(--d-ink) !important;
+}
+.s-settings-danger p {
+  color: var(--d-muted) !important;
+  margin: 6px 0 0 !important;
+  line-height: 1.55 !important;
+}
+.cbs-switch {
+  position: relative !important;
+  display: inline-flex !important;
+  width: 48px !important;
+  height: 28px !important;
+  flex-shrink: 0 !important;
+}
+.cbs-switch input {
+  opacity: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+.cbs-switch .slider {
+  position: absolute !important;
+  cursor: pointer !important;
+  inset: 0 !important;
+  border-radius: 999px !important;
+  background: #CBD5E1 !important;
+  transition: background .2s var(--cbs-ease) !important;
+}
+.cbs-switch .slider::before {
+  content: "" !important;
+  position: absolute !important;
+  width: 22px !important;
+  height: 22px !important;
+  left: 3px !important;
+  top: 3px !important;
+  border-radius: 50% !important;
+  background: #FFFFFF !important;
+  box-shadow: 0 2px 6px rgba(15,23,42,.22) !important;
+  transition: transform .2s var(--cbs-ease) !important;
+}
+.cbs-switch input:checked + .slider {
+  background: var(--d-green) !important;
+}
+.cbs-switch input:checked + .slider::before {
+  transform: translateX(20px) !important;
+}
+
+/* ============================================================
+   8) Need Help Page
+   ============================================================ */
+.s-toolbar-card {
+  padding: 18px !important;
+}
+.s-toolbar-search {
+  width: 100% !important;
+  min-height: 48px !important;
+}
+.s-categories {
+  display: grid !important;
+  grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+  gap: 12px !important;
+  padding: 12px 24px 24px !important;
+}
+.s-cat-btn {
+  min-height: 96px !important;
+  background: #FFFFFF !important;
+  border: 1px solid var(--d-border) !important;
+  border-radius: 16px !important;
+  color: var(--d-ink) !important;
+  font-weight: 800 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  cursor: pointer !important;
+}
+.s-cat-btn .icn {
+  width: 42px !important;
+  height: 42px !important;
+  border-radius: 50% !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: var(--d-primary-soft) !important;
+  color: var(--d-primary-d) !important;
+}
+.s-cat-btn:hover {
+  transform: translateY(-2px) !important;
+  border-color: var(--d-border-2) !important;
+  box-shadow: 0 10px 24px rgba(15,23,42,.07) !important;
+}
+.s-cat-btn.active {
+  border-color: #BBF7D0 !important;
+  background: linear-gradient(135deg, #F0FDF4 0%, #FFFFFF 100%) !important;
+  color: var(--d-green-d) !important;
+  box-shadow: 0 10px 24px rgba(34,197,94,.12) !important;
+}
+.s-cat-btn.active .icn {
+  background: var(--d-green-soft) !important;
+  color: var(--d-green-d) !important;
+}
+.s-help-grid {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1.05fr) minmax(360px, .95fr) !important;
+  gap: 22px !important;
+  align-items: start !important;
+}
+.s-section-h {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding: 20px 24px 10px !important;
+}
+.s-section-h h3 {
+  font-size: 18px !important;
+  font-weight: 800 !important;
+  position: relative !important;
+  padding-bottom: 8px !important;
+}
+.s-link-btn {
+  color: var(--d-primary) !important;
+  background: transparent !important;
+  border: none !important;
+  font-weight: 800 !important;
+  cursor: pointer !important;
+}
+.s-link-btn:hover { color: var(--d-primary-d) !important; }
+.s-faq-list {
+  padding: 8px 24px 22px !important;
+}
+.s-faq-item {
+  border: 1px solid var(--d-border) !important;
+  border-radius: 14px !important;
+  background: #FFFFFF !important;
+  margin-bottom: 10px !important;
+  overflow: hidden !important;
+}
+.s-faq-item.open,
+.s-faq-item:hover {
+  border-color: var(--d-border-2) !important;
+  box-shadow: 0 8px 22px rgba(15,23,42,.06) !important;
+}
+.s-faq-q {
+  width: 100% !important;
+  padding: 16px 18px !important;
+  border: none !important;
+  background: #FFFFFF !important;
+  color: var(--d-ink) !important;
+  font-weight: 800 !important;
+  cursor: pointer !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  gap: 16px !important;
+  text-align: left !important;
+}
+.s-faq-q .cat {
+  display: inline-flex !important;
+  margin-right: 12px !important;
+  padding: 3px 8px !important;
+  border-radius: 999px !important;
+  background: var(--d-green-soft) !important;
+  color: var(--d-green-d) !important;
+  font-size: 10px !important;
+  font-weight: 900 !important;
+  text-transform: uppercase !important;
+  letter-spacing: .06em !important;
+}
+.s-faq-a {
+  padding: 0 18px 16px !important;
+  color: var(--d-muted) !important;
+  line-height: 1.6 !important;
+  font-size: 14px !important;
+}
+.s-faq-item .chev { transition: transform .18s var(--cbs-ease) !important; }
+.s-faq-item.open .chev { transform: rotate(180deg) !important; }
+.s-ticket-list {
+  padding: 10px 24px 24px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+}
+.s-ticket-card {
+  padding: 16px !important;
+}
+.s-ticket-head {
+  display: flex !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  align-items: flex-start !important;
+}
+.s-ticket-head .subj {
+  color: var(--d-ink) !important;
+  font-weight: 800 !important;
+}
+.s-ticket-meta {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 8px 14px !important;
+  color: var(--d-muted) !important;
+  font-size: 12px !important;
+  margin: 10px 0 !important;
+}
+
+/* ============================================================
+   9) My Bookings Page Existing b-* Support
+   ============================================================ */
+.b-stats {
+  gap: 16px !important;
+}
+.b-stat-card {
+  border-radius: 18px !important;
+  background: #FFFFFF !important;
+  border: 1px solid var(--d-border) !important;
+  box-shadow: var(--d-shadow) !important;
+}
+.b-stat-card:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 12px 30px rgba(15,23,42,.08) !important;
+}
+.b-active-card,
+.b-upcoming-card,
+.b-history-card {
+  background: #FFFFFF !important;
+  border: 1px solid var(--d-border) !important;
+  box-shadow: var(--d-shadow) !important;
+  border-radius: var(--d-radius-lg) !important;
+}
+.b-live-pill {
+  background: var(--d-green-soft) !important;
+  color: var(--d-green-d) !important;
+  border: 1px solid #BBF7D0 !important;
+}
+.b-callout.time-rem {
+  background: #F0FDF4 !important;
+  border-color: #BBF7D0 !important;
+}
+.b-callout.reminder {
+  background: var(--d-bg-soft) !important;
+  border-color: var(--d-border) !important;
+}
+.b-act.danger-solid {
+  background: linear-gradient(135deg, var(--d-red) 0%, #DC2626 100%) !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 8px 20px rgba(239,68,68,.26) !important;
+}
+.b-error-banner {
+  background: var(--d-amber-soft) !important;
+  color: var(--d-amber-d) !important;
+  border-color: #FDE68A !important;
+  border-radius: 12px !important;
+}
+
+/* ============================================================
+   10) Empty / Loading / Modal / Toast polish
+   ============================================================ */
+.s-empty,
+.cbs-notif-empty {
+  text-align: center !important;
+  color: var(--d-muted) !important;
+}
+.s-empty {
+  padding: 42px 24px !important;
+}
+.s-empty-icon {
+  width: 68px !important;
+  height: 68px !important;
+  margin: 0 auto 16px !important;
+  border-radius: 50% !important;
+  background: linear-gradient(135deg, #F0FDF4 0%, #EFF6FF 100%) !important;
+  color: var(--d-green) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+.s-empty h3 {
+  color: var(--d-ink) !important;
+  font-weight: 800 !important;
+  margin: 0 0 6px !important;
+}
+.s-empty p {
+  color: var(--d-muted) !important;
+  margin: 0 auto 16px !important;
+  max-width: 460px !important;
+  line-height: 1.55 !important;
+}
+.s-skeleton-row {
+  background: linear-gradient(90deg, #F1F5F9, #E2E8F0, #F1F5F9) !important;
+  background-size: 200% 100% !important;
+  animation: cbsSkeleton 1.2s ease-in-out infinite !important;
+  border-radius: 16px !important;
+}
+@keyframes cbsSkeleton {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+.d-overlay {
+  background: rgba(15, 23, 42, .45) !important;
+  backdrop-filter: blur(6px) !important;
+  -webkit-backdrop-filter: blur(6px) !important;
+}
+.d-modal {
+  background: #FFFFFF !important;
+  border-radius: 22px !important;
+  border: 1px solid var(--d-border) !important;
+  box-shadow: var(--d-shadow-lg) !important;
+  animation: cbsModalIn .18s var(--cbs-ease-out) both !important;
+}
+@keyframes cbsModalIn {
+  from { opacity: 0; transform: translateY(10px) scale(.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.d-modal-head,
+.d-modal-foot {
+  border-color: var(--d-border) !important;
+}
+.d-summary-row {
+  border-bottom: 1px solid var(--d-border) !important;
+}
+.d-summary-row .k { color: var(--d-muted) !important; }
+.d-summary-row .v { color: var(--d-ink) !important; font-weight: 800 !important; }
+.cbs-toast {
+  border-radius: 16px !important;
+  box-shadow: var(--d-shadow-lg) !important;
+  border-left: 4px solid var(--d-green) !important;
+}
+.cbs-toast.error { border-left-color: var(--d-red) !important; }
+
+/* ============================================================
+   11) Dashboard Micro-polish without changing structure
+   ============================================================ */
+.d-map-card,
+.d-left .d-card,
+.d-qa-btn,
+.d-availability-card {
+  transition: transform .18s var(--cbs-ease), box-shadow .18s var(--cbs-ease), border-color .18s var(--cbs-ease) !important;
+}
+.d-qa-btn:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: var(--d-shadow) !important;
+}
+.d-availability-card {
+  background: linear-gradient(135deg, #F0FDF4 0%, #ECFDF5 100%) !important;
+  border-color: #BBF7D0 !important;
+}
+.d-legend,
+.d-recenter {
+  background: rgba(255,255,255,.94) !important;
+  border: 1px solid var(--d-border) !important;
+  box-shadow: var(--d-shadow) !important;
+  border-radius: 16px !important;
+}
+
+/* ============================================================
+   12) Responsive
+   ============================================================ */
+@media (max-width: 1180px) {
+  .s-profile-grid,
+  .s-settings-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .s-profile-card,
+  .s-settings-profile {
+    position: static !important;
+  }
+  .s-stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+  .s-categories {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+  .s-help-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .rh-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+  .rh-toolbar {
+    grid-template-columns: 1fr !important;
+  }
+  .rh-toolbar > * {
+    width: 100% !important;
+  }
+}
+
+@media (max-width: 720px) {
+  .cbs-topbar,
+  .d-topbar {
+    min-height: 64px !important;
+    padding: 12px 16px !important;
+  }
+  .cbs-brand-name,
+  .d-brand-name {
+    font-size: 18px !important;
+  }
+  .cbs-brand-logo,
+  .d-brand-logo {
+    width: 34px !important;
+    height: 34px !important;
+  }
+  .cbs-brand-logo svg,
+  .d-brand-logo svg {
+    width: 28px !important;
+    height: 28px !important;
+  }
+  .cbs-nav-text { display: none !important; }
+  .cbs-sidebar,
+  .d-sidebar {
+    width: 64px !important;
+    padding: 14px 8px !important;
+  }
+  .cbs-side-btn,
+  .d-side-btn {
+    width: 46px !important;
+    height: 46px !important;
+  }
+  .cbs-content,
+  .s-content {
+    padding: 20px 16px 36px !important;
+  }
+  .cbs-page-head h1,
+  .s-page-head h1,
+  .b-page-head .title-block h1 {
+    font-size: 28px !important;
+  }
+  .s-stats-grid,
+  .rh-summary-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .s-categories {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+  .s-info-row {
+    align-items: flex-start !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+  .s-info-row .val { text-align: left !important; }
+  .s-settings-danger {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .cbs-brand-name .accent,
+  .d-brand-name .accent { display: inline !important; }
+  .cbs-brand-name,
+  .d-brand-name { font-size: 16px !important; }
+  .s-categories { grid-template-columns: 1fr !important; }
+  .s-cat-btn { min-height: 82px !important; }
+  .rh-tabs { overflow-x: auto !important; flex-wrap: nowrap !important; }
+  .rh-tab { white-space: nowrap !important; }
+  .cbs-notif-panel,
+  .cbs-user-panel {
+    width: calc(100vw - 24px) !important;
+    right: -8px !important;
+  }
+}
+
+/* ============================================================
+   13) Accessibility / Reduced Motion / Print
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+  }
+}
+
+@media print {
+  .d-topbar,
+  .cbs-topbar,
+  .d-sidebar,
+  .cbs-sidebar,
+  .cbs-toast-wrap,
+  .d-toast-wrap,
+  .rh-tabs,
+  .rh-toolbar,
+  .rh-actions,
+  .d-modal-foot {
+    display: none !important;
+  }
+  body { background: #FFFFFF !important; }
+  .cbs-card,
+  .d-card,
+  .rh-stat-card,
+  .s-stat-card {
+    box-shadow: none !important;
+    border: 1px solid #CBD5E1 !important;
+  }
+}
+
+
+/* ============================================================
+   FINAL CHROME LOCK — Dashboard/My Bookings exact match
+   ------------------------------------------------------------
+   Shared pages use .cbs-* chrome from user-shared.js.
+   Dashboard/My Bookings use .d-* chrome. This block forces both
+   to render with the same size, spacing, colour and SVG behaviour.
+   Keep this at the VERY BOTTOM of user-premium.css.
+   ============================================================ */
+.cbs-topbar,
+.d-topbar {
+  height: 68px !important;
+  min-height: 68px !important;
+  padding: 14px 28px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  background: #ffffff !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+.cbs-brand,
+.d-brand {
+  height: 40px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+}
+.cbs-brand-logo,
+.d-brand-logo {
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  min-height: 40px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #22c55e !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  line-height: 0 !important;
+}
+.cbs-brand-logo svg,
+.d-brand-logo svg {
+  width: 40px !important;
+  height: 40px !important;
+  display: block !important;
+  stroke: currentColor !important;
+  fill: none;
+}
+.cbs-brand-name,
+.d-brand-name {
+  font-family: "Plus Jakarta Sans", "Inter", sans-serif !important;
+  font-size: 22px !important;
+  line-height: 1 !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.3px !important;
+  color: #0f172a !important;
+  white-space: nowrap !important;
+}
+.cbs-brand-name .accent,
+.d-brand-name .accent {
+  color: #22c55e !important;
+  background: none !important;
+  -webkit-background-clip: initial !important;
+  background-clip: initial !important;
+}
+.cbs-nav,
+.d-nav {
+  height: 46px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+}
+.cbs-nav-item,
+.d-nav-item {
+  height: 42px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 10px 14px !important;
+  border-radius: 10px !important;
+  color: #64748b !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+  transform: none !important;
+}
+.cbs-nav-item svg,
+.d-nav-item svg {
+  width: 20px !important;
+  height: 20px !important;
+  stroke: currentColor !important;
+}
+.cbs-nav-item:hover,
+.d-nav-item:hover {
+  color: #0f172a !important;
+  background: #f1f5f9 !important;
+}
+.cbs-nav-item.active,
+.d-nav-item.active {
+  color: #0f172a !important;
+  background: transparent !important;
+}
+.cbs-nav-item.active::after,
+.d-nav-item.active::after {
+  left: 14px !important;
+  right: 14px !important;
+  bottom: 4px !important;
+  height: 3px !important;
+  border-radius: 2px !important;
+  background: #22c55e !important;
+  box-shadow: none !important;
+}
+.cbs-icon-btn,
+.d-icon-btn,
+.cbs-user-btn {
+  width: 42px !important;
+  height: 42px !important;
+  min-width: 42px !important;
+  min-height: 42px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #64748b !important;
+  background: transparent !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+  border: 0 !important;
+  padding: 0 !important;
+  transform: none !important;
+}
+.cbs-icon-btn svg,
+.d-icon-btn svg {
+  width: 22px !important;
+  height: 22px !important;
+  stroke: currentColor !important;
+}
+.cbs-icon-btn:hover,
+.d-icon-btn:hover,
+.cbs-user-btn:hover {
+  color: #0f172a !important;
+  background: #f1f5f9 !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+.cbs-avatar {
+  width: 42px !important;
+  height: 42px !important;
+  font-size: 15px !important;
+  border-radius: 50% !important;
+  background: linear-gradient(135deg, #2d7ff9 0%, #5b9bff 100%) !important;
+  color: #fff !important;
+  box-shadow: 0 4px 12px rgba(45, 127, 249, .35) !important;
+}
+.cbs-badge,
+.d-icon-btn .badge {
+  top: 4px !important;
+  right: 4px !important;
+  min-width: 18px !important;
+  height: 18px !important;
+  padding: 0 5px !important;
+  border-radius: 999px !important;
+  background: #ef4444 !important;
+  color: #fff !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  box-shadow: 0 0 0 2px #fff !important;
+  animation: none !important;
+}
+.cbs-main,
+.d-main {
+  display: flex !important;
+  min-height: calc(100vh - 68px) !important;
+}
+.cbs-sidebar,
+.d-sidebar {
+  width: 80px !important;
+  min-width: 80px !important;
+  padding: 22px 14px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 8px !important;
+  background: #ffffff !important;
+  border-right: 1px solid #e2e8f0 !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+.cbs-side-btn,
+.d-side-btn {
+  width: 52px !important;
+  height: 52px !important;
+  min-width: 52px !important;
+  min-height: 52px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #64748b !important;
+  background: transparent !important;
+  border-radius: 14px !important;
+  box-shadow: none !important;
+  border: 0 !important;
+  transform: none !important;
+}
+.cbs-side-btn svg,
+.d-side-btn svg {
+  width: 22px !important;
+  height: 22px !important;
+  stroke: currentColor !important;
+}
+.cbs-side-btn:hover,
+.d-side-btn:hover,
+.cbs-side-btn.active,
+.d-side-btn.active {
+  color: #22c55e !important;
+  background: #dcfce7 !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+.cbs-side-btn.active::before,
+.d-side-btn.active::before {
+  display: none !important;
+}
+@media (max-width: 720px) {
+  .cbs-topbar,
+  .d-topbar {
+    height: 64px !important;
+    min-height: 64px !important;
+    padding: 12px 16px !important;
+  }
+  .cbs-brand-logo,
+  .d-brand-logo,
+  .cbs-brand-logo svg,
+  .d-brand-logo svg {
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+    min-height: 34px !important;
+  }
+  .cbs-brand-name,
+  .d-brand-name {
+    font-size: 18px !important;
+  }
+  .cbs-nav-text { display: none !important; }
+  .cbs-sidebar,
+  .d-sidebar {
+    width: 64px !important;
+    min-width: 64px !important;
+    padding: 14px 8px !important;
+  }
+  .cbs-side-btn,
+  .d-side-btn {
+    width: 46px !important;
+    height: 46px !important;
+    min-width: 46px !important;
+    min-height: 46px !important;
+  }
+}
+
+/* =====================================================================
+   GREEN-THEMED ENHANCEMENT LAYER (white surfaces, green accents only)
+   Sits below the chrome lock so the topbar/sidebar stay pixel-stable.
+   ===================================================================== */
+
+/* 1) BRIGHT, AIRY BACKGROUND — still mostly white */
+html, body { background: #F8FAFC !important; }
+body {
+  position: relative;
+  background:
+    radial-gradient(900px 480px at 0% 0%, rgba(34, 197, 94, .045), transparent 60%),
+    radial-gradient(900px 480px at 100% 5%, rgba(56, 189, 248, .035), transparent 60%),
+    #F8FAFC !important;
+  background-attachment: fixed !important;
+}
+
+/* 2) Smooth page enter + small block stagger */
+.cbs-content, .s-content, .d-content { animation: cbsPageEnter .35s ease-out both; }
+@keyframes cbsPageEnter {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.cbs-content > *, .s-content > *, .d-content > * { animation: cbsBlockIn .4s ease-out both; }
+.cbs-content > *:nth-child(1), .s-content > *:nth-child(1), .d-content > *:nth-child(1) { animation-delay: 20ms; }
+.cbs-content > *:nth-child(2), .s-content > *:nth-child(2), .d-content > *:nth-child(2) { animation-delay: 60ms; }
+.cbs-content > *:nth-child(3), .s-content > *:nth-child(3), .d-content > *:nth-child(3) { animation-delay: 110ms; }
+.cbs-content > *:nth-child(4), .s-content > *:nth-child(4), .d-content > *:nth-child(4) { animation-delay: 160ms; }
+.cbs-content > *:nth-child(5), .s-content > *:nth-child(5), .d-content > *:nth-child(5) { animation-delay: 210ms; }
+@keyframes cbsBlockIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* 3) Cards — white, subtle hover lift with green tint */
+.cbs-card, .d-card, .s-card, .b-card, .bk-card,
+.rh-tabs-card, .rh-stat-card, .s-stat-card,
+.s-ticket-card, .rh-card, .b-stat-card,
+.b-active-card, .b-upcoming-card, .b-history-card {
+  background: #FFFFFF !important;
+  transition:
+    transform .22s ease-out,
+    box-shadow .22s ease-out,
+    border-color .22s ease-out !important;
+}
+.cbs-card:hover, .d-card:hover, .s-card:hover, .b-card:hover, .bk-card:hover,
+.rh-stat-card:hover, .s-stat-card:hover, .s-ticket-card:hover,
+.rh-card:hover, .b-stat-card:hover {
+  transform: translateY(-2px) !important;
+  box-shadow:
+    0 2px 8px rgba(34, 197, 94, .06),
+    0 16px 32px rgba(15, 23, 42, .08) !important;
+  border-color: #BBF7D0 !important;
+}
+
+/* 4) Primary buttons — light green sheen on hover */
+.d-btn-primary, .b-book-new, .d-cta,
+.b-act.primary, .rh-action-btn.primary,
+button[type="submit"].d-btn-primary {
+  position: relative !important;
+  overflow: hidden !important;
+}
+.d-btn-primary::before, .b-book-new::before, .d-cta::before,
+.b-act.primary::before, .rh-action-btn.primary::before,
+button[type="submit"].d-btn-primary::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg,
+    transparent 25%, rgba(255, 255, 255, .28) 50%, transparent 75%);
+  transform: translateX(-120%);
+  transition: transform .55s ease-out;
+  pointer-events: none;
+}
+.d-btn-primary:hover::before, .b-book-new:hover::before, .d-cta:hover::before,
+.b-act.primary:hover::before, .rh-action-btn.primary:hover::before,
+button[type="submit"].d-btn-primary:hover::before {
+  transform: translateX(120%);
+}
+
+/* 5) Sidebar — keep dimensions, add subtle green emphasis on active */
+.cbs-side-btn.active, .d-side-btn.active {
+  box-shadow: 0 0 0 4px rgba(34, 197, 94, .10) inset !important;
+}
+.cbs-side-btn:hover svg, .d-side-btn:hover svg {
+  transition: transform .25s ease-out;
+  transform: scale(1.08);
+}
+
+/* 6) Bell badge — soft pop when it appears */
+.cbs-badge, .d-icon-btn .badge {
+  animation: cbsBadgePop .35s ease-out both !important;
+}
+@keyframes cbsBadgePop {
+  from { transform: scale(0); }
+  60%  { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+/* 7) Avatar — green halo on user-btn hover */
+.cbs-user-btn { transition: transform .2s ease-out !important; }
+.cbs-user-btn:hover { transform: scale(1.04) !important; }
+.cbs-user-btn:hover .cbs-avatar {
+  box-shadow:
+    0 4px 12px rgba(45, 127, 249, .35),
+    0 0 0 4px rgba(34, 197, 94, .15) !important;
+}
+
+/* 8) Section headings — soft underline widens on parent hover */
+.cbs-card-h h3::after, .s-section-h h3::after, .d-section-h h2::after {
+  transition: width .3s ease-out !important;
+}
+.cbs-card:hover .cbs-card-h h3::after,
+.cbs-card:hover .s-section-h h3::after,
+.d-card:hover .d-section-h h2::after,
+.d-card:hover .s-section-h h3::after { width: 50px !important; }
+
+/* 9) Stat card icons — gentle zoom on hover */
+.s-stat-card .s-stat-icon, .rh-stat-card .rh-stat-icon {
+  transition: transform .25s ease-out !important;
+}
+.s-stat-card:hover .s-stat-icon, .rh-stat-card:hover .rh-stat-icon {
+  transform: scale(1.08) rotate(-3deg) !important;
+}
+
+/* 10) Status badges — small hover lift, brighter green for completed */
+.rh-badge, .s-status, .b-status-tag, .rh-pay {
+  transition: transform .14s ease-out !important;
+}
+.rh-badge:hover, .s-status:hover, .b-status-tag:hover, .rh-pay:hover { transform: translateY(-1px); }
+.rh-badge.completed, .rh-badge.paid, .s-status-ok, .b-status-tag.completed, .rh-pay.paid, .rh-pay.succeeded {
+  background: #DCFCE7 !important;
+  color: #15803D !important;
+  border: 1px solid #BBF7D0 !important;
+}
+
+/* 11) Notifications — stagger items in + slide on hover */
+.cbs-notif-list .cbs-notif-item { animation: cbsItemIn .3s ease-out both; }
+.cbs-notif-list .cbs-notif-item:nth-child(1) { animation-delay: 20ms; }
+.cbs-notif-list .cbs-notif-item:nth-child(2) { animation-delay: 60ms; }
+.cbs-notif-list .cbs-notif-item:nth-child(3) { animation-delay: 100ms; }
+.cbs-notif-list .cbs-notif-item:nth-child(4) { animation-delay: 140ms; }
+.cbs-notif-list .cbs-notif-item:nth-child(n+5) { animation-delay: 180ms; }
+@keyframes cbsItemIn {
+  from { opacity: 0; transform: translateX(6px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.cbs-notif-item { transition: background .14s ease-out, padding-left .14s ease-out; }
+.cbs-notif-item:hover { padding-left: 22px !important; }
+
+/* 12) Inputs — soft green focus ring */
+.d-input:focus, .d-textarea:focus, .s-select:focus,
+.d-search:focus-within, .s-toolbar-search:focus-within,
+input:focus, select:focus, textarea:focus {
+  border-color: #22C55E !important;
+  box-shadow: 0 0 0 4px rgba(34, 197, 94, .14) !important;
+}
+
+/* 13) Toggle switch — green halo when on */
+.cbs-switch input:checked + .slider {
+  box-shadow: 0 0 0 4px rgba(34, 197, 94, .14) !important;
+}
+
+/* 14) Help category cards — soft mint hover lift */
+.s-cat-btn {
+  transition: transform .22s ease-out, box-shadow .22s ease-out,
+              border-color .22s ease-out, background .22s ease-out !important;
+}
+.s-cat-btn:hover {
+  transform: translateY(-3px) !important;
+  border-color: #BBF7D0 !important;
+  box-shadow: 0 10px 24px rgba(34, 197, 94, .10) !important;
+}
+.s-cat-btn .icn { transition: transform .25s ease-out; }
+.s-cat-btn:hover .icn { transform: scale(1.1); }
+.s-cat-btn.active {
+  background: linear-gradient(135deg, #F0FDF4 0%, #FFFFFF 100%) !important;
+  border-color: #22C55E !important;
+}
+
+/* 15) FAQ smoother open animation */
+.s-faq-item { transition: border-color .22s ease-out, box-shadow .22s ease-out !important; }
+.s-faq-a { animation: cbsFaqIn .25s ease-out both; }
+@keyframes cbsFaqIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* 16) Empty state icon — slow gentle bob */
+.s-empty-icon { animation: cbsBob 4s ease-in-out infinite; }
+@keyframes cbsBob {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-5px); }
+}
+
+/* 17) Profile avatar — green halo on hover */
+.s-profile-card:hover .cbs-avatar,
+.s-settings-profile:hover .cbs-avatar {
+  box-shadow: 0 0 0 6px rgba(34, 197, 94, .14), 0 8px 22px rgba(34, 197, 94, .20) !important;
+  transition: box-shadow .3s ease-out;
+}
+
+/* 18) Active booking card — soft green-blue glow on hover */
+.b-active-card { position: relative; }
+.b-active-card::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg,
+    rgba(34, 197, 94, .25),
+    rgba(56, 189, 248, .15));
+  opacity: 0;
+  z-index: -1;
+  transition: opacity .25s ease-out;
+  filter: blur(8px);
+}
+.b-active-card:hover::after { opacity: 1; }
+
+/* 19) Toast smooth slide-in */
+.cbs-toast { animation: cbsToastIn .32s ease-out both !important; }
+@keyframes cbsToastIn {
+  0%   { opacity: 0; transform: translate(18px, 6px) scale(.97); }
+  100% { opacity: 1; transform: translate(0, 0) scale(1); }
+}
+
+/* 20) Tables — green hover-row left accent */
+.s-table tbody tr, .rh-table tbody tr { position: relative; }
+.s-table tbody tr::before, .rh-table tbody tr::before {
+  content: ""; position: absolute;
+  left: 0; top: 0; bottom: 0; width: 3px;
+  background: #22C55E; opacity: 0;
+  transition: opacity .18s ease-out;
+}
+.s-table tbody tr:hover::before,
+.rh-table tbody tr:hover::before { opacity: 1; }
+
+/* 21) Modal — softer green accent border on open */
+.d-modal {
+  box-shadow:
+    0 30px 80px rgba(15, 23, 42, .20),
+    0 0 0 1px rgba(34, 197, 94, .10) !important;
+}
+
+/* 22) Reduce motion */
+@media (prefers-reduced-motion: reduce) {
+  .cbs-content, .s-content, .d-content,
+  .cbs-content > *, .s-content > *, .d-content > *,
+  .cbs-notif-list .cbs-notif-item,
+  .s-empty-icon, .cbs-toast { animation: none !important; }
+}
+
+/* =====================================================================
+   RECENT ACTIVITY CARD (compact list for My Bookings & Profile)
+   ===================================================================== */
+.cbs-recent-card { padding: 4px !important; }
+.cbs-recent-link {
+  display: inline-flex; align-items: center; gap: 6px;
+  color: #15803D !important; font-weight: 700; font-size: 13px;
+  background: #F0FDF4; border: 1px solid #BBF7D0;
+  padding: 6px 12px; border-radius: 999px;
+  transition: background .18s ease-out, transform .18s ease-out, box-shadow .18s ease-out;
+  text-decoration: none;
+}
+.cbs-recent-link:hover {
+  background: #DCFCE7;
+  transform: translateX(2px);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, .15);
+}
+.cbs-recent-list {
+  display: flex; flex-direction: column;
+  padding: 4px 18px 14px;
+}
+.cbs-recent-item {
+  display: grid;
+  grid-template-columns: 44px 1fr auto;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 12px;
+  border-radius: 14px;
+  transition: background .18s ease-out, transform .18s ease-out;
+  border-bottom: 1px solid #F1F5F9;
+}
+.cbs-recent-item:last-child { border-bottom: none; }
+.cbs-recent-item:hover {
+  background: linear-gradient(90deg, #F0FDF4, #FFFFFF);
+  transform: translateX(2px);
+}
+.cbs-recent-icon {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  background: #F0FDF4;
+  color: #15803D;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid #BBF7D0;
+}
+.cbs-recent-body { min-width: 0; }
+.cbs-recent-title {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+.cbs-recent-title strong {
+  font-size: 14px; color: #0F172A; font-weight: 800;
+}
+.cbs-recent-route {
+  font-size: 13.5px; color: #0F172A; font-weight: 600;
+  margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.cbs-recent-route .arrow { color: #22C55E; font-weight: 700; }
+.cbs-recent-meta {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  font-size: 12.5px; color: #64748B;
+}
+.cbs-recent-meta .dot { color: #CBD5E1; }
+.cbs-recent-meta .amount { color: #0F172A; font-weight: 700; }
+.cbs-recent-empty {
+  text-align: center; padding: 36px 20px;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+}
+.cbs-recent-empty-icon {
+  width: 64px; height: 64px; border-radius: 50%;
+  background: linear-gradient(135deg, #F0FDF4, #ECFDF5);
+  color: #22C55E;
+  display: inline-flex; align-items: center; justify-content: center;
+  margin-bottom: 6px;
+  animation: cbsBob 4s ease-in-out infinite;
+}
+.cbs-recent-empty h4 { margin: 0; font-size: 16px; font-weight: 800; color: #0F172A; }
+.cbs-recent-empty p { margin: 0; max-width: 360px; color: #64748B; font-size: 13.5px; line-height: 1.55; }
+.cbs-recent-footer {
+  display: flex; justify-content: center;
+  padding: 6px 18px 18px;
+}
+@media (max-width: 640px) {
+  .cbs-recent-item { grid-template-columns: 36px 1fr auto; gap: 10px; padding: 12px 8px; }
+  .cbs-recent-icon { width: 36px; height: 36px; }
+  .cbs-recent-route { white-space: normal; }
+}
+
+/* =====================================================================
+   ACTIVE-RIDE EMPTY STATE (My Bookings)
+   ===================================================================== */
+.cbs-active-empty {
+  background: linear-gradient(135deg, #FFFFFF 0%, #F0FDF4 100%) !important;
+  border: 1px dashed #BBF7D0 !important;
+}
+.cbs-idle-pill {
+  background: #F1F5F9; color: #64748B;
+  font-size: 11px; font-weight: 800; letter-spacing: .04em;
+  text-transform: uppercase;
+  padding: 5px 11px; border-radius: 999px;
+  border: 1px solid #E2E8F0;
+}
+.cbs-active-empty-body {
+  text-align: center;
+  padding: 36px 22px;
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+}
+.cbs-active-empty-icon {
+  width: 78px; height: 78px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  color: #22C55E;
+  display: inline-flex; align-items: center; justify-content: center;
+  margin-bottom: 8px;
+  box-shadow: 0 8px 22px rgba(34, 197, 94, .15), inset 0 0 0 1px #BBF7D0;
+  animation: cbsBob 4.5s ease-in-out infinite;
+}
+.cbs-active-empty h4 {
+  margin: 0; color: #0F172A; font-size: 18px; font-weight: 800;
+}
+.cbs-active-empty p {
+  margin: 0; max-width: 360px; color: #64748B; font-size: 13.5px; line-height: 1.55;
+}
+.cbs-active-empty .d-btn { margin-top: 8px; }
+
+/* =====================================================================
+   RIDE DETAIL MODAL (Ride History) — bright, green-accented, premium
+   ===================================================================== */
+.cbs-rd-modal { max-width: 540px !important; }
+.cbs-rd-head {
+  display: flex; gap: 14px; align-items: center;
+  padding: 22px 24px;
+  background: linear-gradient(135deg, #DCFCE7 0%, #F0FDF4 60%, #ECFEFF 100%);
+  border-bottom: 1px solid #BBF7D0;
+  position: relative;
+  overflow: hidden;
+}
+.cbs-rd-head::after {
+  content: "";
+  position: absolute; right: -30px; top: -30px;
+  width: 140px; height: 140px;
+  background: radial-gradient(circle, rgba(34, 197, 94, .14), transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.cbs-rd-head-icon {
+  flex-shrink: 0;
+  width: 52px; height: 52px;
+  border-radius: 16px;
+  background: #FFFFFF;
+  color: #15803D;
+  display: inline-flex; align-items: center; justify-content: center;
+  box-shadow: 0 6px 18px rgba(34, 197, 94, .22), inset 0 0 0 1px #BBF7D0;
+  position: relative; z-index: 1;
+}
+.cbs-rd-head-body { flex: 1; min-width: 0; position: relative; z-index: 1; }
+.cbs-rd-head-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+}
+.cbs-rd-head-row h3 {
+  margin: 0; font-size: 20px; font-weight: 800; letter-spacing: -.3px; color: #0F172A;
+}
+.cbs-rd-head-sub {
+  margin: 4px 0 0; font-size: 13px; color: #15803D; font-weight: 600;
+}
+.cbs-rd-body { padding: 22px 24px 16px !important; }
+
+/* Route block */
+.cbs-rd-route {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 16px;
+  padding: 16px 18px;
+  margin-bottom: 18px;
+  position: relative;
+}
+.cbs-rd-route-stop {
+  display: flex; gap: 12px; align-items: center;
+  padding: 4px 0;
+}
+.cbs-rd-route-dot {
+  width: 12px; height: 12px; border-radius: 50%;
+  flex-shrink: 0;
+  position: relative;
+}
+.cbs-rd-route-dot.start {
+  background: #22C55E;
+  box-shadow: 0 0 0 4px rgba(34, 197, 94, .15);
+}
+.cbs-rd-route-dot.end {
+  background: #38BDF8;
+  box-shadow: 0 0 0 4px rgba(56, 189, 248, .15);
+}
+.cbs-rd-route-line {
+  margin-left: 5.5px;
+  width: 1px; height: 18px;
+  background: repeating-linear-gradient(to bottom, #CBD5E1 0 3px, transparent 3px 6px);
+}
+.cbs-rd-route-label {
+  font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em;
+  color: #64748B;
+}
+.cbs-rd-route-value {
+  font-size: 14px; font-weight: 700; color: #0F172A; margin-top: 2px;
+}
+
+/* Facts grid */
+.cbs-rd-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.cbs-rd-fact {
+  display: flex; gap: 12px; align-items: center;
+  padding: 12px 14px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 14px;
+  transition: border-color .18s ease-out, transform .18s ease-out, box-shadow .18s ease-out;
+}
+.cbs-rd-fact:hover {
+  border-color: #BBF7D0;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 16px rgba(34, 197, 94, .08);
+}
+.cbs-rd-fact-ico {
+  width: 38px; height: 38px;
+  border-radius: 12px;
+  background: #F0FDF4;
+  color: #15803D;
+  display: inline-flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.cbs-rd-fact-body { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.cbs-rd-fact-label {
+  font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em;
+  color: #64748B;
+}
+.cbs-rd-fact-value {
+  font-size: 14px; font-weight: 700; color: #0F172A;
+  word-break: break-word;
+}
+.cbs-rd-fact-sub { color: #64748B; font-weight: 500; font-size: 12.5px; }
+.cbs-rd-cost { color: #15803D !important; }
+
+/* Payment row */
+.cbs-rd-payment {
+  display: flex; gap: 12px; align-items: center;
+  padding: 12px 14px;
+  margin-top: 12px;
+  background: #F0FDF4;
+  border: 1px solid #BBF7D0;
+  border-radius: 14px;
+}
+
+/* Notes */
+.cbs-rd-notes {
+  margin-top: 14px;
+  background: #FFFBEB;
+  border: 1px solid #FDE68A;
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+.cbs-rd-notes strong {
+  display: block; font-size: 12px; font-weight: 800; text-transform: uppercase;
+  letter-spacing: .06em; color: #92400E; margin-bottom: 4px;
+}
+.cbs-rd-notes p {
+  margin: 0; font-size: 13px; color: #78350F; line-height: 1.55;
+  white-space: pre-wrap;
+}
+
+@media (max-width: 540px) {
+  .cbs-rd-grid { grid-template-columns: 1fr; }
+  .cbs-rd-head { padding: 18px 18px; }
+  .cbs-rd-body { padding: 18px 18px 14px !important; }
+}
+
+/* =====================================================================
+   PROFILE — bigger avatar + small camera button (balanced)
+   ===================================================================== */
+.cbs-profile-avatar-wrap {
+  position: relative !important;
+  display: inline-block !important;
+  margin: 4px auto 8px;
+}
+.cbs-profile-avatar-wrap .cbs-avatar {
+  width: 140px !important;
+  height: 140px !important;
+  font-size: 46px !important;
+  border-radius: 50% !important;
+  box-shadow:
+    0 8px 24px rgba(45, 127, 249, .25),
+    0 0 0 4px #FFFFFF,
+    0 0 0 6px #DCFCE7 !important;
+  transition: transform .25s ease-out, box-shadow .25s ease-out !important;
+}
+.cbs-profile-avatar-wrap:hover .cbs-avatar {
+  transform: scale(1.02);
+  box-shadow:
+    0 12px 30px rgba(34, 197, 94, .25),
+    0 0 0 4px #FFFFFF,
+    0 0 0 8px #BBF7D0 !important;
+}
+.cbs-profile-avatar-wrap .cbs-avatar-img {
+  padding: 0 !important;
+  box-shadow:
+    0 8px 24px rgba(45, 127, 249, .25),
+    0 0 0 4px #FFFFFF,
+    0 0 0 6px #DCFCE7 !important;
+}
+.cbs-profile-avatar-wrap .cbs-avatar-img img {
+  border-radius: 50% !important;
+}
+
+/* Small, well-placed camera button on bottom-right of avatar */
+.cbs-profile-avatar-wrap .cbs-avatar-edit {
+  position: absolute !important;
+  right: 4px !important;
+  bottom: 4px !important;
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 50% !important;
+  background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%) !important;
+  color: #FFFFFF !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border: 3px solid #FFFFFF !important;
+  box-shadow: 0 4px 12px rgba(34, 197, 94, .35) !important;
+  cursor: pointer !important;
+  transition: transform .18s ease-out, box-shadow .18s ease-out !important;
+  z-index: 2;
+}
+.cbs-profile-avatar-wrap .cbs-avatar-edit:hover {
+  transform: scale(1.1) !important;
+  box-shadow: 0 6px 18px rgba(34, 197, 94, .45) !important;
+}
+.cbs-profile-avatar-wrap .cbs-avatar-edit svg {
+  width: 16px !important;
+  height: 16px !important;
+}
+
+/* Stronger profile card layout */
+.s-profile-card {
+  text-align: center !important;
+  padding: 32px 24px !important;
+}
+.s-profile-card h2 {
+  margin-top: 14px !important;
+  font-size: 22px !important;
+  font-weight: 800 !important;
+  letter-spacing: -.3px !important;
+  color: #0F172A !important;
+}
+.s-profile-card .email {
+  color: #64748B !important;
+  font-size: 13.5px !important;
+  margin-top: 4px !important;
+  word-break: break-word !important;
+}
+
+/* =====================================================================
+   NEED HELP — brighter, more interactive
+   ===================================================================== */
+
+/* Search box with focus glow */
+.s-toolbar-search,
+.s-help-search,
+.s-help-search-wrap {
+  background: #FFFFFF !important;
+  border: 1px solid #E2E8F0 !important;
+  border-radius: 14px !important;
+  transition: border-color .2s ease-out, box-shadow .2s ease-out, transform .2s ease-out !important;
+}
+.s-toolbar-search:focus-within,
+.s-help-search:focus-within,
+.s-help-search-wrap:focus-within {
+  border-color: #22C55E !important;
+  box-shadow: 0 0 0 4px rgba(34, 197, 94, .14), 0 8px 20px rgba(34, 197, 94, .08) !important;
+  transform: translateY(-1px);
+}
+
+/* Category cards — soft mint hover, animated icon */
+.s-cat-btn .icn {
+  background: linear-gradient(135deg, #F0FDF4, #ECFDF5) !important;
+  color: #15803D !important;
+  border: 1px solid #BBF7D0 !important;
+}
+.s-cat-btn:hover {
+  border-color: #22C55E !important;
+  background: linear-gradient(135deg, #FFFFFF 0%, #F0FDF4 100%) !important;
+  box-shadow: 0 12px 28px rgba(34, 197, 94, .12) !important;
+}
+.s-cat-btn:hover .icn {
+  background: linear-gradient(135deg, #DCFCE7, #BBF7D0) !important;
+  transform: scale(1.1) rotate(-4deg) !important;
+}
+.s-cat-btn.active {
+  border-color: #22C55E !important;
+  background: linear-gradient(135deg, #F0FDF4, #DCFCE7) !important;
+  color: #15803D !important;
+  box-shadow: 0 10px 24px rgba(34, 197, 94, .14) !important;
+}
+.s-cat-btn.active .icn {
+  background: #FFFFFF !important;
+  color: #15803D !important;
+  border-color: #22C55E !important;
+}
+
+/* FAQ accordion — smoother and softer */
+.s-faq-list { gap: 10px; }
+.s-faq-item {
+  background: #FFFFFF !important;
+  border: 1px solid #E2E8F0 !important;
+  border-radius: 14px !important;
+  transition: border-color .2s ease-out, box-shadow .2s ease-out, background .2s ease-out !important;
+}
+.s-faq-item:hover {
+  border-color: #BBF7D0 !important;
+  box-shadow: 0 10px 24px rgba(34, 197, 94, .08) !important;
+}
+.s-faq-item.open {
+  border-color: #22C55E !important;
+  background: linear-gradient(180deg, #FFFFFF 0%, #F0FDF4 100%) !important;
+  box-shadow: 0 12px 30px rgba(34, 197, 94, .12) !important;
+}
+.s-faq-q {
+  cursor: pointer;
+  transition: color .18s ease-out;
+}
+.s-faq-q:hover { color: #15803D !important; }
+.s-faq-q .cat {
+  background: #DCFCE7 !important;
+  color: #15803D !important;
+  border: 1px solid #BBF7D0;
+}
+.s-faq-q .chev {
+  color: #64748B;
+  transition: transform .25s ease-out, color .18s ease-out !important;
+}
+.s-faq-item.open .s-faq-q .chev {
+  transform: rotate(180deg);
+  color: #22C55E;
+}
+.s-faq-a {
+  color: #475569;
+  line-height: 1.65;
+}
+.s-faq-a strong { color: #0F172A; }
+
+/* Support ticket form — modern green-themed */
+.s-form-row label {
+  color: #0F172A !important;
+  font-weight: 700 !important;
+  font-size: 13px !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  margin-bottom: 6px !important;
+}
+.s-form select,
+.s-form input,
+.s-form textarea,
+.s-form .d-input,
+.s-form .d-textarea {
+  background: #FFFFFF !important;
+  border: 1px solid #E2E8F0 !important;
+  border-radius: 12px !important;
+  padding: 11px 14px !important;
+  font-size: 14px !important;
+  transition: border-color .2s ease-out, box-shadow .2s ease-out !important;
+}
+.s-form input:focus,
+.s-form textarea:focus,
+.s-form select:focus,
+.s-form .d-input:focus,
+.s-form .d-textarea:focus {
+  border-color: #22C55E !important;
+  box-shadow: 0 0 0 4px rgba(34, 197, 94, .14) !important;
+}
+
+/* Support ticket history cards */
+.s-ticket-card {
+  background: #FFFFFF !important;
+  border: 1px solid #E2E8F0 !important;
+  border-radius: 14px !important;
+  transition: transform .2s ease-out, box-shadow .2s ease-out, border-color .2s ease-out !important;
+}
+.s-ticket-card:hover {
+  transform: translateY(-2px);
+  border-color: #BBF7D0 !important;
+  box-shadow: 0 10px 22px rgba(34, 197, 94, .10) !important;
+}
+.s-ticket-head .subj {
+  color: #0F172A !important;
+  font-weight: 800 !important;
+  font-size: 14px !important;
+}

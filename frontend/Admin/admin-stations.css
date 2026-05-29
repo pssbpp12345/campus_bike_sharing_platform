@@ -1,0 +1,134 @@
+/* ──────────────────────────────────────────────────────────
+   Admin Stations page styles. Layered on top of
+   admin-dashboard.css and admin-bookings.css for shared
+   shell, KPI tokens, table, drawer, modal.
+   ────────────────────────────────────────────────────────── */
+
+.as-grid { display: flex; flex-direction: column; gap: 22px; }
+.as-head-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+
+/* KPI grid - 4 x 2 to match the screenshot */
+.as-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+/* Charts row - line takes the wider half, donut narrower */
+.as-charts {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+  gap: 18px;
+}
+.as-charts .ab-chart-card .ad-chart-wrap { height: 260px; }
+
+/* Operations rail (alerts / top / activity) */
+.as-rail-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+/* Top Active Stations - compact rows that mirror screenshot */
+.as-top-list {
+  display: flex; flex-direction: column;
+  padding: 0 4px 14px;
+  font-size: 13px;
+}
+.as-top-head, .as-top-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) 56px 56px 64px;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 14px;
+}
+.as-top-head {
+  font-size: 10.5px; font-weight: 800; letter-spacing: .05em;
+  text-transform: uppercase; color: #64748B;
+  border-bottom: 1px solid #F1F5F9;
+  background: #F8FAFC;
+}
+.as-top-row { border-bottom: 1px solid #F1F5F9; cursor: pointer; }
+.as-top-row:hover { background: #F8FAFC; }
+.as-top-row:last-child { border-bottom: none; }
+.as-top-row .name { color: #0F172A; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.as-top-row .area { color: #64748B; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.as-top-row .num  { font-variant-numeric: tabular-nums; color: #0F172A; }
+.as-top-row .util {
+  display: inline-flex; align-items: center;
+  padding: 2px 8px;
+  font-size: 11px; font-weight: 800;
+  border-radius: 999px;
+  border: 1px solid transparent;
+}
+.as-top-row .util.high    { background: #DCFCE7; color: #15803D; border-color: #BBF7D0; }
+.as-top-row .util.medium  { background: #FEF3C7; color: #B45309; border-color: #FDE68A; }
+.as-top-row .util.low     { background: #DBEAFE; color: #1D4ED8; border-color: #BFDBFE; }
+.as-top-row .util.full    { background: #EDE9FE; color: #6D28D9; border-color: #DDD6FE; }
+
+/* Filter bar (6 fields + reset) */
+.as-filter-bar {
+  grid-template-columns: minmax(220px, 2fr) repeat(4, minmax(120px, 1fr)) auto;
+}
+
+/* Table-specific tweaks */
+.as-table tbody td .util-bar {
+  display: inline-flex; align-items: center; gap: 8px;
+  min-width: 96px;
+}
+.as-table tbody td .util-bar .bar {
+  flex: 1;
+  height: 6px; border-radius: 999px;
+  background: #E2E8F0;
+  position: relative; overflow: hidden;
+}
+.as-table tbody td .util-bar .bar > i {
+  position: absolute; left: 0; top: 0; bottom: 0;
+  background: linear-gradient(90deg, #22C55E 0%, #16A34A 100%);
+  border-radius: 999px;
+}
+.as-table tbody td .util-bar.warn .bar > i { background: linear-gradient(90deg, #F59E0B 0%, #B45309 100%); }
+.as-table tbody td .util-bar.bad  .bar > i { background: linear-gradient(90deg, #EF4444 0%, #B91C1C 100%); }
+.as-table tbody td .util-bar .pct { font-size: 12px; font-weight: 700; color: #475569; min-width: 32px; text-align: right; }
+
+.as-table tbody td.num { font-variant-numeric: tabular-nums; font-weight: 700; color: #0F172A; }
+
+/* Effective-status badges (extends ab-badge) */
+.ab-badge.normal      { background: #DCFCE7; color: #15803D; border-color: #BBF7D0; }
+.ab-badge.low         { background: #FEF3C7; color: #B45309; border-color: #FDE68A; }
+.ab-badge.full        { background: #EDE9FE; color: #6D28D9; border-color: #DDD6FE; }
+.ab-badge.maintenance { background: #FEE2E2; color: #B91C1C; border-color: #FECACA; }
+.ab-badge.offline     { background: #E2E8F0; color: #475569; border-color: #CBD5E1; }
+
+/* Drawer - progress bar for utilisation */
+.as-util-block {
+  margin-top: 6px;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+.as-util-block .lbl { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: #475569; }
+.as-util-block .val { font-family: "Plus Jakarta Sans","Inter",sans-serif; font-weight: 800; font-size: 18px; color: #0F172A; }
+.as-util-block .bar { height: 8px; background: #E2E8F0; border-radius: 999px; overflow: hidden; margin-top: 6px; position: relative; }
+.as-util-block .bar > i { display: block; height: 100%; background: linear-gradient(90deg, #22C55E 0%, #16A34A 100%); border-radius: 999px; }
+
+/* Responsive */
+@media (max-width: 1280px) {
+  .as-kpi-grid  { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .as-charts    { grid-template-columns: 1fr; }
+  .as-rail-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 900px) {
+  .as-filter-bar { grid-template-columns: 1fr 1fr; }
+  .as-table { min-width: 1100px; }
+  .as-top-head, .as-top-row {
+    grid-template-columns: minmax(0, 1.4fr) 56px 64px;
+  }
+  .as-top-head .area, .as-top-row .area,
+  .as-top-head .avail, .as-top-row .avail { display: none; }
+}
+@media (max-width: 600px) {
+  .as-kpi-grid { grid-template-columns: 1fr; }
+  .as-filter-bar { grid-template-columns: 1fr; }
+}

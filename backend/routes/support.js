@@ -2,6 +2,7 @@
 const express = require("express");
 const jwt = require("jsonwebtoken");
 const db = require("../db");
+const { ensureStudentSchema } = require("../utils/studentSchema");
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || "change-me-to-a-long-random-string";
@@ -24,6 +25,7 @@ function requireUser(req, res, next) {
 // GET /api/support/tickets — list current user's tickets
 router.get("/tickets", requireUser, async (req, res) => {
   try {
+    await ensureStudentSchema();
     const result = await db.query(
       `SELECT id, category, subject, description, priority, booking_id,
               status, admin_response, resolved_at, created_at, updated_at
@@ -42,6 +44,7 @@ router.get("/tickets", requireUser, async (req, res) => {
 // POST /api/support/tickets — create a new ticket
 router.post("/tickets", requireUser, async (req, res) => {
   try {
+    await ensureStudentSchema();
     const { category, subject, description, priority, bookingId } = req.body || {};
     const c = String(category || "other").toLowerCase();
     const p = String(priority || "medium").toLowerCase();
@@ -68,6 +71,32 @@ router.post("/tickets", requireUser, async (req, res) => {
        RETURNING id, category, subject, description, priority, booking_id, status, created_at`,
       [req.user.sub, c, subj, desc, p, bId]
     );
+    if (c === "bike" && bId) {
+      (async () => {
+        try {
+          const booking = await db.query(
+            "SELECT bike_id, pickup_station_id FROM bookings WHERE id = $1 AND user_id = $2",
+            [bId, req.user.sub]
+          );
+          const row = booking.rows[0];
+          if (!row || !row.bike_id) return;
+          const severity = p === "urgent" ? "critical" : (p === "high" ? "high" : p);
+          await db.query(
+            `INSERT INTO maintenance_logs (bike_id, reported_by_user_id, issue_type, description, severity, status, reported_at)
+             VALUES ($1, $2, $3, $4, $5::maintenance_severity, 'reported', NOW())`,
+            [row.bike_id, req.user.sub, subj.slice(0, 50), desc, severity]
+          );
+        } catch (e) {
+          console.warn("[support] maintenance log skipped:", e.message);
+        }
+      })();
+    }
+    require("../utils/notify").push({
+      userId: req.user.sub, type: "ticket_created", kind: "info",
+      title: `Ticket #${result.rows[0].id} submitted`,
+      message: subj.slice(0, 160),
+      relatedEntityType: "ticket", relatedEntityId: result.rows[0].id
+    });
     res.status(201).json({ ticket: result.rows[0] });
   } catch (err) {
     console.error("[POST /api/support/tickets]", err);

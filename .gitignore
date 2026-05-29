@@ -31,6 +31,11 @@ dist/
 dist
 
 # Environment files (comprehensive coverage)
+.env
+.env.*
+backend/.env
+backend/.env.*
+!backend/.env.example
 
 *token.json*
 *credentials.json*
@@ -80,3 +85,17 @@ memory/test_credentials.md
 
 # Mobile development
 android-sdk/
+
+# Project-specific archive / temp files
+_legacy/
+*.tmp
+*.new
+*.bak
+*_backup_broken.*
+*.original.sql
+Uploads/*
+!Uploads/.gitkeep
+test_reports/
+.emergent/
+.pytest_cache/
+.ruff_cache/

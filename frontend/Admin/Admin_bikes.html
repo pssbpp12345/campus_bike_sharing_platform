@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate" />
+  <title>Bike Management | Campus Bike Sharing Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.9/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="../../Login.css" />
+  <link rel="stylesheet" href="admin-dashboard.css" />
+  <link rel="stylesheet" href="admin-bookings.css" />
+  <link rel="stylesheet" href="admin-bikes.css" />
+  <link rel="stylesheet" href="admin-shared.css" />
+</head>
+<body class="ad-auth-pending">
+  <div class="ad-shell">
+    <header class="ad-topbar">
+      <a class="ad-brand" href="./Admin_dashboard.html" aria-label="Campus Bike Sharing Admin Dashboard">
+        <span class="ad-brand-logo" aria-hidden="true">
+          <svg viewBox="0 0 64 64" width="42" height="42" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="16" cy="44" r="12"></circle><circle cx="48" cy="44" r="12"></circle>
+            <path d="M16 44 L28 24 L42 24 L48 44"></path><path d="M28 24 L34 14 L42 14"></path>
+            <circle cx="32" cy="24" r="2" fill="currentColor"></circle>
+          </svg>
+        </span>
+        <span class="ad-brand-text">Campus <strong>Bike Sharing</strong></span>
+      </a>
+
+      <div class="ad-topbar-actions">
+        <div class="ad-admin-controls">
+          <button class="ad-control-btn" type="button" id="refresh-dashboard"><span data-icon="rotate"></span><span>Refresh</span></button>
+          <button class="ad-control-btn primary" type="button" id="export-report"><span data-icon="bar-chart"></span><span>Export Report</span></button>
+        </div>
+        <div class="ad-menu-wrap">
+          <button class="ad-bell" type="button" id="notification-button" aria-label="Notifications" aria-haspopup="true" aria-expanded="false">
+            <span data-icon="bell"></span><span class="ad-bell-badge" id="notification-badge">0</span>
+          </button>
+          <div class="ad-dropdown ad-notification-menu" id="notification-menu" hidden>
+            <div class="ad-dropdown-head"><div><h3>Notifications</h3><span id="notification-unread-count">0 unread</span></div>
+              <button type="button" id="mark-notifications-read">Mark all as read</button></div>
+            <div class="ad-notification-list" id="notification-list"></div>
+          </div>
+        </div>
+        <div class="ad-menu-wrap">
+          <button class="ad-profile" type="button" id="profile-menu-button" aria-label="Admin profile menu" aria-haspopup="true" aria-expanded="false">
+            <span class="ad-avatar" id="admin-avatar">AU</span>
+            <span class="ad-profile-copy"><strong id="admin-name">Admin User</strong><span>Administrator</span></span>
+            <span class="ad-profile-chev" data-icon="chevron-down"></span>
+          </button>
+          <div class="ad-dropdown ad-profile-menu" id="profile-menu" hidden>
+            <div class="ad-profile-menu-head"><span class="ad-avatar large" id="admin-avatar-menu">AU</span>
+              <div><strong id="admin-menu-name">Admin User</strong><span>Administrator</span></div></div>
+            <div class="ad-profile-menu-list">
+              <button type="button" data-admin-menu-action="profile"><span data-icon="help-circle"></span>View Admin Profile</button>
+              <button type="button" data-admin-menu-action="settings"><span data-icon="settings"></span>Admin Settings</button>
+            </div>
+            <div class="ad-profile-menu-foot"><button type="button" id="admin-logout"><span data-icon="logout"></span>Logout</button></div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="ad-main">
+      <aside class="ad-sidebar" aria-label="Admin navigation">
+        <nav class="ad-nav">
+          <a class="ad-nav-item" href="./Admin_dashboard.html" data-page="Admin_dashboard.html"><span data-icon="layout-dashboard"></span>Dashboard</a>
+          <a class="ad-nav-item" href="./Admin_bookings.html" data-page="Admin_bookings.html"><span data-icon="calendar"></span>Bookings</a>
+          <a class="ad-nav-item" href="./Admin_payments.html" data-page="Admin_payments.html"><span data-icon="credit-card"></span>Payments</a>
+          <a class="ad-nav-item active" href="./Admin_bikes.html" data-page="Admin_bikes.html"><span data-icon="bike"></span>Bikes</a>
+          <a class="ad-nav-item" href="./Admin_stations.html" data-page="Admin_stations.html"><span data-icon="map-pin"></span>Stations</a>
+          <a class="ad-nav-item" href="./Admin_maintenance.html" data-page="Admin_maintenance.html"><span data-icon="wrench"></span>Maintenance</a>
+          <a class="ad-nav-item" href="./Admin_reports.html" data-page="Admin_reports.html"><span data-icon="bar-chart"></span>Reports</a>
+          <a class="ad-nav-item" href="./Admin_support.html" data-page="Admin_support.html"><span data-icon="help-circle"></span>Support Issues</a>
+          <a class="ad-nav-item" href="./Admin_ai.html" data-page="Admin_ai.html"><span data-icon="sparkles"></span>AI Assistant</a>
+          <a class="ad-nav-item" href="./Admin_settings.html" data-page="Admin_settings.html"><span data-icon="settings"></span>Settings</a>
+        </nav>
+        <a class="ad-help-card" href="./Admin_help.html" id="admin-help-button">
+          <span class="ad-help-icon" data-icon="headphones"></span>
+          <span><strong>Help Center</strong><small>Admin guides and support</small></span>
+          <span data-icon="chevron-right"></span>
+        </a>
+      </aside>
+
+      <main class="ad-content">
+        <div class="bm-grid">
+          <section class="ad-page-head">
+            <div>
+              <h1>Bike Management</h1>
+              <p>Monitor bike availability, active rides, maintenance status, assigned stations, battery levels, and bike operations from one place.</p>
+            </div>
+            <div class="ab-head-actions">
+              <div class="ad-range-tabs" role="tablist" aria-label="Date range">
+                <button type="button" class="active" data-range="today">Today</button>
+                <button type="button" data-range="week">Week</button>
+                <button type="button" data-range="month">Month</button>
+                <button type="button" data-range="year">Year</button>
+              </div>
+              <button class="ab-btn-primary" type="button" id="add-bike-button"><span data-icon="bike"></span>Add New Bike</button>
+            </div>
+          </section>
+
+          <section class="ab-kpi-grid" id="bike-kpi-grid">
+            <article class="ab-kpi"><span class="ab-kpi-ico green"><span data-icon="bike"></span></span><div class="ab-kpi-body"><span class="ab-kpi-lbl">Total Bikes</span><strong id="kpi-totalBikes">--</strong><small id="trend-totalBikes">Loading</small></div></article>
+            <article class="ab-kpi"><span class="ab-kpi-ico green"><span data-icon="check"></span></span><div class="ab-kpi-body"><span class="ab-kpi-lbl">Available Bikes</span><strong id="kpi-availableBikes">--</strong><small id="trend-availableBikes">Loading</small></div></article>
+            <article class="ab-kpi"><span class="ab-kpi-ico blue"><span data-icon="clock"></span></span><div class="ab-kpi-body"><span class="ab-kpi-lbl">Active Bikes</span><strong id="kpi-activeBikes">--</strong><small id="trend-activeBikes">Loading</small></div></article>
+            <article class="ab-kpi"><span class="ab-kpi-ico purple"><span data-icon="calendar"></span></span><div class="ab-kpi-body"><span class="ab-kpi-lbl">Reserved Bikes</span><strong id="kpi-reservedBikes">--</strong><small id="trend-reservedBikes">Loading</small></div></article>
+            <article class="ab-kpi"><span class="ab-kpi-ico amber"><span data-icon="wrench"></span></span><div class="ab-kpi-body"><span class="ab-kpi-lbl">In Maintenance</span><strong id="kpi-maintenanceBikes">--</strong><small id="trend-maintenanceBikes">Loading</small></div></article>
+            <article class="ab-kpi"><span class="ab-kpi-ico red"><span data-icon="alert"></span></span><div class="ab-kpi-body"><span class="ab-kpi-lbl">Offline Bikes</span><strong id="kpi-offlineBikes">--</strong><small id="trend-offlineBikes">Loading</small></div></article>
+            <article class="ab-kpi"><span class="ab-kpi-ico amber"><span data-icon="wallet"></span></span><div class="ab-kpi-body"><span class="ab-kpi-lbl">Low Battery Bikes</span><strong id="kpi-lowBatteryBikes">--</strong><small id="trend-lowBatteryBikes">Loading</small></div></article>
+            <article class="ab-kpi"><span class="ab-kpi-ico red"><span data-icon="alert"></span></span><div class="ab-kpi-body"><span class="ab-kpi-lbl">Damaged Bikes</span><strong id="kpi-damagedBikes">--</strong><small id="trend-damagedBikes">Loading</small></div></article>
+          </section>
+
+          <section class="bm-top-grid">
+            <article class="ad-card ab-chart-card">
+              <div class="ad-card-head"><h2>Bike Availability Trend</h2><div class="ad-chart-select" id="bike-trends-range-label">Today</div></div>
+              <div class="ad-chart-legend">
+                <span><i class="dot green"></i>Available</span>
+                <span><i class="dot blue"></i>Active</span>
+                <span><i class="dot orange"></i>Maintenance</span>
+              </div>
+              <div class="ad-chart-wrap"><canvas id="bike-trends-chart"></canvas></div>
+            </article>
+            <article class="ad-card ab-chart-card">
+              <div class="ad-card-head"><h2>Bike Status Breakdown</h2></div>
+              <div class="bm-donut-layout">
+                <div class="ad-donut-wrap"><canvas id="bike-status-chart"></canvas></div>
+                <div class="bm-donut-legend" id="bike-status-legend"></div>
+              </div>
+            </article>
+          </section>
+
+          <section class="bm-ops-grid">
+            <article class="ad-card bm-alert-card">
+              <div class="ad-card-head"><h2>Bike Alerts</h2></div>
+              <div class="bm-alert-list" id="bike-alerts-list"></div>
+            </article>
+            <article class="ad-card ab-rail-card">
+              <div class="ad-card-head"><h2>Live Active Bikes</h2><a class="ab-view-all" href="./Admin_bookings.html">View all</a></div>
+              <div class="ab-list" id="live-active-bikes"></div>
+            </article>
+            <article class="ad-card ab-rail-card">
+              <div class="ad-card-head"><h2>Recent Bike Activity</h2><a class="ab-view-all" href="./Admin_reports.html">View all</a></div>
+              <div class="ab-list" id="bike-activity-list"></div>
+            </article>
+          </section>
+
+          <section class="bm-content-grid">
+            <article class="ad-card ab-table-card all-bikes-card">
+              <div class="bm-filter-bar">
+                <label class="ab-search"><span data-icon="search"></span><input id="bike-search" type="search" placeholder="Search by Bike ID..." /></label>
+                <label class="ab-filter-field"><span>Status</span><select id="filter-status"><option value="all">All Statuses</option><option value="available">Available</option><option value="active">Active</option><option value="reserved">Reserved</option><option value="maintenance">Maintenance</option><option value="low_battery">Low Battery</option><option value="offline">Offline</option><option value="damaged">Damaged</option></select></label>
+                <label class="ab-filter-field"><span>Station</span><select id="filter-station"><option value="all">All Stations</option></select></label>
+                <label class="ab-filter-field"><span>Bike Type</span><select id="filter-type"><option value="all">All Types</option></select></label>
+                <label class="ab-filter-field"><span>Battery Level</span><select id="filter-battery"><option value="all">All Levels</option><option value="low">Low (&lt;25%)</option><option value="medium">Medium (25-59%)</option><option value="high">High (60%+)</option></select></label>
+                <button class="ab-btn-secondary" type="button" id="reset-filters"><span data-icon="rotate"></span>Reset Filters</button>
+              </div>
+              <div class="ad-card-head bm-table-head"><h2>All Bikes <span id="bike-total-count">(0)</span></h2><span class="ab-row-count" id="bike-row-count">Loading bikes...</span></div>
+              <div class="ab-table-wrap bm-table-wrap">
+                <table class="ab-table bm-table">
+                  <colgroup>
+                    <col class="bm-col-id" />
+                    <col class="bm-col-type" />
+                    <col class="bm-col-station" />
+                    <col class="bm-col-status" />
+                    <col class="bm-col-battery" />
+                    <col class="bm-col-last" />
+                    <col class="bm-col-rider" />
+                    <col class="bm-col-condition" />
+                    <col class="bm-col-maintenance" />
+                    <col class="bm-col-actions" />
+                  </colgroup>
+                  <thead>
+                    <tr>
+                      <th>Bike ID</th>
+                      <th>Type</th>
+                      <th>Current Station</th>
+                      <th>Status</th>
+                      <th>Battery</th>
+                      <th>Last Used</th>
+                      <th>Current Rider</th>
+                      <th>Condition</th>
+                      <th>Maintenance</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="bike-table-body"><tr><td colspan="10" class="ab-table-empty">Loading bikes...</td></tr></tbody>
+                </table>
+              </div>
+              <div class="ab-pagination">
+                <label class="bm-page-size">Show <select id="bike-page-size"><option>10</option><option>20</option><option>50</option></select> entries</label>
+                <div class="ab-pages" id="bike-pagination"></div>
+              </div>
+            </article>
+          </section>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <aside class="ab-drawer bm-drawer" id="bike-drawer" hidden>
+    <div class="ab-drawer-overlay" data-close-drawer></div>
+    <section class="ab-drawer-panel" aria-label="Bike details">
+      <div class="ab-drawer-head">
+        <div><span class="ab-status-badge" id="drawer-status">Status</span><h2>Bike Details</h2></div>
+        <button class="ab-drawer-close" type="button" id="close-bike-drawer" aria-label="Close bike details"><span data-icon="chevron-right"></span></button>
+      </div>
+      <div class="ab-drawer-body" id="bike-drawer-body"></div>
+      <div class="bm-drawer-actions">
+        <button class="ab-btn-primary" type="button" data-drawer-action="available"><span data-icon="check"></span>Mark as Available</button>
+        <button class="ab-btn-secondary orange" type="button" data-drawer-action="maintenance"><span data-icon="wrench"></span>Send to Maintenance</button>
+        <button class="ab-btn-secondary blue" type="button" data-drawer-action="assign"><span data-icon="map-pin"></span>Assign Station</button>
+        <button class="ab-btn-secondary" type="button" data-drawer-action="history"><span data-icon="bar-chart"></span>View Ride History</button>
+        <button class="ab-btn-secondary danger-outline" type="button" data-drawer-action="disable"><span data-icon="alert"></span>Disable Bike</button>
+      </div>
+    </section>
+  </aside>
+
+  <div class="ab-modal" id="bike-modal" hidden>
+    <div class="ab-modal-overlay" data-close-modal></div>
+    <section class="ab-modal-panel" aria-label="Bike action">
+      <div class="ab-modal-head"><h2 id="bike-modal-title">Add New Bike</h2><button class="ab-drawer-close" type="button" data-close-modal><span data-icon="chevron-right"></span></button></div>
+      <form id="bike-modal-form">
+        <div class="ab-modal-body" id="bike-modal-body"></div>
+        <div class="ab-modal-foot"><button class="ab-btn-secondary" type="button" data-close-modal>Cancel</button><button class="ab-btn-primary" type="submit" id="bike-modal-submit">Save</button></div>
+      </form>
+    </section>
+  </div>
+
+  <div class="ad-toast" id="admin-toast" hidden role="status" aria-live="polite"></div>
+  <script src="admin-dashboard.js"></script>
+  <script src="admin-bikes.js"></script>
+</body>
+</html>

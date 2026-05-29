@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate" />
+  <title>Admin AI Assistant | Campus Bike Sharing Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../../Login.css" />
+  <link rel="stylesheet" href="admin-dashboard.css" />
+  <link rel="stylesheet" href="admin-bookings.css" />
+  <link rel="stylesheet" href="admin-ai.css" />
+  <link rel="stylesheet" href="admin-shared.css" />
+</head>
+<body class="ad-auth-pending aai-page">
+  <div class="ad-shell">
+    <header class="ad-topbar">
+      <a class="ad-brand" href="./Admin_dashboard.html" aria-label="Campus Bike Sharing Admin Dashboard">
+        <span class="ad-brand-logo" aria-hidden="true">
+          <svg viewBox="0 0 64 64" width="42" height="42" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="16" cy="44" r="12"></circle>
+            <circle cx="48" cy="44" r="12"></circle>
+            <path d="M16 44 L28 24 L42 24 L48 44"></path>
+            <path d="M28 24 L34 14 L42 14"></path>
+            <circle cx="32" cy="24" r="2" fill="currentColor"></circle>
+          </svg>
+        </span>
+        <span class="ad-brand-text">Campus <strong>Bike Sharing</strong></span>
+      </a>
+
+      <div class="ad-topbar-actions">
+        <div class="ad-admin-controls">
+          <button class="ad-control-btn" type="button" id="refresh-dashboard"><span data-icon="rotate"></span><span>Refresh</span></button>
+          <button class="ad-control-btn primary" type="button" id="export-report"><span data-icon="bar-chart"></span><span>Export AI Notes</span></button>
+        </div>
+        <div class="ad-menu-wrap">
+          <button class="ad-bell" type="button" id="notification-button" aria-label="Notifications" aria-haspopup="true" aria-expanded="false">
+            <span data-icon="bell"></span>
+            <span class="ad-bell-badge" id="notification-badge">0</span>
+          </button>
+          <div class="ad-dropdown ad-notification-menu" id="notification-menu" hidden>
+            <div class="ad-dropdown-head">
+              <div><h3>Notifications</h3><span id="notification-unread-count">0 unread</span></div>
+              <button type="button" id="mark-notifications-read">Mark all as read</button>
+            </div>
+            <div class="ad-notification-list" id="notification-list"></div>
+          </div>
+        </div>
+        <div class="ad-menu-wrap">
+          <button class="ad-profile" type="button" id="profile-menu-button" aria-label="Admin profile menu" aria-haspopup="true" aria-expanded="false">
+            <span class="ad-avatar" id="admin-avatar">AU</span>
+            <span class="ad-profile-copy"><strong id="admin-name">Admin User</strong><span>Administrator</span></span>
+            <span class="ad-profile-chev" data-icon="chevron-down"></span>
+          </button>
+          <div class="ad-dropdown ad-profile-menu" id="profile-menu" hidden>
+            <div class="ad-profile-menu-head">
+              <span class="ad-avatar large" id="admin-avatar-menu">AU</span>
+              <div><strong id="admin-menu-name">Admin User</strong><span>Administrator</span></div>
+            </div>
+            <div class="ad-profile-menu-list">
+              <button type="button" data-admin-menu-action="profile"><span data-icon="help-circle"></span>View Admin Profile</button>
+              <button type="button" data-admin-menu-action="settings"><span data-icon="settings"></span>Admin Settings</button>
+            </div>
+            <div class="ad-profile-menu-foot">
+              <button type="button" id="admin-logout"><span data-icon="logout"></span>Logout</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="ad-main">
+      <aside class="ad-sidebar" aria-label="Admin navigation">
+        <nav class="ad-nav">
+          <a class="ad-nav-item" href="./Admin_dashboard.html" data-page="Admin_dashboard.html" aria-label="Dashboard" title="Dashboard"><span data-icon="layout-dashboard"></span>Dashboard</a>
+          <a class="ad-nav-item" href="./Admin_bookings.html" data-page="Admin_bookings.html" aria-label="Bookings" title="Bookings"><span data-icon="calendar"></span>Bookings</a>
+          <a class="ad-nav-item" href="./Admin_payments.html" data-page="Admin_payments.html" aria-label="Payments" title="Payments"><span data-icon="credit-card"></span>Payments</a>
+          <a class="ad-nav-item" href="./Admin_bikes.html" data-page="Admin_bikes.html" aria-label="Bikes" title="Bikes"><span data-icon="bike"></span>Bikes</a>
+          <a class="ad-nav-item" href="./Admin_stations.html" data-page="Admin_stations.html" aria-label="Stations" title="Stations"><span data-icon="map-pin"></span>Stations</a>
+          <a class="ad-nav-item" href="./Admin_maintenance.html" data-page="Admin_maintenance.html" aria-label="Maintenance" title="Maintenance"><span data-icon="wrench"></span>Maintenance</a>
+          <a class="ad-nav-item" href="./Admin_reports.html" data-page="Admin_reports.html" aria-label="Reports" title="Reports"><span data-icon="bar-chart"></span>Reports</a>
+          <a class="ad-nav-item" href="./Admin_support.html" data-page="Admin_support.html" aria-label="Support Issues" title="Support Issues"><span data-icon="help-circle"></span>Support Issues</a>
+          <a class="ad-nav-item active aai-nav-active" href="./Admin_ai.html" data-page="Admin_ai.html" aria-label="AI Assistant" title="AI Assistant"><span data-icon="sparkles"></span>AI Assistant</a>
+          <a class="ad-nav-item" href="./Admin_settings.html" data-page="Admin_settings.html" aria-label="Settings" title="Settings"><span data-icon="settings"></span>Settings</a>
+        </nav>
+        <a class="ad-help-card" href="./Admin_help.html" id="admin-help-button" aria-label="Admin Help Center" title="Admin Help Center">
+          <span class="ad-help-icon" data-icon="headphones"></span>
+          <span><strong>Help Center</strong><small>Admin guides and support</small></span>
+          <span data-icon="chevron-right"></span>
+        </a>
+      </aside>
+
+      <main class="ad-content">
+        <div class="aai-layout">
+          <section class="aai-page-head">
+            <div>
+              <h1>AI Assistant</h1>
+              <p>Ask AI about payments, bookings, refunds, bikes, stations, maintenance, tickets, reports, and website issues.</p>
+            </div>
+            <div class="aai-head-actions">
+              <button class="aai-primary-btn" type="button" id="aai-new-chat"><span data-icon="message"></span>New Chat</button>
+              <button class="aai-outline-btn" type="button" id="aai-clear-history"><span data-icon="x"></span>Clear History</button>
+            </div>
+          </section>
+
+          <section class="aai-workspace" aria-label="AI workspace">
+            <aside class="aai-tool-column">
+              <article class="aai-card">
+                <div class="aai-card-head">
+                  <div>
+                    <h3>Quick Actions</h3>
+                    <p>Ask common admin questions instantly.</p>
+                  </div>
+                </div>
+                <div class="aai-action-grid" id="aai-quick-actions">
+                  <button type="button" class="aai-action" data-action="income" title="What is today's income and payment status?"><span data-icon="dollar"></span><strong>Today's Income</strong></button>
+                  <button type="button" class="aai-action" data-action="failed-payments" title="List failed payments and suggest what admin should check."><span data-icon="credit-card"></span><strong>Failed Payments</strong></button>
+                  <button type="button" class="aai-action" data-action="open-tickets" title="List open support tickets and priority issues."><span data-icon="help-circle"></span><strong>Open Tickets</strong></button>
+                  <button type="button" class="aai-action" data-action="booking-issue" title="How do I troubleshoot a booking not showing after payment?"><span data-icon="alert"></span><strong>Booking Issue</strong></button>
+                  <button type="button" class="aai-action" data-action="low-stations" title="Which stations have low bike availability?"><span data-icon="map-pin"></span><strong>Low Stations</strong></button>
+                  <button type="button" class="aai-action" data-action="bike-repairs" title="Which bikes or maintenance tasks should be prioritised?"><span data-icon="wrench"></span><strong>Bike Repairs</strong></button>
+                  <button type="button" class="aai-action" data-action="refund-review" title="How should admin review refund requests?"><span data-icon="wallet"></span><strong>Refund Review</strong></button>
+                  <button type="button" class="aai-action" data-action="daily-summary" title="Summarise today's platform operations."><span data-icon="bar-chart"></span><strong>Daily Summary</strong></button>
+                </div>
+              </article>
+
+              <article class="aai-card">
+                <div class="aai-card-head compact">
+                  <div>
+                    <h3>Support Tickets</h3>
+                    <p>Click a ticket to analyse it in chat.</p>
+                  </div>
+                  <a class="aai-view-link" href="./Admin_support.html">View all</a>
+                </div>
+                <div class="aai-ticket-queue" id="aai-ticket-queue">
+                  <div class="aai-mini-empty">Loading tickets...</div>
+                </div>
+              </article>
+
+              <article class="aai-card">
+                <div class="aai-card-head compact">
+                  <div>
+                    <h3>AI Insights</h3>
+                    <p>Current assistant activity.</p>
+                  </div>
+                  <span class="aai-live-dot" id="aai-live-dot" aria-label="AI status"></span>
+                </div>
+                <div class="aai-insight-list">
+                  <div class="aai-insight"><span>Status</span><strong id="aai-insight-status">Checking</strong></div>
+                  <div class="aai-insight"><span>Requests</span><strong id="aai-insight-total">0</strong></div>
+                  <div class="aai-insight"><span>Mode</span><strong id="aai-insight-mode">Admin Assistant</strong></div>
+                  <div class="aai-insight"><span>Last topic</span><strong id="aai-insight-last-topic">None yet</strong></div>
+                </div>
+              </article>
+            </aside>
+
+            <section class="aai-chat-column">
+              <article class="aai-card aai-chat-card">
+                <div class="aai-chat-head">
+                  <div>
+                    <h3>AI Chat</h3>
+                    <p>Ask anything about the admin system.</p>
+                  </div>
+                  <div class="aai-chat-badges">
+                    <span class="aai-chat-status" id="aai-chat-mode">Local Preview</span>
+                    <span class="aai-chat-model" id="aai-chat-model">gpt-4.1-mini</span>
+                  </div>
+                </div>
+
+                <div class="aai-chat-body" id="aai-chat-body" aria-live="polite"></div>
+
+                <div class="aai-typing" id="aai-typing" hidden>
+                  <span></span><span></span><span></span>
+                  <em>AI is typing...</em>
+                </div>
+
+                <form class="aai-chat-input" id="aai-chat-form" autocomplete="off">
+                  <textarea id="aai-chat-text" rows="1" placeholder="Ask about income, payments, refunds, bookings, bikes, stations, maintenance, tickets, reports, or website issues..."></textarea>
+                  <button class="aai-send-btn" type="submit" id="aai-send" aria-label="Send message"><span data-icon="message"></span></button>
+                </form>
+              </article>
+            </section>
+          </section>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div class="aai-tooltip" id="aai-tooltip" hidden></div>
+  <div class="ad-toast" id="admin-toast" hidden role="status" aria-live="polite"></div>
+  <script src="admin-dashboard.js"></script>
+  <script src="admin-ai.js"></script>
+</body>
+</html>
