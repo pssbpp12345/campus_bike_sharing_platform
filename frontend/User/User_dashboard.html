@@ -1679,6 +1679,7 @@
   <div id="root"></div>
 
   <!-- Shared student topbar/sidebar/components — same as every other student page -->
+  <script src="/api-config.js"></script>
   <script type="text/babel" data-presets="env,react" src="user-shared.js"></script>
 
   <script type="text/babel" data-presets="env,react">
@@ -1691,7 +1692,7 @@
     (function authGuard(){
       try {
         const t = localStorage.getItem("cbs_token");
-        if (!t) window.location.replace("../../login.html?next=" + encodeURIComponent(location.pathname));
+        if (!t) window.location.replace("/login.html?next=" + encodeURIComponent(location.pathname));
       } catch(_) {}
     })();
 
@@ -2725,7 +2726,7 @@
             <div className="d-map-error">
               <Icon.alert/>
               <div style={{maxWidth: 380}}>
-                We couldn't load Google Maps. Check that the Maps JavaScript API is enabled in Google Cloud Console, that billing is set up, and that the API key permits the localhost domain.
+                We couldn't load Google Maps. Check that the Maps JavaScript API is enabled in Google Cloud Console, that billing is set up, and that the API key permits the frontend domain.
               </div>
             </div>
           )}
@@ -3123,7 +3124,7 @@
             <div className="d-map-error">
               <Icon.alert/>
               <div style={{maxWidth: 380}}>
-                We couldn't load Google Maps. Check that the Maps JavaScript API is enabled in Google Cloud Console, that billing is set up, and that the API key permits the localhost domain.
+                We couldn't load Google Maps. Check that the Maps JavaScript API is enabled in Google Cloud Console, that billing is set up, and that the API key permits the frontend domain.
               </div>
             </div>
           )}
@@ -3743,8 +3744,14 @@
       }, [stations]);
 
       const onLogout = () => {
-        try { localStorage.removeItem("cbs_token"); localStorage.removeItem("cbs_user"); } catch(_){}
-        window.location.replace("../../login.html?loggedout=1");
+        try {
+          localStorage.removeItem("cbs_token");
+          localStorage.removeItem("cbs_user");
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          localStorage.removeItem("role");
+        } catch(_){}
+        window.location.replace("/login.html?loggedout=1");
       };
       const onRefresh = () => {
         const token = localStorage.getItem("cbs_token");
@@ -3768,7 +3775,7 @@
         const token = localStorage.getItem("cbs_token");
         if (!token) {
           pushToast("Login required", "Please log in before booking a bike.");
-          window.location.replace("../../login.html");
+          window.location.replace("/login.html");
           return;
         }
         if (!b.bikeId) {

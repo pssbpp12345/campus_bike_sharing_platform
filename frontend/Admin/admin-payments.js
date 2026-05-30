@@ -56,10 +56,10 @@
 
   async function api(path) {
     const token = getToken();
-    if (!token) { window.location.replace("../../login.html?admin=1&next=" + encodeURIComponent(location.pathname)); throw new Error("Not authenticated."); }
+    if (!token) { window.location.replace("/login.html?admin=1&next=" + encodeURIComponent(location.pathname)); throw new Error("Not authenticated."); }
     const res = await fetch(path, { headers: { Authorization: "Bearer " + token, "Content-Type": "application/json" }, cache: "no-store" });
     if (res.status === 401 || res.status === 403) {
-      window.location.replace("../../login.html?admin=1&next=" + encodeURIComponent(location.pathname));
+      window.location.replace("/login.html?admin=1&next=" + encodeURIComponent(location.pathname));
       throw new Error("Admin session expired.");
     }
     const data = await res.json().catch(() => ({}));
@@ -68,7 +68,7 @@
   }
   async function apiSend(path, method, body) {
     const token = getToken();
-    if (!token) { window.location.replace("../../login.html?admin=1&next=" + encodeURIComponent(location.pathname)); throw new Error("Not authenticated."); }
+    if (!token) { window.location.replace("/login.html?admin=1&next=" + encodeURIComponent(location.pathname)); throw new Error("Not authenticated."); }
     const res = await fetch(path, {
       method,
       headers: { Authorization: "Bearer " + token, "Content-Type": "application/json" },

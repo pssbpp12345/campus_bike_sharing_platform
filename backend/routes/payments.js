@@ -38,8 +38,9 @@ function requireUser(req, res, next) {
 
 function appBaseUrl(req) {
   return (
+    process.env.FRONTEND_BASE_URL ||
     process.env.APP_BASE_URL ||
-    `${req.protocol}://${req.get("host")}`
+    "https://campus-bike-sharing-frontend.onrender.com"
   ).replace(/\/$/, "");
 }
 
@@ -247,7 +248,7 @@ function createLocalCheckoutSession(req, booking, amount) {
     amount,
     currency: STRIPE_CURRENCY,
   });
-  const url = `${baseUrl}/frontend/User/User_dashboard.html?payment=success&session_id=${encodeURIComponent(session.id)}`;
+  const url = `${baseUrl}/User/User_dashboard.html?payment=success&session_id=${encodeURIComponent(session.id)}`;
   return { id: session.id, url };
 }
 
@@ -410,8 +411,8 @@ router.post("/create-checkout-session", requireUser, async (req, res) => {
       params.set("customer_email", String(req.user.email));
     }
     params.set("client_reference_id", String(req.user.sub || req.user.email || ""));
-    params.set("success_url", `${baseUrl}/frontend/User/User_dashboard.html?payment=success&session_id={CHECKOUT_SESSION_ID}`);
-    params.set("cancel_url", `${baseUrl}/frontend/User/User_dashboard.html?payment=cancelled`);
+    params.set("success_url", `${baseUrl}/User/User_dashboard.html?payment=success&session_id={CHECKOUT_SESSION_ID}`);
+    params.set("cancel_url", `${baseUrl}/User/User_dashboard.html?payment=cancelled`);
     params.set("line_items[0][quantity]", "1");
     params.set("line_items[0][price_data][currency]", (platformSettings.currency || STRIPE_CURRENCY).toLowerCase());
     params.set("line_items[0][price_data][unit_amount]", String(amount));
@@ -512,9 +513,9 @@ router.post("/create-payg-booking-payment", requireUser, async (req, res) => {
     params.set("customer", customerId);
     params.set("client_reference_id", String(req.user.sub || ""));
     const scheduledFlow = scheduledStart ? "reserve_payg" : "ride_now";
-    const successPath = "/frontend/User/User_my_bookings.html";
+    const successPath = "/User/User_my_bookings.html";
     params.set("success_url", `${baseUrl}${successPath}?payment=success&flow=start_ride&session_id={CHECKOUT_SESSION_ID}`);
-    params.set("cancel_url", `${baseUrl}/frontend/User/User_dashboard.html?payment=cancelled&flow=start_ride`);
+    params.set("cancel_url", `${baseUrl}/User/User_dashboard.html?payment=cancelled&flow=start_ride`);
     params.set("line_items[0][quantity]", "1");
     params.set("line_items[0][price_data][currency]", (platformSettings.currency || STRIPE_CURRENCY).toLowerCase());
     params.set("line_items[0][price_data][unit_amount]", String(amount));
@@ -584,7 +585,7 @@ router.post("/start-ride-session", requireUser, async (req, res) => {
 
     const amount = settingsService.amountCentsForDuration(0, platformSettings.pricing);
     const baseUrl = appBaseUrl(req);
-    const successUrl = `${baseUrl}/frontend/User/User_my_bookings.html?payment=success&flow=start_ride&session_id=`;
+    const successUrl = `${baseUrl}/User/User_my_bookings.html?payment=success&flow=start_ride&session_id=`;
     const customerId = STRIPE_SECRET_KEY ? await ensureStripeCustomer(req.user.sub) : "";
 
     if (!STRIPE_SECRET_KEY) {
@@ -600,8 +601,8 @@ router.post("/start-ride-session", requireUser, async (req, res) => {
     if (customerId) params.set("customer", customerId);
     params.set("client_reference_id", String(req.user.sub || req.user.email || ""));
     if (!customerId && req.user.email) params.set("customer_email", String(req.user.email));
-    params.set("success_url", `${baseUrl}/frontend/User/User_my_bookings.html?payment=success&flow=start_ride&session_id={CHECKOUT_SESSION_ID}`);
-    params.set("cancel_url", `${baseUrl}/frontend/User/User_dashboard.html?payment=cancelled&flow=start_ride`);
+    params.set("success_url", `${baseUrl}/User/User_my_bookings.html?payment=success&flow=start_ride&session_id={CHECKOUT_SESSION_ID}`);
+    params.set("cancel_url", `${baseUrl}/User/User_dashboard.html?payment=cancelled&flow=start_ride`);
     params.set("line_items[0][quantity]", "1");
     params.set("line_items[0][price_data][currency]", (platformSettings.currency || STRIPE_CURRENCY).toLowerCase());
     params.set("line_items[0][price_data][unit_amount]", String(amount));
@@ -1066,8 +1067,8 @@ router.post("/create-card-setup-session", requireUser, async (req, res) => {
     params.set("payment_method_types[]", "card");
     params.set("customer", customerId);
     params.set("client_reference_id", String(req.user.sub || ""));
-    params.set("success_url", `${baseUrl}/frontend/User/User_profile.html?card=saved&session_id={CHECKOUT_SESSION_ID}`);
-    params.set("cancel_url", `${baseUrl}/frontend/User/User_profile.html?card=cancelled`);
+    params.set("success_url", `${baseUrl}/User/User_profile.html?card=saved&session_id={CHECKOUT_SESSION_ID}`);
+    params.set("cancel_url", `${baseUrl}/User/User_profile.html?card=cancelled`);
     params.set("setup_intent_data[metadata][flow]", "save_card");
     params.set("setup_intent_data[metadata][user_id]", String(req.user.sub || ""));
     params.set("metadata[flow]", "save_card");

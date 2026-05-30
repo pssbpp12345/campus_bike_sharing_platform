@@ -18,13 +18,20 @@
 --    * Admin expenses, admin activity log entries
 --
 --  Idempotent.
---    * users         — ON CONFLICT (email) DO NOTHING
+--    * users         — ON CONFLICT (email) DO UPDATE
+--                      (refreshes password_hash, role, is_active,
+--                      email_verified, phone, full_name — so re-running
+--                      the seed always restores Password123! on every
+--                      demo account, even after an existing deploy)
 --    * stations      — ON CONFLICT (station_name) DO NOTHING
 --    * bikes         — ON CONFLICT (bike_code) DO NOTHING
 --    * settings      — ON CONFLICT (key) DO UPDATE
 --    * everything else uses a deterministic seed tag
 --      (notes, transaction_reference, admin_response, etc.)
 --      and skips re-insert via WHERE NOT EXISTS.
+--
+--  Demo password (for every seeded account):  Password123!
+--    Hash below is bcryptjs hashSync('Password123!', 12).
 --
 --  Schema notes — strictly respected:
 --    * bookings.status enum: pending|active|completed|cancelled|expired
@@ -40,6 +47,20 @@ BEGIN;
 --    so the seed file can run before the backend has booted).
 
 CREATE UNIQUE INDEX IF NOT EXISTS idx_stations_name_unique ON stations(station_name);
+
+-- Safe column additions the application reads at runtime. Added here
+-- so a freshly-cloned Supabase / Postgres database can be brought up
+-- to the same shape as the long-running dev DB without any extra
+-- migration files.
+ALTER TABLE users    ADD COLUMN IF NOT EXISTS avatar_url          TEXT;
+ALTER TABLE users    ADD COLUMN IF NOT EXISTS stripe_customer_id  VARCHAR(120);
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS booking_type        VARCHAR(30);
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS pricing_mode        VARCHAR(30);
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS ride_mode           VARCHAR(30);
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS payment_status      VARCHAR(40);
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS unlock_fee          NUMERIC(10,2);
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS per_minute_fee      NUMERIC(10,2);
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS distance_km         NUMERIC(8,2);
 
 DO $$
 BEGIN
@@ -164,18 +185,25 @@ ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, description = EXCLUDED.d
 
 -- ── 2. Users (1 admin + 5 students + 5 staff) ──────────────
 INSERT INTO users (full_name, email, password_hash, role, phone, is_active, email_verified) VALUES
-  ('Admin User',      'admin@university.edu',          '$2b$12$eZ8J3o0m1NvT5gYQv2LRq.Rn.G4qB5bYvQ0cW8RKkN1dFh7p6eSIy', 'admin',   '+61-2-5550-0001', TRUE, TRUE),
-  ('Alice Johnson',   'alice.johnson@university.edu',  '$2b$12$eZ8J3o0m1NvT5gYQv2LRq.Rn.G4qB5bYvQ0cW8RKkN1dFh7p6eSIy', 'student', '+61-2-5550-1001', TRUE, TRUE),
-  ('Bob Smith',       'bob.smith@university.edu',      '$2b$12$eZ8J3o0m1NvT5gYQv2LRq.Rn.G4qB5bYvQ0cW8RKkN1dFh7p6eSIy', 'student', '+61-2-5550-1002', TRUE, TRUE),
-  ('Daniel Kim',      'daniel.kim@university.edu',     '$2b$12$eZ8J3o0m1NvT5gYQv2LRq.Rn.G4qB5bYvQ0cW8RKkN1dFh7p6eSIy', 'student', '+61-2-5550-1003', TRUE, TRUE),
-  ('Emma Wilson',     'emma.wilson@university.edu',    '$2b$12$eZ8J3o0m1NvT5gYQv2LRq.Rn.G4qB5bYvQ0cW8RKkN1dFh7p6eSIy', 'student', '+61-2-5550-1004', TRUE, TRUE),
-  ('Sophia Nguyen',   'sophia.nguyen@university.edu',  '$2b$12$eZ8J3o0m1NvT5gYQv2LRq.Rn.G4qB5bYvQ0cW8RKkN1dFh7p6eSIy', 'student', '+61-2-5550-1005', TRUE, TRUE),
-  ('Dr Michael Brown','michael.brown@university.edu',  '$2b$12$eZ8J3o0m1NvT5gYQv2LRq.Rn.G4qB5bYvQ0cW8RKkN1dFh7p6eSIy', 'staff',   '+61-2-5550-2001', TRUE, TRUE),
-  ('Sarah Taylor',    'sarah.taylor@university.edu',   '$2b$12$eZ8J3o0m1NvT5gYQv2LRq.Rn.G4qB5bYvQ0cW8RKkN1dFh7p6eSIy', 'staff',   '+61-2-5550-2002', TRUE, TRUE),
-  ('James Carter',    'james.carter@university.edu',   '$2b$12$eZ8J3o0m1NvT5gYQv2LRq.Rn.G4qB5bYvQ0cW8RKkN1dFh7p6eSIy', 'staff',   '+61-2-5550-2003', TRUE, TRUE),
-  ('Priya Patel',     'priya.patel@university.edu',    '$2b$12$eZ8J3o0m1NvT5gYQv2LRq.Rn.G4qB5bYvQ0cW8RKkN1dFh7p6eSIy', 'staff',   '+61-2-5550-2004', TRUE, TRUE),
-  ('Liam Anderson',   'liam.anderson@university.edu',  '$2b$12$eZ8J3o0m1NvT5gYQv2LRq.Rn.G4qB5bYvQ0cW8RKkN1dFh7p6eSIy', 'staff',   '+61-2-5550-2005', TRUE, TRUE)
-ON CONFLICT (email) DO NOTHING;
+  ('Admin User',      'admin@university.edu',          '$2b$12$2XR4YE5ErGGoZA/.X.Gw9uAIkrUjcBov2JLXnib9C5T0NHl8sT/Py', 'admin',   '+61-2-5550-0001', TRUE, TRUE),
+  ('Alice Johnson',   'alice.johnson@university.edu',  '$2b$12$2XR4YE5ErGGoZA/.X.Gw9uAIkrUjcBov2JLXnib9C5T0NHl8sT/Py', 'student', '+61-2-5550-1001', TRUE, TRUE),
+  ('Bob Smith',       'bob.smith@university.edu',      '$2b$12$2XR4YE5ErGGoZA/.X.Gw9uAIkrUjcBov2JLXnib9C5T0NHl8sT/Py', 'student', '+61-2-5550-1002', TRUE, TRUE),
+  ('Daniel Kim',      'daniel.kim@university.edu',     '$2b$12$2XR4YE5ErGGoZA/.X.Gw9uAIkrUjcBov2JLXnib9C5T0NHl8sT/Py', 'student', '+61-2-5550-1003', TRUE, TRUE),
+  ('Emma Wilson',     'emma.wilson@university.edu',    '$2b$12$2XR4YE5ErGGoZA/.X.Gw9uAIkrUjcBov2JLXnib9C5T0NHl8sT/Py', 'student', '+61-2-5550-1004', TRUE, TRUE),
+  ('Sophia Nguyen',   'sophia.nguyen@university.edu',  '$2b$12$2XR4YE5ErGGoZA/.X.Gw9uAIkrUjcBov2JLXnib9C5T0NHl8sT/Py', 'student', '+61-2-5550-1005', TRUE, TRUE),
+  ('Dr Michael Brown','michael.brown@university.edu',  '$2b$12$2XR4YE5ErGGoZA/.X.Gw9uAIkrUjcBov2JLXnib9C5T0NHl8sT/Py', 'staff',   '+61-2-5550-2001', TRUE, TRUE),
+  ('Sarah Taylor',    'sarah.taylor@university.edu',   '$2b$12$2XR4YE5ErGGoZA/.X.Gw9uAIkrUjcBov2JLXnib9C5T0NHl8sT/Py', 'staff',   '+61-2-5550-2002', TRUE, TRUE),
+  ('James Carter',    'james.carter@university.edu',   '$2b$12$2XR4YE5ErGGoZA/.X.Gw9uAIkrUjcBov2JLXnib9C5T0NHl8sT/Py', 'staff',   '+61-2-5550-2003', TRUE, TRUE),
+  ('Priya Patel',     'priya.patel@university.edu',    '$2b$12$2XR4YE5ErGGoZA/.X.Gw9uAIkrUjcBov2JLXnib9C5T0NHl8sT/Py', 'staff',   '+61-2-5550-2004', TRUE, TRUE),
+  ('Liam Anderson',   'liam.anderson@university.edu',  '$2b$12$2XR4YE5ErGGoZA/.X.Gw9uAIkrUjcBov2JLXnib9C5T0NHl8sT/Py', 'staff',   '+61-2-5550-2005', TRUE, TRUE)
+ON CONFLICT (email) DO UPDATE SET
+  full_name      = EXCLUDED.full_name,
+  password_hash  = EXCLUDED.password_hash,
+  role           = EXCLUDED.role,
+  phone          = EXCLUDED.phone,
+  is_active      = EXCLUDED.is_active,
+  email_verified = EXCLUDED.email_verified,
+  updated_at     = NOW();
 
 
 -- ── 3. Stations (20 across Sydney CBD / campus precincts) ──

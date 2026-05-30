@@ -1,6 +1,15 @@
 /* Shared User Components — full chrome that matches User_dashboard */
 const { useState, useEffect, useCallback, useRef } = React;
 
+const API_BASE_URL = window.API_BASE_URL || "/api";
+function cbsApiUrl(path) {
+  if (window.cbsApiUrl) return window.cbsApiUrl(path);
+  if (typeof path === "string" && (path === "/api" || path.startsWith("/api/"))) {
+    return API_BASE_URL + path.slice(4);
+  }
+  return path;
+}
+
 const UserIcons = {
   // Keep these topbar/sidebar SVGs identical to User_dashboard.html.
   // This prevents the logo/nav/sidebar changing size between Dashboard/My Bookings and the shared pages.
@@ -48,12 +57,15 @@ const AUTH_KEYS = { token: "cbs_token", user: "cbs_user" };
 
 function redirectToLogin(next) {
   const target = next || (window.location.pathname + window.location.search);
-  window.location.replace("../../login.html?next=" + encodeURIComponent(target));
+  const cleanTarget = window.cbsFrontendPath ? window.cbsFrontendPath(target) : target;
+  window.location.replace("/login.html?next=" + encodeURIComponent(cleanTarget));
 }
 
 function getAuthToken() {
   try {
-    const token = localStorage.getItem(AUTH_KEYS.token);
+    const token = localStorage.getItem(AUTH_KEYS.token) || localStorage.getItem("token");
+    if (token && !localStorage.getItem(AUTH_KEYS.token)) localStorage.setItem(AUTH_KEYS.token, token);
+    if (token && !localStorage.getItem("token")) localStorage.setItem("token", token);
     if (!token || token === "demo-token") return null;
     return token;
   } catch (_) {
@@ -63,7 +75,12 @@ function getAuthToken() {
 
 function getCurrentUser() {
   try {
-    const user = JSON.parse(localStorage.getItem(AUTH_KEYS.user) || "null");
+    const raw = localStorage.getItem(AUTH_KEYS.user) || localStorage.getItem("user") || "null";
+    if (raw && raw !== "null") {
+      if (!localStorage.getItem(AUTH_KEYS.user)) localStorage.setItem(AUTH_KEYS.user, raw);
+      if (!localStorage.getItem("user")) localStorage.setItem("user", raw);
+    }
+    const user = JSON.parse(raw);
     if (!user || String(user.id || "").startsWith("demo-")) return null;
     return user;
   } catch (_) {
@@ -74,12 +91,17 @@ function getCurrentUser() {
 function setCurrentUser(user) {
   if (!user) return;
   localStorage.setItem(AUTH_KEYS.user, JSON.stringify(user));
+  localStorage.setItem("user", JSON.stringify(user));
+  if (user.role) localStorage.setItem("role", String(user.role).toLowerCase());
 }
 
 function clearAuth() {
   try {
     localStorage.removeItem(AUTH_KEYS.token);
     localStorage.removeItem(AUTH_KEYS.user);
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    localStorage.removeItem("role");
   } catch (_) {}
 }
 
@@ -90,7 +112,7 @@ async function authFetch(path, opts = {}) {
   if (opts.body && !(opts.body instanceof FormData) && !headers["Content-Type"]) {
     headers["Content-Type"] = "application/json";
   }
-  const res = await fetch(path, { ...opts, headers });
+  const res = await fetch(cbsApiUrl(path), { ...opts, headers });
   if (res.status === 401) {
     clearAuth();
     if (opts.redirectOnUnauthorized !== false) redirectToLogin();
@@ -178,7 +200,7 @@ window.cbsPublicSettings = {
 
 window.cbsLoadPublicSettings = async function () {
   if (window.__cbsPublicSettingsPromise) return window.__cbsPublicSettingsPromise;
-  window.__cbsPublicSettingsPromise = fetch("/api/settings/public", { cache: "no-store" })
+  window.__cbsPublicSettingsPromise = fetch(cbsApiUrl("/api/settings/public"), { cache: "no-store" })
     .then((res) => res.ok ? res.json() : null)
     .then((data) => {
       if (data) {
@@ -230,7 +252,7 @@ window.useUserAuth = function () {
   }, []);
   const logout = useCallback(() => {
     clearAuth();
-    window.location.replace("../../login.html?loggedout=1");
+    window.location.replace("/login.html?loggedout=1");
   }, []);
   // Keep `user` in sync when other tabs/pages update localStorage, or when the
   // current page dispatches "cbs:user-updated" (e.g. after avatar upload).

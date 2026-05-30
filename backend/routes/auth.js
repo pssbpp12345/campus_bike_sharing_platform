@@ -11,10 +11,12 @@ const { welcomeEmail, passwordChangedEmail, otpEmail } = require("../utils/email
 const settingsService = require("../services/settingsService");
 
 // Public base URL used in email links — falls back to localhost in dev.
-function publicBaseUrl(req) {
-  return process.env.PUBLIC_URL ||
-    (req && `${req.protocol}://${req.get("host")}`) ||
-    "http://localhost:5000";
+function publicBaseUrl(_req) {
+  return (
+    process.env.FRONTEND_BASE_URL ||
+    process.env.PUBLIC_URL ||
+    "https://campus-bike-sharing-frontend.onrender.com"
+  ).replace(/\/$/, "");
 }
 
 const router = express.Router();

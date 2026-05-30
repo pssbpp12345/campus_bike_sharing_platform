@@ -165,7 +165,7 @@
 
       // Auth guard
       if (!token || !raw) {
-        window.location.replace("../../login.html");
+        window.location.replace("/login.html");
         return;
       }
 
@@ -185,7 +185,7 @@
           localStorage.removeItem("cbs_token");
           localStorage.removeItem("cbs_user");
         } catch (_) {}
-        window.location.href = "../../login.html?loggedout=1";
+        window.location.href = "/login.html?loggedout=1";
       });
     })();
   </script>

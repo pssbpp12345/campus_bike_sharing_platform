@@ -10,7 +10,13 @@ import "./Login.css";
  * - The "Create Account" button navigates to register.html
  */
 
-const API_BASE = "/api";
+const API_BASE = window.API_BASE_URL || "/api";
+
+function dashboardForRole(role) {
+  return String(role || "").toLowerCase() === "admin"
+    ? "/Admin/Admin_dashboard.html"
+    : "/User/User_dashboard.html";
+}
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -67,10 +73,14 @@ export default function Login() {
       }
       localStorage.setItem("cbs_token", data.token);
       localStorage.setItem("cbs_user", JSON.stringify(data.user));
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+      localStorage.setItem("role", String(data.user?.role || "").toLowerCase());
       setUser(data.user);
       setPassword("");
+      window.location.href = dashboardForRole(data.user?.role);
     } catch (err) {
-      setError("Cannot reach the server. Make sure the backend is running on port 5000.");
+      setError("Cannot reach the server. Please try again shortly.");
     } finally {
       setLoading(false);
     }
@@ -79,6 +89,9 @@ export default function Login() {
   const handleLogout = () => {
     localStorage.removeItem("cbs_token");
     localStorage.removeItem("cbs_user");
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    localStorage.removeItem("role");
     window.location.href = "index.html?loggedout=1";
   };
 

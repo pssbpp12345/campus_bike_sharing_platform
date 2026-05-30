@@ -1,6 +1,15 @@
 (function () {
   "use strict";
 
+  const API_BASE_URL = window.API_BASE_URL || "/api";
+  function apiUrl(path) {
+    if (window.cbsApiUrl) return window.cbsApiUrl(path);
+    if (typeof path === "string" && (path === "/api" || path.startsWith("/api/"))) {
+      return API_BASE_URL + path.slice(4);
+    }
+    return path;
+  }
+
   const ICONS = {
     "layout-dashboard": '<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="8" height="8" rx="2" stroke="currentColor" stroke-width="2"/><rect x="13" y="3" width="8" height="8" rx="2" stroke="currentColor" stroke-width="2"/><rect x="3" y="13" width="8" height="8" rx="2" stroke="currentColor" stroke-width="2"/><rect x="13" y="13" width="8" height="8" rx="2" stroke="currentColor" stroke-width="2"/></svg>',
     search: '<svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
@@ -196,24 +205,39 @@
   }
 
   function getToken() {
-    try { return localStorage.getItem("cbs_token"); } catch (_) { return null; }
+    try {
+      const token = localStorage.getItem("cbs_token") || localStorage.getItem("token");
+      if (token && !localStorage.getItem("cbs_token")) localStorage.setItem("cbs_token", token);
+      if (token && !localStorage.getItem("token")) localStorage.setItem("token", token);
+      return token;
+    } catch (_) { return null; }
   }
 
   function getUser() {
-    try { return JSON.parse(localStorage.getItem("cbs_user") || "null"); } catch (_) { return null; }
+    try {
+      const raw = localStorage.getItem("cbs_user") || localStorage.getItem("user") || "null";
+      if (raw && raw !== "null") {
+        if (!localStorage.getItem("cbs_user")) localStorage.setItem("cbs_user", raw);
+        if (!localStorage.getItem("user")) localStorage.setItem("user", raw);
+      }
+      return JSON.parse(raw);
+    } catch (_) { return null; }
   }
 
   function clearAuth() {
     try {
       localStorage.removeItem("cbs_token");
       localStorage.removeItem("cbs_user");
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      localStorage.removeItem("role");
       localStorage.removeItem(READ_NOTIFICATIONS_KEY);
     } catch (_) {}
   }
 
   function redirectToAdminLogin() {
     document.body.classList.add("ad-auth-pending");
-    window.location.replace("../../login.html?admin=1&next=" + encodeURIComponent(location.pathname));
+    window.location.replace("/login.html?admin=1&next=" + encodeURIComponent(location.pathname));
   }
 
   function hasAdminSession() {
@@ -235,7 +259,7 @@
       return false;
     }
     try {
-      const res = await fetch("/api/auth/me", {
+      const res = await fetch(apiUrl("/api/auth/me"), {
         headers: { Authorization: "Bearer " + getToken() },
         cache: "no-store",
       });
@@ -246,7 +270,11 @@
         return false;
       }
       state.currentUser = data.user;
-      try { localStorage.setItem("cbs_user", JSON.stringify(data.user)); } catch (_) {}
+      try {
+        localStorage.setItem("cbs_user", JSON.stringify(data.user));
+        localStorage.setItem("user", JSON.stringify(data.user));
+        localStorage.setItem("role", String(data.user.role || "").toLowerCase());
+      } catch (_) {}
       renderAdminProfile(data.user);
       document.body.classList.remove("ad-auth-pending");
       return true;
@@ -288,13 +316,13 @@
       redirectToAdminLogin();
       throw new Error("Admin session expired.");
     }
-    const res = await fetch(path, { headers: { Authorization: "Bearer " + token }, cache: "no-store" });
+    const res = await fetch(apiUrl(path), { headers: { Authorization: "Bearer " + token }, cache: "no-store" });
     const text = await res.text();
     let data = null;
     try { data = text ? JSON.parse(text) : null; } catch (_) { data = text; }
     if (res.status === 401 || res.status === 403) {
       clearAuth();
-      window.location.replace("../../login.html?next=" + encodeURIComponent(location.pathname));
+      window.location.replace("/login.html?next=" + encodeURIComponent(location.pathname));
       throw new Error("Admin session expired.");
     }
     if (!res.ok) throw new Error((data && data.error) || "Request failed.");
@@ -869,7 +897,7 @@
     clearInterval(state.refreshTimer);
     clearInterval(state.fastRefreshTimer);
     clearAuth();
-    window.location.replace("../../login.html?admin=1");
+    window.location.replace("/login.html?admin=1");
   }
 
   function showToast(message) {

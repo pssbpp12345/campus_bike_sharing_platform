@@ -837,6 +837,7 @@
 </head>
 <body>
   <div id="root"></div>
+  <script src="/api-config.js"></script>
   <script type="text/babel" data-presets="env,react" src="user-shared.js"></script>
   <script type="text/babel" data-presets="env,react">
     const { useEffect, useMemo, useState, useRef, useCallback } = React;
@@ -859,7 +860,7 @@
     /* ────── Google Maps loader (same key as User_dashboard.html) ────── */
     // Same browser-side key the dashboard already uses. Restrict it in Google
     // Cloud Console → Credentials → HTTP referrers:
-    //   http://localhost:*  http://localhost:5000/*  <your-deployed-domain>/*
+    //   <your-frontend-domain>/*
     const FALLBACK_GMAPS_KEY = "AIzaSyB6PW601u22m34P5Vcl5d4DBXgQxOYSV2U";
     let __gMapsPromise = null;
     function loadGoogleMaps() {

@@ -12,6 +12,7 @@
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="/api-config.js"></script>
 
   <link rel="stylesheet" href="Login.css" />
 </head>
@@ -21,7 +22,7 @@
 
   <script type="text/babel" data-presets="env,react">
     const { useEffect, useState } = React;
-    const API_BASE = "/api";
+    const API_BASE = window.API_BASE_URL || "/api";
 
 
     // Match the same allow-list as the backend: any *.edu / *.edu.cc / *.ac.cc / *.school.cc
@@ -95,20 +96,23 @@
             setError(data.error || "Registration failed. Please try a different email.");
             return;
           }
+          const role = ((data.user && data.user.role) || "student").toLowerCase();
           // Auto-login: backend already returned a fresh token + user.
           try {
             localStorage.setItem("cbs_token", data.token);
             localStorage.setItem("cbs_user", JSON.stringify(data.user));
+            localStorage.setItem("token", data.token);
+            localStorage.setItem("user", JSON.stringify(data.user));
+            localStorage.setItem("role", role);
           } catch (_) { /* localStorage might be disabled — non-fatal */ }
           // Redirect to the right dashboard based on assigned role.
-          const role = ((data.user && data.user.role) || "student").toLowerCase();
           let dest;
           // Student and Staff both land on the shared User dashboard.
-          if (role === "admin") dest = "frontend/Admin/admin_dashboard.html";
-          else                  dest = "frontend/User/User_dashboard.html";
+          if (role === "admin") dest = "/Admin/Admin_dashboard.html";
+          else                  dest = "/User/User_dashboard.html";
           window.location.href = dest;
         } catch (err) {
-          setError("Cannot reach the server. Make sure the backend is running on port 5000.");
+          setError("Cannot reach the server. Please try again shortly.");
         } finally {
           setLoading(false);
         }

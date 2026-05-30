@@ -31,7 +31,7 @@
   async function api(path, options = {}) {
     const token = getToken();
     if (!token) {
-      window.location.replace("../../login.html?admin=1&next=" + encodeURIComponent(location.pathname));
+      window.location.replace("/login.html?admin=1&next=" + encodeURIComponent(location.pathname));
       throw new Error("Admin login required.");
     }
     const res = await fetch(path, {
@@ -48,8 +48,11 @@
       try {
         localStorage.removeItem("cbs_token");
         localStorage.removeItem("cbs_user");
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        localStorage.removeItem("role");
       } catch (_) {}
-      window.location.replace("../../login.html?admin=1&next=" + encodeURIComponent(location.pathname));
+      window.location.replace("/login.html?admin=1&next=" + encodeURIComponent(location.pathname));
       throw new Error("Admin session expired.");
     }
     if (!res.ok) throw new Error(data.error || "Request failed.");
@@ -59,7 +62,7 @@
   async function apiBlob(path) {
     const token = getToken();
     if (!token) {
-      window.location.replace("../../login.html?admin=1&next=" + encodeURIComponent(location.pathname));
+      window.location.replace("/login.html?admin=1&next=" + encodeURIComponent(location.pathname));
       throw new Error("Admin login required.");
     }
     const res = await fetch(path, { headers: { Authorization: "Bearer " + token }, cache: "no-store" });

@@ -9,7 +9,7 @@ import "./Login.css";
  *   show a one-time "Account created" success banner.
  */
 
-const API_BASE = "/api";
+const API_BASE = window.API_BASE_URL || "/api";
 
 export default function Register() {
   const [fullName, setFullName] = useState("");
@@ -55,9 +55,9 @@ export default function Register() {
         setError(data.error || "Registration failed. Please try a different email.");
         return;
       }
-      window.location.href = "index.html?registered=1";
+      window.location.href = "/login.html?registered=1";
     } catch (err) {
-      setError("Cannot reach the server. Make sure the backend is running on port 5000.");
+      setError("Cannot reach the server. Please try again shortly.");
     } finally {
       setLoading(false);
     }

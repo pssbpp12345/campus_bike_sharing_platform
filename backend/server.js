@@ -44,9 +44,14 @@ const app = express();
 const PORT = process.env.PORT || 8001;
 const PROJECT_ROOT = path.resolve(__dirname, "..");
 const UPLOADS_DIR = path.join(PROJECT_ROOT, "Uploads");
+const FRONTEND_BASE_URL = (
+  process.env.FRONTEND_BASE_URL ||
+  process.env.PUBLIC_URL ||
+  "https://campus-bike-sharing-frontend.onrender.com"
+).replace(/\/$/, "");
 
 // ── Middleware ────────────────────────────────────────────────
-app.use(cors());
+app.use(cors({ origin: true, credentials: true }));
 // Stripe webhooks must be reachable under both /api/payments/stripe/webhook
 // (mounted via the payments router) and the bare /stripe/webhook path some
 // Stripe dashboards default to. We keep the JSON body parser global because
@@ -54,7 +59,8 @@ app.use(cors());
 app.use(express.json({ limit: "1mb" }));
 
 // ── Static front-end (index.html, Login.css, /UI/*, etc.) ─────
-app.use(express.static(PROJECT_ROOT));
+// Frontend HTML is served by the separate frontend Render service.
+// This backend service should only serve API and upload assets.
 
 // Backwards-compat: redirect old /frontend/Student/* URLs to the new
 // /frontend/User/* tree. The physical files have been renamed —
@@ -93,7 +99,7 @@ app.get(/^\/frontend\/Student\/(.+)$/i, (req, res, next) => {
   const newName = LEGACY_STUDENT_MAP[oldName];
   if (newName) {
     const qs = req.originalUrl.includes("?") ? req.originalUrl.slice(req.originalUrl.indexOf("?")) : "";
-    return res.redirect(302, `/frontend/User/${newName}${qs}`);
+    return res.redirect(302, `${FRONTEND_BASE_URL}/User/${newName}${qs}`);
   }
   return next();
 });
@@ -146,9 +152,19 @@ app.use("/payments", paymentRoutes);
 app.use("/stripe", paymentRoutes);
 
 // ── Front-end fallback (so refreshing /login still serves the page) ──
+function frontendPathForBackendRequest(req) {
+  const qs = req.originalUrl.includes("?") ? req.originalUrl.slice(req.originalUrl.indexOf("?")) : "";
+  let pagePath = req.path.replace(/^\/frontend\/(Admin|User|Student|Staff)\//i, "/$1/");
+  if (pagePath === "/") pagePath = "/login.html";
+  return `${FRONTEND_BASE_URL}${pagePath}${qs}`;
+}
+
+// Visible pages belong to the frontend service. If an old bookmark or redirect
+// hits the backend domain, send the browser back to the frontend domain.
 app.get("*", (req, res, next) => {
   if (req.path.startsWith("/api/")) return next();
-  res.sendFile(path.join(PROJECT_ROOT, "index.html"));
+  if (req.path.startsWith("/uploads/")) return next();
+  res.redirect(302, frontendPathForBackendRequest(req));
 });
 
 // ── Error handler ─────────────────────────────────────────────

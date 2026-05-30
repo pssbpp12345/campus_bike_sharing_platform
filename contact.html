@@ -12,6 +12,7 @@
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="/api-config.js"></script>
 
   <link rel="stylesheet" href="Login.css" />
 </head>
@@ -21,7 +22,7 @@
 
   <script type="text/babel" data-presets="env,react">
     const { useState, useEffect } = React;
-    const API_BASE = "/api";
+    const API_BASE = window.API_BASE_URL || "/api";
 
     const CATEGORIES = [
       { value: "general",     label: "General enquiry" },
@@ -89,7 +90,7 @@
           setPhone("");
           setCategory("general");
         } catch (err) {
-          setError("Cannot reach the server. Make sure the backend is running on port 5000.");
+          setError("Cannot reach the server. Please try again shortly.");
         } finally {
           setLoading(false);
         }

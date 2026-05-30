@@ -35,7 +35,7 @@
   async function api(path, options = {}) {
     const token = getToken();
     if (!token) {
-      window.location.replace("../../login.html?admin=1&next=" + encodeURIComponent(location.pathname));
+      window.location.replace("/login.html?admin=1&next=" + encodeURIComponent(location.pathname));
       throw new Error("Not authenticated.");
     }
     const res = await fetch(path, {

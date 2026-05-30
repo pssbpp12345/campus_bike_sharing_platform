@@ -12,6 +12,7 @@
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="/api-config.js"></script>
 
   <link rel="stylesheet" href="Login.css" />
 </head>
@@ -21,7 +22,7 @@
 
   <script type="text/babel" data-presets="env,react">
     const { useState, useEffect } = React;
-    const API_BASE = "/api";
+    const API_BASE = window.API_BASE_URL || "/api";
 
     function LoginPage() {
       const [email, setEmail] = useState("");
@@ -44,9 +45,13 @@
       }, []);
 
       const completeLogin = (userObj, token, modeMsg) => {
+        const role = (userObj.role || "").toLowerCase();
         try {
           localStorage.setItem("cbs_token", token);
           localStorage.setItem("cbs_user", JSON.stringify(userObj));
+          localStorage.setItem("token", token);
+          localStorage.setItem("user", JSON.stringify(userObj));
+          localStorage.setItem("role", role);
         } catch (_) { /* ignore */ }
         setSuccess(
           (modeMsg ? modeMsg + " " : "") +
@@ -56,20 +61,16 @@
         // Land on the right dashboard for this user's role.
         setTimeout(function () {
           var next = new URLSearchParams(window.location.search).get("next");
-          if (next && next.charAt(0) === "/" && !next.startsWith("//")) {
-            window.location.href = next;
+          var cleanNext = window.cbsFrontendPath ? window.cbsFrontendPath(next) : next;
+          if (cleanNext && cleanNext !== "/" && cleanNext.charAt(0) === "/" && !cleanNext.startsWith("//")) {
+            window.location.href = cleanNext;
             return;
           }
-          var role = (userObj.role || "").toLowerCase();
           var dest;
-          // Admin keeps its own dashboard. Student and Staff both go to
-          // the shared User dashboard (served from frontend/Student/ for
-          // backward compatibility, also reachable at /frontend/User/).
           if (role === "admin") {
-            dest = "frontend/Admin/Admin_dashboard.html";
+            dest = "/Admin/Admin_dashboard.html";
           } else {
-            // Student and Staff both go to the shared User dashboard.
-            dest = "frontend/User/User_dashboard.html";
+            dest = "/User/User_dashboard.html";
           }
           window.location.href = dest;
         }, 700);
