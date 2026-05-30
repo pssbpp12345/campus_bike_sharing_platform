@@ -234,6 +234,8 @@ CREATE        INDEX idx_users_role             ON users(role);
 CREATE        INDEX idx_users_active           ON users(is_active);
 
 -- stations
+-- Unique station_name so seed scripts can use ON CONFLICT cleanly.
+CREATE UNIQUE INDEX idx_stations_name_unique   ON stations(station_name);
 CREATE INDEX idx_stations_active               ON stations(is_active);
 CREATE INDEX idx_stations_zone                 ON stations(campus_zone);
 CREATE INDEX idx_stations_coords               ON stations(latitude, longitude);
