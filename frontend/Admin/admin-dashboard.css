@@ -49,7 +49,7 @@ svg {
 }
 
 body.ad-auth-pending .ad-shell {
-  visibility: hidden;
+  visibility: visible;
 }
 
 .ad-shell {

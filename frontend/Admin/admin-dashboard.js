@@ -64,6 +64,38 @@
     currentUser: null,
   };
 
+  const FALLBACK_DASHBOARD = {
+    overview: {
+      totalRevenue: 0,
+      totalExpenses: 0,
+      netProfit: 0,
+      totalBookings: 0,
+      activeRides: 0,
+      availableBikes: 0,
+      maintenanceAlerts: 0,
+      openIssues: 0,
+      trends: {},
+    },
+    chart: {
+      labels: ["6am", "9am", "12pm", "3pm", "6pm"],
+      revenue: [0, 0, 0, 0, 0],
+      expenses: [0, 0, 0, 0, 0],
+    },
+    bookingStatus: { completed: 0, active: 0, cancelled: 0, pending: 0 },
+    financial: { bookingIncome: 0, refunds: 0, maintenanceCost: 0, operationalExpenses: 0, netBalance: 0 },
+    maintenance: { alerts: [] },
+    issues: { issues: [] },
+    transactions: { transactions: [] },
+    activity: { activity: [] },
+    alerts: {
+      urgentMaintenanceCount: 0,
+      failedPaymentsCount: 0,
+      newBookingsToday: 0,
+      lowBikeAvailabilityStations: 0,
+      waitingSupportTickets: 0,
+    },
+  };
+
   const moneyFmt = new Intl.NumberFormat("en-AU", { style: "currency", currency: "AUD", maximumFractionDigits: 0 });
   const exactMoneyFmt = new Intl.NumberFormat("en-AU", { style: "currency", currency: "AUD", minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const numberFmt = new Intl.NumberFormat("en-AU");
@@ -258,13 +290,30 @@
       redirectToAdminLogin();
       return false;
     }
+    const useStoredAdminSession = (reason) => {
+      const localUser = getUser();
+      if (!localUser || String(localUser.role || "").toLowerCase() !== "admin") return false;
+      console.warn(`[Admin Dashboard] ${reason}; continuing with stored admin session.`);
+      state.currentUser = localUser;
+      renderAdminProfile(localUser);
+      ensureDashboardVisible();
+      return true;
+    };
     try {
       const res = await fetch(apiUrl("/api/auth/me"), {
         headers: { Authorization: "Bearer " + getToken() },
         cache: "no-store",
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok || !data.user || (data.user.role || "").toLowerCase() !== "admin") {
+      if (res.status === 401 || res.status === 403) {
+        clearAuth();
+        redirectToAdminLogin();
+        return false;
+      }
+      if (!res.ok || !data.user) {
+        return useStoredAdminSession("Admin profile check did not return a usable profile");
+      }
+      if ((data.user.role || "").toLowerCase() !== "admin") {
         clearAuth();
         redirectToAdminLogin();
         return false;
@@ -276,21 +325,19 @@
         localStorage.setItem("role", String(data.user.role || "").toLowerCase());
       } catch (_) {}
       renderAdminProfile(data.user);
-      document.body.classList.remove("ad-auth-pending");
+      ensureDashboardVisible();
       return true;
-    } catch (_) {
-      clearAuth();
-      redirectToAdminLogin();
-      return false;
+    } catch (error) {
+      return useStoredAdminSession(error && error.message ? error.message : "Admin profile check failed");
     }
   }
 
   function renderAdminProfile(user) {
     const name = user.full_name || user.name || "Admin User";
-    document.getElementById("admin-name").textContent = name;
-    document.getElementById("admin-avatar").textContent = initials(name);
-    document.getElementById("admin-menu-name").textContent = name;
-    document.getElementById("admin-avatar-menu").textContent = initials(name);
+    setText("admin-name", name);
+    setText("admin-avatar", initials(name));
+    setText("admin-menu-name", name);
+    setText("admin-avatar-menu", initials(name));
     applyAdminAvatarImage();
   }
 
@@ -341,6 +388,66 @@
     el.textContent = message;
   }
 
+  function warnMissing(id) {
+    console.warn(`[Admin Dashboard] Missing element: #${id}`);
+  }
+
+  function byId(id) {
+    const el = document.getElementById(id);
+    if (!el) warnMissing(id);
+    return el;
+  }
+
+  function setText(id, value) {
+    const el = byId(id);
+    if (!el) return false;
+    el.textContent = value == null ? "" : String(value);
+    return true;
+  }
+
+  function setHtml(id, html) {
+    const el = byId(id);
+    if (!el) return false;
+    el.innerHTML = html == null ? "" : String(html);
+    return true;
+  }
+
+  function safeRender(label, renderFn) {
+    try {
+      renderFn();
+      return true;
+    } catch (error) {
+      console.warn(`[Admin Dashboard] ${label} render skipped:`, error);
+      return false;
+    }
+  }
+
+  async function safeApi(path, fallback, label) {
+    try {
+      return await api(path);
+    } catch (error) {
+      console.warn(`[Admin Dashboard] ${label} request failed; showing fallback data:`, error);
+      return fallback;
+    }
+  }
+
+  function ensureDashboardVisible() {
+    document.body.classList.remove("ad-auth-pending");
+    const shell = document.querySelector(".ad-shell");
+    const content = document.querySelector(".ad-content");
+    if (shell) {
+      shell.hidden = false;
+      shell.style.visibility = "visible";
+    }
+    if (content) {
+      content.hidden = false;
+      content.style.removeProperty("display");
+      content.style.removeProperty("opacity");
+      content.style.removeProperty("visibility");
+      content.style.removeProperty("height");
+    }
+  }
+
   function formatMoney(value, exact) {
     return (exact ? exactMoneyFmt : moneyFmt).format(Number(value || 0));
   }
@@ -363,8 +470,9 @@
 
   function setKpi(id, value, trend) {
     const isMoney = ["totalRevenue", "totalExpenses", "netProfit"].includes(id);
-    document.getElementById("kpi-" + id).textContent = isMoney ? formatMoney(value) : numberFmt.format(Number(value || 0));
-    const trendEl = document.getElementById("trend-" + id);
+    setText("kpi-" + id, isMoney ? formatMoney(value) : numberFmt.format(Number(value || 0)));
+    const trendEl = byId("trend-" + id);
+    if (!trendEl) return;
     const pct = Number(trend || 0);
     const badWhenUp = ["totalExpenses", "maintenanceAlerts", "openIssues"].includes(id);
     const isBad = badWhenUp ? pct > 0 : pct < 0;
@@ -386,9 +494,9 @@
       ["Operational Expenses", -Math.abs(Number(data.operationalExpenses || 0)), "negative"],
       ["Net Balance", data.netBalance, Number(data.netBalance || 0) >= 0 ? "positive" : "negative"],
     ];
-    document.getElementById("financial-summary-list").innerHTML = rows.map(([label, value, cls]) => (
+    setHtml("financial-summary-list", rows.map(([label, value, cls]) => (
       `<div class="ad-summary-row"><span>${label}</span><strong class="${cls}">${formatMoney(value, true)}</strong></div>`
-    )).join("");
+    )).join(""));
   }
 
   function badge(value, tone) {
@@ -423,8 +531,7 @@
 
   function renderMaintenance(data) {
     const rows = (data.alerts || []).slice(0, 5);
-    const body = document.getElementById("maintenance-alerts-body");
-    body.innerHTML = rows.length ? rows.map((row) => `
+    setHtml("maintenance-alerts-body", rows.length ? rows.map((row) => `
       <button type="button"
         class="ad-compact-row ad-click-row"
         data-href="${escapeHtml(rowHref("maintenance", row.bike_id))}"
@@ -439,13 +546,12 @@
           ${badge(row.status)}
         </span>
       </button>
-    `).join("") : compactEmpty("No maintenance alerts.");
+    `).join("") : compactEmpty("No maintenance alerts."));
   }
 
   function renderIssues(data) {
     const rows = (data.issues || []).slice(0, 5);
-    const body = document.getElementById("reported-issues-body");
-    body.innerHTML = rows.length ? rows.map((row) => `
+    setHtml("reported-issues-body", rows.length ? rows.map((row) => `
       <button type="button"
         class="ad-compact-row ad-click-row"
         data-href="${escapeHtml(rowHref("issue", row.ticket_id))}"
@@ -460,13 +566,12 @@
           ${badge(row.status)}
         </span>
       </button>
-    `).join("") : compactEmpty("No open support issues.");
+    `).join("") : compactEmpty("No open support issues."));
   }
 
   function renderTransactions(data) {
     const rows = data.transactions || [];
-    const body = document.getElementById("recent-transactions-body");
-    body.innerHTML = rows.length ? rows.map((row) => `
+    setHtml("recent-transactions-body", rows.length ? rows.map((row) => `
       <tr>
         ${td(row.booking_id)}
         ${td(row.student_name)}
@@ -476,7 +581,7 @@
         ${td(row.payment_status, badge(row.payment_status))}
         ${td(formatDate(row.date))}
       </tr>
-    `).join("") : emptyRow(7, "No recent transactions.");
+    `).join("") : emptyRow(7, "No recent transactions."));
   }
 
   function renderActivity(data) {
@@ -628,7 +733,8 @@
 
   function renderRevenueChart(data) {
     if (!window.Chart) return;
-    const ctx = document.getElementById("revenue-expenses-chart");
+    const ctx = byId("revenue-expenses-chart");
+    if (!ctx) return;
     const labels = data.labels || [];
     const showEvery = state.range === "today" ? 4 : 1;
     const chartData = {
@@ -716,7 +822,8 @@
 
   function renderBookingChart(data) {
     if (!window.Chart) return;
-    const ctx = document.getElementById("booking-status-chart");
+    const ctx = byId("booking-status-chart");
+    if (!ctx) return;
     const values = [
       Number(data.completed || 0),
       Number(data.active || 0),
@@ -760,7 +867,7 @@
 
   function renderStatusList(labels, values, total) {
     const colors = ["#22C55E", "#3B82F6", "#EF4444", "#F97316"];
-    document.getElementById("booking-status-list").innerHTML = labels.map((label, i) => {
+    setHtml("booking-status-list", labels.map((label, i) => {
       const pct = total ? ((values[i] / total) * 100).toFixed(1) : "0.0";
       return `
         <div class="ad-status-row">
@@ -769,7 +876,7 @@
           <small>${numberFmt.format(values[i])} (${pct}%)</small>
         </div>
       `;
-    }).join("");
+    }).join(""));
   }
 
   function rangeLabel(range) {
@@ -778,43 +885,41 @@
 
   async function loadMainData() {
     setError("");
-    try {
-      document.getElementById("chart-range-label").textContent = rangeLabel(state.range);
-      const query = "?range=" + encodeURIComponent(state.range);
-      const [overview, chart, bookingStatus, financial, maintenance, issues, transactions] = await Promise.all([
-        api("/api/admin/overview" + query),
-        api("/api/admin/revenue-expenses" + query),
-        api("/api/admin/booking-status" + query),
-        api("/api/admin/financial-summary" + query),
-        api("/api/admin/maintenance-alerts"),
-        api("/api/admin/reported-issues"),
-        api("/api/admin/recent-transactions"),
-      ]);
-      renderOverview(overview);
-      renderRevenueChart(chart);
-      renderBookingChart(bookingStatus);
-      renderFinancialSummary(financial);
-      renderMaintenance(maintenance);
-      renderIssues(issues);
-      renderTransactions(transactions);
-    } catch (err) {
-      setError(err.message || "Could not load dashboard data.");
+    setText("chart-range-label", rangeLabel(state.range));
+    const query = "?range=" + encodeURIComponent(state.range);
+    const [overview, chart, bookingStatus, financial, maintenance, issues, transactions] = await Promise.all([
+      safeApi("/api/admin/overview" + query, FALLBACK_DASHBOARD.overview, "overview"),
+      safeApi("/api/admin/revenue-expenses" + query, FALLBACK_DASHBOARD.chart, "revenue chart"),
+      safeApi("/api/admin/booking-status" + query, FALLBACK_DASHBOARD.bookingStatus, "booking status"),
+      safeApi("/api/admin/financial-summary" + query, FALLBACK_DASHBOARD.financial, "financial summary"),
+      safeApi("/api/admin/maintenance-alerts", FALLBACK_DASHBOARD.maintenance, "maintenance alerts"),
+      safeApi("/api/admin/reported-issues", FALLBACK_DASHBOARD.issues, "reported issues"),
+      safeApi("/api/admin/recent-transactions", FALLBACK_DASHBOARD.transactions, "recent transactions"),
+    ]);
+
+    const rendered = [
+      safeRender("KPI cards", () => renderOverview(overview || FALLBACK_DASHBOARD.overview)),
+      safeRender("Revenue chart", () => renderRevenueChart(chart || FALLBACK_DASHBOARD.chart)),
+      safeRender("Booking status chart", () => renderBookingChart(bookingStatus || FALLBACK_DASHBOARD.bookingStatus)),
+      safeRender("Financial summary", () => renderFinancialSummary(financial || FALLBACK_DASHBOARD.financial)),
+      safeRender("Maintenance alerts", () => renderMaintenance(maintenance || FALLBACK_DASHBOARD.maintenance)),
+      safeRender("Reported issues", () => renderIssues(issues || FALLBACK_DASHBOARD.issues)),
+      safeRender("Recent transactions", () => renderTransactions(transactions || FALLBACK_DASHBOARD.transactions)),
+    ];
+    if (rendered.some((ok) => !ok)) {
+      setError("Some dashboard sections could not render, but the rest of the dashboard is available.");
     }
   }
 
   async function loadFastData() {
-    try {
-      const [activity, alerts] = await Promise.all([
-        api("/api/admin/recent-activity"),
-        api("/api/admin/alerts"),
-      ]);
-      state.latestActivity = activity.activity || [];
-      renderActivity(activity);
-      renderAlerts(alerts);
-      renderNotificationMenu();
-    } catch (err) {
-      setError(err.message || "Could not refresh activity data.");
-    }
+    const [activity, alerts] = await Promise.all([
+      safeApi("/api/admin/recent-activity", FALLBACK_DASHBOARD.activity, "recent activity"),
+      safeApi("/api/admin/alerts", FALLBACK_DASHBOARD.alerts, "alerts"),
+    ]);
+    state.latestActivity = (activity && activity.activity) || [];
+    safeRender("Recent activity", () => renderActivity(activity || FALLBACK_DASHBOARD.activity));
+    safeRender("Alerts", () => renderAlerts(alerts || FALLBACK_DASHBOARD.alerts));
+    safeRender("Notification menu", renderNotificationMenu);
   }
 
   function bindRangeTabs() {
@@ -869,14 +974,14 @@
   function exportReport() {
     const rows = [
       ["Metric", "Value"],
-      ["Total Revenue", document.getElementById("kpi-totalRevenue").textContent],
-      ["Total Expenses", document.getElementById("kpi-totalExpenses").textContent],
-      ["Net Profit", document.getElementById("kpi-netProfit").textContent],
-      ["Total Bookings", document.getElementById("kpi-totalBookings").textContent],
-      ["Active Rides", document.getElementById("kpi-activeRides").textContent],
-      ["Available Bikes", document.getElementById("kpi-availableBikes").textContent],
-      ["Maintenance Alerts", document.getElementById("kpi-maintenanceAlerts").textContent],
-      ["Open Issues", document.getElementById("kpi-openIssues").textContent],
+      ["Total Revenue", (byId("kpi-totalRevenue") || {}).textContent || "0"],
+      ["Total Expenses", (byId("kpi-totalExpenses") || {}).textContent || "0"],
+      ["Net Profit", (byId("kpi-netProfit") || {}).textContent || "0"],
+      ["Total Bookings", (byId("kpi-totalBookings") || {}).textContent || "0"],
+      ["Active Rides", (byId("kpi-activeRides") || {}).textContent || "0"],
+      ["Available Bikes", (byId("kpi-availableBikes") || {}).textContent || "0"],
+      ["Maintenance Alerts", (byId("kpi-maintenanceAlerts") || {}).textContent || "0"],
+      ["Open Issues", (byId("kpi-openIssues") || {}).textContent || "0"],
     ];
     const csv = rows.map((row) => row.map((cell) => `"${String(cell || "").replace(/"/g, '""')}"`).join(",")).join("\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
@@ -901,7 +1006,8 @@
   }
 
   function showToast(message) {
-    const toast = document.getElementById("admin-toast");
+    const toast = byId("admin-toast");
+    if (!toast) return;
     toast.textContent = message;
     toast.hidden = false;
     clearTimeout(showToast.timer);
@@ -976,7 +1082,9 @@
     bindRangeTabs();
     bindClickableRows();
     bindAdminControls();
+    if (hasAdminSession()) ensureDashboardVisible();
     if (!await verifyAdminSession()) return;
+    ensureDashboardVisible();
     if (document.getElementById("dashboard-error")) await refreshDashboard(false);
     // Always pull the latest activity + alerts so the notification badge
     // shows the right count on every admin page, not only the dashboard.
